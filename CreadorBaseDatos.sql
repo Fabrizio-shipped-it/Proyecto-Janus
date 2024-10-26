@@ -3,26 +3,56 @@
 --En este script estara el codigo para crear la base de datos con las tablas iniciales y el contenido inicial que no dio el cliente
 
 
-
 create database Proyecto_Jano      
 GO
 
-/*
 
 create schema level1; --este nivel de esquema corresponde a la base de informacion del cual trabajara la base de datos
 go 
-create schema level2; --este nivel de esquema corresponde a las tablas relacionadas a los reportes
-go 
+--create schema level2; --este nivel de esquema corresponde a las tablas relacionadas a los reportes
+--go 
 ---------CREAR TABLAS--------------
 
 --A continuación se muestra el codigo para crear las tablas de nivel 1
 
-create table level1.sucursal(id_sucursal int primary key identity(1,1), ciudad char(25) not null, sucursal char(25) not null, direccion char(50) not null)
-create table level1.empleado(id int primary key, nombre char(25), apellido char(50), dni int unique not null, direccion char(100), emailEmpresa char(100), emailPersonal char(100), cargo char(25) not null, turno char(25) not null)
-create table level1.medioPago(english char (25) primary key, spanish char(25) not null)
-create table level1.productos(producto char (50) primary key, lineaProducto char (50) not null)
+create table level1.sucursal(id_sucursal int primary key identity(1,1),
+							ciudad char(25) not null,
+							sucursal char(25) not null,
+							direccion char(50) not null)
+
+create table level1.empleado(id int primary key,
+							nombre char(25),
+							apellido char(50),
+							dni int unique not null,
+							direccion char(100),
+							emailEmpresa char(100),
+							emailPersonal char(100),
+							cargo char(25) not null,
+							turno char(25) not null)
 
 
+create table level1.productos(id_producto int primary key identity(1,1),	--1
+								Categoria varchar (50) not null,				--electronicos
+								NombreProd varchar (50) not null,				--macbook
+								Precio decimal(10,2) not null,				--700
+								ReferenciaPrecio decimal(10,2) not null,	--Cuanto pesa o cantidad(1)
+								ReferenciaUnidad varchar(30) not null,			--(unidad) o cantidad que viene en el paquete
+								FechaCarga datetime not null)
+-- -----------------------------------------------------------------------------------------------------------------------
+create table level1.VentaRegistrada(ID Factura char(50),
+										Tipo de Factura char(1),
+										Ciudad varchar(10),
+										Tipo de cliente char(6),
+										Genero varchar(6),
+										Linea de producto varchar(50),
+										Producto varchar(50),
+										Precio Unitario decimal(10,2),
+										Cantidad int,
+										FechaHora datetime,
+										Medio de Pago varchar(12),
+										Empleado int,
+										Sucursal varchar(20),
+)
 ------------------- CREAR STOREDS PROCEDURES -------------------
 -- A continuación se crea las tablas para la creación de los SP que se usaran para la manipulación de tablas
 
@@ -32,6 +62,7 @@ create procedure level1.insertarSucursal @ciudad char(25), @sucursal char(25), @
     insert into level1.sucursal (ciudad, sucursal, direccion) 
     values (@ciudad, @sucursal, @direccion);
     END
+go
 
 create procedure level1.insertarEmpleado @id int, @nombre char(25), @apellido char(50), @dni int, @direccion char(100), @emailEmpresa char(100), @emailPersonal char(100), @cargo char(25), @turno char(25) as
 
@@ -39,6 +70,7 @@ create procedure level1.insertarEmpleado @id int, @nombre char(25), @apellido ch
     insert into level1.empleado (id, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cargo, turno) 
     values (@id, @nombre, @apellido, @dni, @direccion, @emailEmpresa, @emailPersonal, @cargo, @turno);
     END
+go
 
 create procedure level1.insertarProducto @producto char(50), @lineaProducto char(50) as
 
@@ -46,7 +78,7 @@ create procedure level1.insertarProducto @producto char(50), @lineaProducto char
     insert into level1.productos (producto, lineaProducto) 
     values (@producto, @lineaProducto);
     END
-
+go
 
 
 create procedure level1.insertarMedioPago @english char(25), @spanish char(25) as
@@ -55,12 +87,12 @@ create procedure level1.insertarMedioPago @english char(25), @spanish char(25) a
     insert into level1.medioPago (english, spanish) 
     values (@english, @spanish);
     END
+go
 
-*/
 
 ----- INSERCION DE VALORES INICIALES-------------
 --Se inicializara los valores que los clientes nos han dado 
-/*
+
 exec level1.insertarSucursal 'Yangon', 'San Justo', 'Av. Brig. Gral. Juan Manuel de Rosas 3634, B1754 San Justo, Provincia de Buenos Aires';
 EXEC level1.insertarSucursal 'Naypyitaw', 'Ramos Mejia', 'Av. de Mayo 791, B1704 Ramos Mejía, Provincia de Buenos Aires';
 EXEC level1.insertarSucursal 'Mandalay', 'Lomas del Mirador', ' Pres. Juan Domingo Perón 763, B1753AWO Villa Luzuriaga, Provincia de Buenos Aires';
@@ -81,10 +113,9 @@ EXEC level1.insertarEmpleado 257031, 'Fernanda Gisela Evangelina', 'MAIZARES', 3
 EXEC level1.insertarEmpleado 257032, 'Oscar Martín', 'ORTIZ', 39231254, 'Juramento 2971, Ciudad Autónoma de Buenos Aires, Ciudad Autónoma de Buenos Aires', 'Oscar Martín_ORTIZ@gmail.com', 'Oscar Martín.ORTIZ@superA.com', 39231254, 'Gerente de sucursal', 'Ramos Mejia', 'Jornada completa';
 EXEC level1.insertarEmpleado 257033, 'Débora', 'PACHTMAN', 30766254, 'Av. Presidente Hipólito Yrigoyen 299, Provincia de Buenos Aires, Provincia de Buenos Aires', 'Débora_PACHTMAN@gmail.com', 'Débora.PACHTMAN@superA.com', 30766254, 'Gerente de sucursal', 'Lomas del Mirador', 'Jornada completa';
 EXEC level1.insertarEmpleado 257034, 'Romina Natalia', 'PADILLA', 38974125, 'Lacroze 5910, Chilavert, Buenos Aires', 'Romina Natalia_PADILLA@gmail.com', 'Romina Natalia.PADILLA@superA.com', 38974125, 'Gerente de sucursal', 'San Justo', 'Jornada completa';
-*/
 
 
-/*
+
 EXEC level1.insertarProducto 'aceite_vinagre_y_sal', 'Almacen';
 EXEC level1.insertarProducto 'aceitunas_y_encurtidos', 'Almacen';
 EXEC level1.insertarProducto 'acondicionador_y_mascarilla', 'Perfumeria';
@@ -240,5 +271,6 @@ exec level1.insertarMedioPago 'Credit card', 'Tarjeta de credito'
 exec level1.insertarMedioPago 'Cash', 'Efectivo'
 exec level1.insertarMedioPago 'Ewallet', 'Billetera Electronica'
 
-*/
+
+
 
