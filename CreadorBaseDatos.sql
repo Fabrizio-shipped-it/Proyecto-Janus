@@ -115,7 +115,7 @@ EXEC level1.insertarEmpleado 257033, 'Débora', 'PACHTMAN', 30766254, 'Av. Presi
 EXEC level1.insertarEmpleado 257034, 'Romina Natalia', 'PADILLA', 38974125, 'Lacroze 5910, Chilavert, Buenos Aires', 'Romina Natalia_PADILLA@gmail.com', 'Romina Natalia.PADILLA@superA.com', 38974125, 'Gerente de sucursal', 'San Justo', 'Jornada completa';
 
 
-
+/*ESTOS PRODUCTOS SON DEL ARCHIVO INFORMACION COMPLEMENTARIA, NO LO UTILIZAMOS
 EXEC level1.insertarProducto 'aceite_vinagre_y_sal', 'Almacen';
 EXEC level1.insertarProducto 'aceitunas_y_encurtidos', 'Almacen';
 EXEC level1.insertarProducto 'acondicionador_y_mascarilla', 'Perfumeria';
@@ -264,7 +264,7 @@ EXEC level1.insertarProducto 'yogures_griegos', 'Almacen';
 EXEC level1.insertarProducto 'yogures_liquidos', 'Almacen';
 EXEC level1.insertarProducto 'yogures_naturales_y_sabores', 'Almacen';
 EXEC level1.insertarProducto 'yogures_y_postres_infantiles', 'Almacen';
-
+*/
 
 
 exec level1.insertarMedioPago 'Credit card', 'Tarjeta de credito'
