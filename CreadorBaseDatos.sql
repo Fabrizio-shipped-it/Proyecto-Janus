@@ -67,11 +67,11 @@ create procedure level1.insertarSucursal @ciudad char(25), @sucursal char(25), @
     END
 go
 
-create procedure level1.insertarEmpleado @id int, @nombre char(25), @apellido char(50), @dni int, @direccion char(100), @emailEmpresa char(100), @emailPersonal char(100), @cargo char(25), @turno char(25) as
+create procedure level1.insertarEmpleado @id int, @nombre char(25), @apellido char(50), @dni int, @direccion char(100), @emailEmpresa char(100), @emailPersonal char(100) , @cuil int, @cargo char(25), @ciudad char(25), @turno char(25) as
 
     BEGIN
-    insert into level1.empleado (id, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cargo, turno) 
-    values (@id, @nombre, @apellido, @dni, @direccion, @emailEmpresa, @emailPersonal, @cargo, @turno);
+    insert into level1.empleado (id, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, ciudad, turno) 
+    values (@id, @nombre, @apellido, @dni, @direccion, @emailEmpresa, @emailPersonal, @cuil, @cargo, @ciudad, @turno);
     END
 go
 
