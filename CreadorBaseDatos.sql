@@ -15,25 +15,25 @@ go
 
 --A continuación se muestra el codigo para crear las tablas de nivel 1
 
-create table level1.sucursal(id_sucursal int primary key identity(1,1),
-							ciudad char(25) not null,
-							sucursal char(25) not null,
-							direccion char(50) not null)
+create table level1.sucursal(				id_sucursal int primary key identity(1,1),
+							ciudad varchar(25) not null,
+							sucursal varchar(25) not null,
+							direccion varchar(50) not null)
 
-create table level1.empleado(id int primary key,
-							nombre char(25),
-							apellido char(50),
+create table level1.empleado(				id int primary key,
+							nombre varchar(25),
+							apellido varchar(50),
 							dni int unique not null,
-							direccion char(100),
-							emailEmpresa char(100),
-							emailPersonal char(100),
+							direccion varchar(100),
+							emailEmpresa varchar(100),
+							emailPersonal varchar(100),
 							cuil int,
-							cargo char(25) not null,
-							ciudad char(25),
-							turno char(25) not null)
+							cargo varchar(25) not null,
+							ciudad varchar(25),
+							turno varchar(25) not null)
 
 
-create table level1.productos(id_producto int primary key identity(1,1),	--1
+create table level1.productos(					id_producto int primary key identity(1,1),	--1
 								Categoria varchar (50) not null,				--electronicos
 								NombreProd varchar (50) not null,				--macbook
 								Precio decimal(10,2) not null,				--700
@@ -41,19 +41,19 @@ create table level1.productos(id_producto int primary key identity(1,1),	--1
 								ReferenciaUnidad varchar(30) not null,			--(unidad) o cantidad que viene en el paquete
 								FechaCarga datetime not null)
 -- -----------------------------------------------------------------------------------------------------------------------
-create table level1.VentaRegistrada(ID Factura char(50),
-										Tipo de Factura char(1),
-										Ciudad varchar(10),
-										Tipo de cliente char(6),
-										Genero varchar(6),
-										Linea de producto varchar(50),
-										Producto varchar(50),
-										Precio Unitario decimal(10,2),
-										Cantidad int,
-										FechaHora datetime,
-										Medio de Pago varchar(12),
-										Empleado int,
-										Sucursal varchar(20),
+create table level1.VentaRegistrada(					ID Factura char(50),
+									Tipo de Factura char(1),
+									Ciudad varchar(10),
+									Tipo de cliente char(6),
+									Genero varchar(6),
+									Linea de producto varchar(50),
+									Producto varchar(50),
+									Precio Unitario decimal(10,2),
+									Cantidad int,
+									FechaHora datetime,
+									Medio de Pago varchar(12),
+									Empleado int,
+									Sucursal varchar(20),
 )
 ------------------- CREAR STOREDS PROCEDURES -------------------
 ------------------------- INSERCION ----------------------------
