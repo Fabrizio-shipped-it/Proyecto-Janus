@@ -70,17 +70,17 @@ create procedure level1.insertarSucursal @ciudad varchar(25), @sucursal varchar(
     END
 go
 
-	    
-create procedure level1.insertarEmpleado @id int, @nombre varchar(25), @apellido varchar(50), @dni int, @direccion varchar(100),
+
+create procedure level1.insertarEmpleado @id_empleado int, @nombre varchar(25), @apellido varchar(50), @dni int, @direccion varchar(100),
 	    			@emailEmpresa varchar(100), @emailPersonal varchar(100) , @cuil int, @cargo varchar(25), @ciudad varchar(25), @turno varchar(25) as
 
     BEGIN
-    insert into level1.empleado (id, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, ciudad, turno) 
-    values (@id, @nombre, @apellido, @dni, @direccion, @emailEmpresa, @emailPersonal, @cuil, @cargo, @ciudad, @turno);
+    insert into level1.empleado (id_empleado, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, ciudad, turno) 
+    values (@id_empleado, @nombre, @apellido, @dni, @direccion, @emailEmpresa, @emailPersonal, @cuil, @cargo, @ciudad, @turno);
     END
 go
 
-	    
+
 create procedure level1.insertarProducto @producto varchar(50), @lineaProducto varchar(50) as
 
     BEGIN
