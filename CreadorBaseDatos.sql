@@ -62,7 +62,7 @@ create table level1.VentaRegistrada(					ID Factura varchar(50) primary key,
 ------------------------- INSERCION ----------------------------
 -- A continuación se crea las tablas para la creación de los SP que se usaran para la manipulación de tablas
 
-create procedure level1.insertarSucursal @ciudad char(25), @sucursal char(25), @direccion char(50) as
+create procedure level1.insertarSucursal @ciudad varchar(25), @sucursal varchar(25), @direccion varchar(50) as
 
     BEGIN
     insert into level1.sucursal (ciudad, sucursal, direccion) 
@@ -70,7 +70,9 @@ create procedure level1.insertarSucursal @ciudad char(25), @sucursal char(25), @
     END
 go
 
-create procedure level1.insertarEmpleado @id int, @nombre char(25), @apellido char(50), @dni int, @direccion char(100), @emailEmpresa char(100), @emailPersonal char(100) , @cuil int, @cargo char(25), @ciudad char(25), @turno char(25) as
+	    
+create procedure level1.insertarEmpleado @id int, @nombre varchar(25), @apellido varchar(50), @dni int, @direccion varchar(100),
+	    			@emailEmpresa varchar(100), @emailPersonal varchar(100) , @cuil int, @cargo varchar(25), @ciudad varchar(25), @turno varchar(25) as
 
     BEGIN
     insert into level1.empleado (id, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, ciudad, turno) 
@@ -78,7 +80,8 @@ create procedure level1.insertarEmpleado @id int, @nombre char(25), @apellido ch
     END
 go
 
-create procedure level1.insertarProducto @producto char(50), @lineaProducto char(50) as
+	    
+create procedure level1.insertarProducto @producto varchar(50), @lineaProducto varchar(50) as
 
     BEGIN
     insert into level1.productos (producto, lineaProducto) 
@@ -87,7 +90,7 @@ create procedure level1.insertarProducto @producto char(50), @lineaProducto char
 go
 
 
-create procedure level1.insertarMedioPago @english char(25), @spanish char(25) as
+create procedure level1.insertarMedioPago @english varchar(25), @spanish varchar(25) as
 
     BEGIN
     insert into level1.medioPago (english, spanish) 
@@ -95,18 +98,18 @@ create procedure level1.insertarMedioPago @english char(25), @spanish char(25) a
     END
 go
 ------------------------- BORRADO ----------------------------
-create procedure level1.borrarProducto @id int AS
+create procedure level1.borrarProducto @id_producto int AS
 BEGIN
 delete from level1.productos
-WHERE id = @id
+WHERE id_producto = @id_producto
 END
 
 
-create procedure level1.borrarEmpleado @id int 
+create procedure level1.borrarEmpleado @id_empleado int 
 AS
 BEGIN
 	delete from level1.empleado
-	WHERE id = @id
+	WHERE id_empleado = @id_empleado
 END
 ------------------------- MODIFICACIÓN ----------------------------
 CREATE PROCEDURE level1.modificarEmpleado 
