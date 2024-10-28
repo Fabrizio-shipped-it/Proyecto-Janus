@@ -108,9 +108,9 @@ BEGIN
 	delete from level1.empleado
 	WHERE id = @id
 END
-------------------------- MODIFICAR ----------------------------
+------------------------- MODIFICACIÓN ----------------------------
 CREATE PROCEDURE level1.modificarEmpleado 
-    @id int, 
+    @id_empleado int, 
     @nombre char(25) = null , 
     @apellido char(50)= null , 
     @direccion char(100)= null , 
@@ -130,11 +130,11 @@ BEGIN
 	cargo = coalesce(@cargo, cargo), 
 	ciudad = coalesce(@ciudad, ciudad), 
 	turno = coalesce(@turno, turno)
-	WHERE id = @id;
+	WHERE id_empleado = @id_empleado;
 END
 
 CREATE PROCEDURE level1.modificarProducto 
-    @id int, 
+    @id_producto int, 
     @producto char(50) = null, 
     @lineaProducto char(50) =null 
 AS
@@ -143,7 +143,7 @@ BEGIN
     set 
 	producto = coalesce (@producto, producto), 
 	lineaProducto = coalesce(@lineaProducto, lineaProducto)
-	WHERE id = @id;
+	WHERE id_producto = @id_producto;
 END
 
 CREATE PROCEDURE level1.ModificarSucursal
