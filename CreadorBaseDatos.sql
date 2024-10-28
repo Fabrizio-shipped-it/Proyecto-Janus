@@ -27,7 +27,9 @@ create table level1.empleado(id int primary key,
 							direccion char(100),
 							emailEmpresa char(100),
 							emailPersonal char(100),
+							cuil int,
 							cargo char(25) not null,
+							ciudad char(25),
 							turno char(25) not null)
 
 
@@ -88,6 +90,53 @@ create procedure level1.insertarMedioPago @english char(25), @spanish char(25) a
     values (@english, @spanish);
     END
 go
+
+create procedure level1.borrarProducto @id int AS
+BEGIN
+delete from level1.productos
+WHERE id = @id
+end
+
+
+create procedure level1.borrarEmpleado @id int AS
+BEGIN
+delete from level1.empleado
+WHERE id = @id
+end
+
+create procedure level1.modificarEmpleado @id int, @nombre char(25) = null , @apellido char(50)= null , @direccion char(100)= null , @emailEmpresa char(100)= null , @emailPersonal char(100)= null, @cargo char(25)= null , @ciudad char(25)= null , @turno char(25)= null  AS
+BEGIN
+
+update level1.empleado
+set 
+nombre = coalesce (@nombre, nombre), direccion = coalesce (@direccion, direccion), emailEmpresa = coalesce(@emailEmpresa, emailEmpresa), emailPersonal = coalesce(@emailPersonal, emailPersonal), cargo = coalesce(@cargo, cargo), ciudad = coalesce(@ciudad, ciudad), turno = coalesce(@turno, turno)
+END
+
+create procedure level1.modificarProducto @id int, @producto char(50) = null, @lineaProducto char(50) =null AS
+BEGIN
+update level1.productos 
+set 
+producto = coalesce (@producto, producto), lineaProducto = coalesce(@lineaProducto, lineaProducto)
+where id = @id
+END
+
+	    --STORED PROCEDURE DE CADA TABLA
+CREATE PROCEDURE level1.ModificarSucursal
+    @id_sucursal INT,
+    @NuevaCiudad CHAR(25) = NULL,
+    @NuevaSucursal CHAR(25) = NULL,
+    @NuevaDireccion CHAR(50) = NULL
+AS
+BEGIN
+    UPDATE level1.sucursal
+    SET
+--COALESCE: Esta función permite que si un parámetro no se proporciona (es NULL), el campo conserve su valor original. 
+        ciudad = COALESCE(@NuevaCiudad, ciudad),
+        sucursal = COALESCE(@NuevaSucursal, sucursal),
+        direccion = COALESCE(@NuevaDireccion, direccion)
+    WHERE id_sucursal = @id_sucursal;
+END;
+
 
 
 ----- INSERCION DE VALORES INICIALES-------------
@@ -271,22 +320,11 @@ exec level1.insertarMedioPago 'Credit card', 'Tarjeta de credito'
 exec level1.insertarMedioPago 'Cash', 'Efectivo'
 exec level1.insertarMedioPago 'Ewallet', 'Billetera Electronica'
 
---STORED PROCEDURE DE CADA TABLA
-CREATE PROCEDURE level1.ModificarSucursal
-    @id_sucursal INT,
-    @NuevaCiudad CHAR(25) = NULL,
-    @NuevaSucursal CHAR(25) = NULL,
-    @NuevaDireccion CHAR(50) = NULL
-AS
-BEGIN
-    UPDATE level1.sucursal
-    SET
---COALESCE: Esta función permite que si un parámetro no se proporciona (es NULL), el campo conserve su valor original. 
-        ciudad = COALESCE(@NuevaCiudad, ciudad),
-        sucursal = COALESCE(@NuevaSucursal, sucursal),
-        direccion = COALESCE(@NuevaDireccion, direccion)
-    WHERE id_sucursal = @id_sucursal;
-END;
+
+
+
+
+
 
 
 
