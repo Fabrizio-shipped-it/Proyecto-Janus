@@ -271,6 +271,22 @@ exec level1.insertarMedioPago 'Credit card', 'Tarjeta de credito'
 exec level1.insertarMedioPago 'Cash', 'Efectivo'
 exec level1.insertarMedioPago 'Ewallet', 'Billetera Electronica'
 
+--STORED PROCEDURE DE CADA TABLA
+CREATE PROCEDURE level1.ModificarSucursal
+    @id_sucursal INT,
+    @NuevaCiudad CHAR(25) = NULL,
+    @NuevaSucursal CHAR(25) = NULL,
+    @NuevaDireccion CHAR(50) = NULL
+AS
+BEGIN
+    UPDATE level1.sucursal
+    SET
+--COALESCE: Esta función permite que si un parámetro no se proporciona (es NULL), el campo conserve su valor original. 
+        ciudad = COALESCE(@NuevaCiudad, ciudad),
+        sucursal = COALESCE(@NuevaSucursal, sucursal),
+        direccion = COALESCE(@NuevaDireccion, direccion)
+    WHERE id_sucursal = @id_sucursal;
+END;
 
 
 
