@@ -114,14 +114,14 @@ END
 ------------------------- MODIFICACIÓN ----------------------------
 CREATE PROCEDURE level1.modificarEmpleado 
     @id_empleado int, 
-    @nombre char(25) = null , 
-    @apellido char(50)= null , 
-    @direccion char(100)= null , 
-    @emailEmpresa char(100)= null , 
-    @emailPersonal char(100)= null, 
-    @cargo char(25)= null , 
-    @ciudad char(25)= null , 
-    @turno char(25)= null  
+    @nombre varchar(25) = null , 
+    @apellido varchar(50)= null , 
+    @direccion varchar(100)= null , 
+    @emailEmpresa varchar(100)= null , 
+    @emailPersonal varchar(100)= null, 
+    @cargo varchar(25)= null , 
+    @ciudad varchar(25)= null , 
+    @turno varchar(25)= null  
 AS
 BEGIN
     update level1.empleado
@@ -138,8 +138,8 @@ END
 
 CREATE PROCEDURE level1.modificarProducto 
     @id_producto int, 
-    @producto char(50) = null, 
-    @lineaProducto char(50) =null 
+    @producto varchar(50) = null, 
+    @lineaProducto varchar(50) =null 
 AS
 BEGIN
     update level1.productos 
@@ -150,10 +150,10 @@ BEGIN
 END
 
 CREATE PROCEDURE level1.ModificarSucursal
-    @id_sucursal INT,
-    @NuevaCiudad CHAR(25) = NULL,
-    @NuevaSucursal CHAR(25) = NULL,
-    @NuevaDireccion CHAR(50) = NULL
+    @id_sucursal int,
+    @NuevaCiudad varchar(25) = NULL,
+    @NuevaSucursal varchar(25) = NULL,
+    @NuevaDireccion varchar(50) = NULL
 AS
 BEGIN
     UPDATE level1.sucursal
