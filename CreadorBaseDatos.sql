@@ -21,6 +21,7 @@ create table level1.sucursal(				id_sucursal int primary key identity(1,1),
 							direccion varchar(50) not null)
 
 create table level1.empleado(				id_empleado int primary key,
+							id_sucur int reference level1.sucursal(id_sucursal),  
 							nombre varchar(25),
 							apellido varchar(50),
 							dni int unique not null,
@@ -33,7 +34,8 @@ create table level1.empleado(				id_empleado int primary key,
 							turno varchar(4) not null)
 
 
-create table level1.productos(					id_producto int primary key identity(1,1),		--1
+create table level1.productos(					id_producto int primary key identity(1,1),
+								id_sucur int reference level1.sucursal(id_sucursal), --1
 								Categoria varchar (50) not null,			--electronicos
 								NombreProd varchar (50) not null,			--macbook
 								Precio decimal(10,2) not null,				--700
