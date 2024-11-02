@@ -59,7 +59,6 @@ create table level1.VentaRegistrada(					ID_Factura varchar(50) primary key,
 									Cantidad int,
 									FechaHora datetime,
 									MedioPago varchar(12),
-									Empleado int,
 									Sucursal varchar(20),
 									id_sucur_ventas int,
 						CONSTRAINT FK_ProductoSucursal (id_sucur_ventas)
