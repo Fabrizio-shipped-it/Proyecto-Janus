@@ -42,7 +42,6 @@ create table level1.productos(					id_producto int primary key identity(1,1),	 	
 								Precio decimal(10,2) not null,				--700
 								ReferenciaPrecio decimal(10,2) not null,		--Cuanto pesa o cantidad(1)
 								ReferenciaUnidad varchar(30) not null,			--(unidad) o cantidad que viene en el paquete
-								FechaCarga datetime not null,
 								id_sucur_prod int,
 						CONSTRAINT FK_ProductoSucursal (id_sucur_prod)
 						REFERENCES level1.sucursal(id_sucursal)
