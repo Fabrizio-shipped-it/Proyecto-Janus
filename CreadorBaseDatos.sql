@@ -33,11 +33,11 @@ create table level1.empleado(				id_empleado int primary key,
 							turno varchar(4) not null)
 
 
-create table level1.productos(					id_producto int primary key identity(1,1),	--1
-								Categoria varchar (50) not null,				--electronicos
-								NombreProd varchar (50) not null,				--macbook
+create table level1.productos(					id_producto int primary key identity(1,1),		--1
+								Categoria varchar (50) not null,			--electronicos
+								NombreProd varchar (50) not null,			--macbook
 								Precio decimal(10,2) not null,				--700
-								ReferenciaPrecio decimal(10,2) not null,	--Cuanto pesa o cantidad(1)
+								ReferenciaPrecio decimal(10,2) not null,		--Cuanto pesa o cantidad(1)
 								ReferenciaUnidad varchar(30) not null,			--(unidad) o cantidad que viene en el paquete
 								FechaCarga datetime not null)
 -- -----------------------------------------------------------------------------------------------------------------------
@@ -114,56 +114,55 @@ END
 ------------------------- MODIFICACIÓN ----------------------------
 CREATE PROCEDURE level1.modificarEmpleado 
     @id_empleado int, 
-    @nombre varchar(25) = null , 
-    @apellido varchar(50)= null , 
-    @direccion varchar(100)= null , 
-    @emailEmpresa varchar(100)= null , 
-    @emailPersonal varchar(100)= null, 
-    @cargo varchar(25)= null , 
-    @ciudad varchar(25)= null , 
-    @turno varchar(25)= null  
+    @nombre varchar(25), 
+    @apellido varchar(50), 
+    @direccion varchar(100), 
+    @emailEmpresa varchar(100), 
+    @emailPersonal varchar(100), 
+    @cargo varchar(25), 
+    @ciudad varchar(25), 
+    @turno varchar(25)  
 AS
 BEGIN
     update level1.empleado
     set 
-	nombre = coalesce (@nombre, nombre), 
-	direccion = coalesce (@direccion, direccion), 
-	emailEmpresa = coalesce(@emailEmpresa, emailEmpresa), 
-	emailPersonal = coalesce(@emailPersonal, emailPersonal), 
-	cargo = coalesce(@cargo, cargo), 
-	ciudad = coalesce(@ciudad, ciudad), 
-	turno = coalesce(@turno, turno)
+	nombre = @nombre, 
+	direccion = @direccion, 
+	emailEmpresa = @emailEmpresa, 
+	emailPersonal = @emailPersonal, 
+	cargo = @cargo, 
+	ciudad = @ciudad, 
+	turno = @turno
 	WHERE id_empleado = @id_empleado;
 END
 
 CREATE PROCEDURE level1.modificarProducto 
     @id_producto int, 
-    @producto varchar(50) = null, 
-    @lineaProducto varchar(50) =null 
+    @producto varchar(50), 
+    @lineaProducto varchar(50) 
 AS
 BEGIN
     update level1.productos 
     set 
-	producto = coalesce (@producto, producto), 
-	lineaProducto = coalesce(@lineaProducto, lineaProducto)
+	producto = @producto, 
+	lineaProducto = @lineaProducto
 	WHERE id_producto = @id_producto;
 END
 
 CREATE PROCEDURE level1.ModificarSucursal
     @id_sucursal int,
-    @NuevaCiudad varchar(25) = NULL,
-    @NuevaSucursal varchar(25) = NULL,
-    @NuevaDireccion varchar(50) = NULL
+    @NuevaCiudad varchar(25),
+    @NuevaSucursal varchar(25),
+    @NuevaDireccion varchar(50)
 AS
 BEGIN
     UPDATE level1.sucursal
     SET
-        ciudad = COALESCE(@NuevaCiudad, ciudad),
-        sucursal = COALESCE(@NuevaSucursal, sucursal),
-        direccion = COALESCE(@NuevaDireccion, direccion)
+        ciudad = @NuevaCiudad,
+        sucursal = @NuevaSucursal,
+        direccion = @NuevaDireccion,
     WHERE id_sucursal = @id_sucursal;
 END;
---COALESCE: Esta función permite que si un parámetro no se proporciona (es NULL), el campo conserve su valor original. 
 
 
 ----- INSERCION DE VALORES INICIALES-------------
