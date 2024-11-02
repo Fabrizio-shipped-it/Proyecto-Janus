@@ -173,7 +173,45 @@ BEGIN
 END;
 
 ------------------------- IMPORTACIÓN ----------------------------
+EXEC ImportarProductosImportados 'C:\RUTA.csv';
 
+CREATE PROCEDURE ImportarProductosImportados @RutaArchivo VARCHAR(255) AS
+
+BEGIN
+
+--Crear tabla temporal
+
+CREATE TABLE #TempProductos (
+
+IdProducto INT,
+NombreProducto VARCHAR(100),
+Proveedor VARCHAR (100),
+Categoria VARCHAR(100),
+CantidadPorunidad VARCHAR(100), 
+Preciounidad VARCHAR(100)
+
+--Como cadena temporalmente para reemplazar el símbolo $ y el ,
+
+); 
+BULK INSERT #TempProductos
+
+FROM @RutaArchivo
+
+WITH
+
+(
+FIELDTERMINATOR =
+ROWTERMINATOR =
+CODEPAGE= (dudoso)
+);
+--Insertar datos en la tabla final con el casteo del precio 
+INSERT INTO level1.productos (Categoria, NombreProd, Precio)
+SELECT Categoria, NombreProducto, CAST (REPLACE (REPLACE (Preciounidad, '$', ''), ',') AS DECIMAL (10, 2)) AS Preciounidad
+FROM #TempProductos;
+
+--Eliminar la tabla temporal 
+DROP TABLE #TempProductos;
+END;
 
 
 
