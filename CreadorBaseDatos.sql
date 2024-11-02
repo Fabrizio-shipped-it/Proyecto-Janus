@@ -173,6 +173,13 @@ BEGIN
     WHERE id_sucursal = @id_sucursal;
 END;
 
+------------------------- IMPORTACIÓN ----------------------------
+
+
+
+
+
+
 
 ----- INSERCION DE VALORES INICIALES-------------
 --Se inicializara los valores que los clientes nos han dado 
