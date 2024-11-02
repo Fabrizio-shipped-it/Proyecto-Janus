@@ -62,10 +62,10 @@ create table level1.VentaRegistrada(					ID_Factura varchar(50) primary key,
 									MedioPago varchar(12),
 									Sucursal varchar(20),
 									id_sucur_ventas int,
-						CONSTRAINT  FK_ProductoSucursal foreign key (id_sucur_ventas)
+						CONSTRAINT  FK_VentaSucursal foreign key (id_sucur_ventas)
 						REFERENCES level1.sucursal(id_sucursal),
 							CONSTRAINT check_id_factura
-							check (IDFactura LIKE '[0-9]%-[0-9]%-[0-9]%')
+							check (ID_Factura LIKE '[0-9]%-[0-9]%-[0-9]%')
 
 )
 
