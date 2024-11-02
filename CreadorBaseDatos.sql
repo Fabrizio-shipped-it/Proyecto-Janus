@@ -20,8 +20,7 @@ create table level1.sucursal(				id_sucursal int primary key identity(1,1),
 							sucursal varchar(25) not null,
 							direccion varchar(50) not null)
 
-create table level1.empleado(				id_empleado int primary key,
-							id_sucur int reference level1.sucursal(id_sucursal),  
+create table level1.empleado(				id_empleado int primary key,  
 							nombre varchar(25),
 							apellido varchar(50),
 							dni int unique not null,
@@ -31,17 +30,24 @@ create table level1.empleado(				id_empleado int primary key,
 							cuil varchar(13),
 							cargo varchar(25) not null,
 							ciudad varchar(25),
-							turno varchar(4) not null)
+							turno varchar(4) not null,
+							id_sucur_emp int,
+						CONSTRAINT FK_EmpleadoSucursal (id_sucur_emp)
+						REFERENCES level1.sucursal(id_sucursal)
+							)
 
 
-create table level1.productos(					id_producto int primary key identity(1,1),
-								id_sucur int reference level1.sucursal(id_sucursal), --1
+create table level1.productos(					id_producto int primary key identity(1,1),	 	--1
 								Categoria varchar (50) not null,			--electronicos
 								NombreProd varchar (50) not null,			--macbook
 								Precio decimal(10,2) not null,				--700
 								ReferenciaPrecio decimal(10,2) not null,		--Cuanto pesa o cantidad(1)
 								ReferenciaUnidad varchar(30) not null,			--(unidad) o cantidad que viene en el paquete
-								FechaCarga datetime not null)
+								FechaCarga datetime not null,
+								id_sucur_prod int,
+						CONSTRAINT FK_ProductoSucursal (id_sucur_prod)
+						REFERENCES level1.sucursal(id_sucursal)
+	)
 -- -----------------------------------------------------------------------------------------------------------------------
 create table level1.VentaRegistrada(					ID Factura varchar(50) primary key,
 									Tipo de Factura char(1),
@@ -56,6 +62,9 @@ create table level1.VentaRegistrada(					ID Factura varchar(50) primary key,
 									Medio de Pago varchar(12),
 									Empleado int,
 									Sucursal varchar(20),
+									id_sucur_ventas int,
+						CONSTRAINT FK_ProductoSucursal (id_sucur_ventas)
+						REFERENCES level1.sucursal(id_sucursal),
 							CONSTRAINT check_id_factura
 							check (ID Factura LIKE '[0-9]%-[0-9]%-[0-9]%')
 
