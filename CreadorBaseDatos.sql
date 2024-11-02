@@ -9,8 +9,7 @@ GO
 
 create schema level1; --este nivel de esquema corresponde a la base de informacion del cual trabajara la base de datos
 go 
---create schema level2; --este nivel de esquema corresponde a las tablas relacionadas a los reportes
---go 
+
 ---------CREAR TABLAS--------------
 
 --A continuación se muestra el codigo para crear las tablas de nivel 1
