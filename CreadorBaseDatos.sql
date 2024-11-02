@@ -3,7 +3,9 @@
 --En este script estara el codigo para crear la base de datos con las tablas iniciales y el contenido inicial que no dio el cliente
 
 
-create database Proyecto_Jano      
+
+create database Proyecto_Janus   
+use Proyecto_Janus   
 GO
 
 
@@ -31,9 +33,9 @@ create table level1.empleado(				id_empleado int primary key,
 							ciudad varchar(25),
 							turno varchar(4) not null,
 							id_sucur_emp int,
-						CONSTRAINT FK_EmpleadoSucursal (id_sucur_emp)
-						REFERENCES level1.sucursal(id_sucursal)
-							)
+						CONSTRAINT  FK_EmpleadoSucursal foreign key (id_sucur_emp)
+						REFERENCES level1.sucursal(id_sucursal))
+							
 
 
 create table level1.productos(					id_producto int primary key identity(1,1),	 	--1
@@ -43,9 +45,9 @@ create table level1.productos(					id_producto int primary key identity(1,1),	 	
 								ReferenciaPrecio decimal(10,2) not null,		--Cuanto pesa o cantidad(1)
 								ReferenciaUnidad varchar(30) not null,			--(unidad) o cantidad que viene en el paquete
 								id_sucur_prod int,
-						CONSTRAINT FK_ProductoSucursal (id_sucur_prod)
-						REFERENCES level1.sucursal(id_sucursal)
-	)
+						CONSTRAINT  FK_ProductoSucursal foreign key (id_sucur_prod)
+						REFERENCES level1.sucursal(id_sucursal))
+	
 -- -----------------------------------------------------------------------------------------------------------------------
 create table level1.VentaRegistrada(					ID_Factura varchar(50) primary key,
 									Tipo_Factura char(1),
@@ -60,12 +62,13 @@ create table level1.VentaRegistrada(					ID_Factura varchar(50) primary key,
 									MedioPago varchar(12),
 									Sucursal varchar(20),
 									id_sucur_ventas int,
-						CONSTRAINT FK_ProductoSucursal (id_sucur_ventas)
+						CONSTRAINT  FK_ProductoSucursal foreign key (id_sucur_ventas)
 						REFERENCES level1.sucursal(id_sucursal),
 							CONSTRAINT check_id_factura
-							check (ID Factura LIKE '[0-9]%-[0-9]%-[0-9]%')
+							check (IDFactura LIKE '[0-9]%-[0-9]%-[0-9]%')
 
 )
+
 ------------------- CREAR STOREDS PROCEDURES -------------------
 ------------------------- INSERCION ----------------------------
 -- A continuación se crea las tablas para la creación de los SP que se usaran para la manipulación de tablas
@@ -105,20 +108,24 @@ create procedure level1.insertarMedioPago @english varchar(25), @spanish varchar
     values (@english, @spanish);
     END
 go
+
+
+
 ------------------------- BORRADO ----------------------------
 create procedure level1.borrarProducto @id_producto int AS
 BEGIN
-delete from level1.productos
-WHERE id_producto = @id_producto
+	delete from level1.productos
+	WHERE id_producto = @id_producto
 END
+go
 
 
-create procedure level1.borrarEmpleado @id_empleado int 
-AS
+create procedure level1.borrarEmpleado @id_empleado int AS
 BEGIN
 	delete from level1.empleado
 	WHERE id_empleado = @id_empleado
 END
+go
 ------------------------- MODIFICACIÓN ----------------------------
 CREATE PROCEDURE level1.modificarEmpleado 
     @id_empleado int, 
@@ -143,6 +150,7 @@ BEGIN
 	turno = @turno
 	WHERE id_empleado = @id_empleado;
 END
+GO
 
 CREATE PROCEDURE level1.modificarProducto 
     @id_producto int, 
@@ -156,6 +164,9 @@ BEGIN
 	lineaProducto = @lineaProducto
 	WHERE id_producto = @id_producto;
 END
+GO
+
+
 
 CREATE PROCEDURE level1.ModificarSucursal
     @id_sucursal int,
@@ -168,12 +179,14 @@ BEGIN
     SET
         ciudad = @NuevaCiudad,
         sucursal = @NuevaSucursal,
-        direccion = @NuevaDireccion,
+        direccion = @NuevaDireccion
     WHERE id_sucursal = @id_sucursal;
-END;
+END
+go
+
 
 ------------------------- IMPORTACIÓN ----------------------------
-EXEC ImportarProductosImportados 'C:\RUTA.csv';
+
 
 CREATE PROCEDURE ImportarProductosImportados @RutaArchivo VARCHAR(255) AS
 
@@ -221,6 +234,7 @@ END;
 ----- INSERCION DE VALORES INICIALES-------------
 --Se inicializara los valores que los clientes nos han dado 
 
+
 exec level1.insertarSucursal 'Yangon', 'San Justo', 'Av. Brig. Gral. Juan Manuel de Rosas 3634, B1754 San Justo, Provincia de Buenos Aires';
 EXEC level1.insertarSucursal 'Naypyitaw', 'Ramos Mejia', 'Av. de Mayo 791, B1704 Ramos Mejía, Provincia de Buenos Aires';
 EXEC level1.insertarSucursal 'Mandalay', 'Lomas del Mirador', ' Pres. Juan Domingo Perón 763, B1753AWO Villa Luzuriaga, Provincia de Buenos Aires';
@@ -250,7 +264,7 @@ exec level1.insertarMedioPago 'Credit card', 'Tarjeta de credito'
 exec level1.insertarMedioPago 'Cash', 'Efectivo'
 exec level1.insertarMedioPago 'Ewallet', 'Billetera Electronica'
 
-
+EXEC ImportarProductosImportados 'C:\RUTA.csv';
 
 
 
