@@ -91,26 +91,6 @@ create procedure level1.insertarEmpleado @id_empleado int, @nombre varchar(25), 
     END
 go
 
-
-create procedure level1.insertarProducto @producto varchar(50), @lineaProducto varchar(50) as
-
-    BEGIN
-    insert into level1.productos (producto, lineaProducto) 
-    values (@producto, @lineaProducto);
-    END
-go
-
-
-create procedure level1.insertarMedioPago @english varchar(25), @spanish varchar(25) as
-
-    BEGIN
-    insert into level1.medioPago (english, spanish) 
-    values (@english, @spanish);
-    END
-go
-
-
-
 ------------------------- BORRADO ----------------------------
 create procedure level1.borrarProducto @id_producto int AS
 BEGIN
