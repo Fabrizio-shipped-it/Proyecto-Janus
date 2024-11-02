@@ -30,7 +30,7 @@ create table level1.empleado(				id_empleado int primary key,
 							cuil varchar(13),
 							cargo varchar(25) not null,
 							ciudad varchar(25),
-							turno varchar(25) not null)
+							turno varchar(4) not null)
 
 
 create table level1.productos(					id_producto int primary key identity(1,1),	--1
@@ -72,7 +72,7 @@ go
 
 
 create procedure level1.insertarEmpleado @id_empleado int, @nombre varchar(25), @apellido varchar(50), @dni int, @direccion varchar(100),
-	    			@emailEmpresa varchar(100), @emailPersonal varchar(100) , @cuil varchar(13), @cargo varchar(25), @ciudad varchar(25), @turno varchar(25) as
+	    			@emailEmpresa varchar(100), @emailPersonal varchar(100) , @cuil varchar(13), @cargo varchar(25), @ciudad varchar(25), @turno varchar(4) as
 
     BEGIN
     insert into level1.empleado (id_empleado, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, ciudad, turno) 
