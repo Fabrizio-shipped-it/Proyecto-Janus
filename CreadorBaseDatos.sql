@@ -38,11 +38,10 @@ create table level1.empleado(				id_empleado int primary key,
 							
 
 
-create table level1.productos(					id_producto int primary key identity(1,1),	 	--1
+create table level1.productos(	id_producto int primary key identity(1,1),	 					--1
 								Categoria varchar (50) not null,			--electronicos
 								NombreProd varchar (50) not null,			--macbook
 								Precio decimal(10,2) not null,				--700
-								ReferenciaPrecio decimal(10,2) not null,		--Cuanto pesa o cantidad(1)
 								ReferenciaUnidad varchar(30) not null,			--(unidad) o cantidad que viene en el paquete
 								id_sucur_prod int,
 						CONSTRAINT  FK_ProductoSucursal foreign key (id_sucur_prod)
@@ -66,7 +65,6 @@ create table level1.VentaRegistrada(					ID_Factura varchar(50) primary key,
 						REFERENCES level1.sucursal(id_sucursal),
 							CONSTRAINT check_id_factura
 							check (ID_Factura LIKE '[0-9]%-[0-9]%-[0-9]%')
-
 )
 
 ------------------- CREAR STOREDS PROCEDURES -------------------
@@ -131,23 +129,25 @@ BEGIN
 	WHERE id_empleado = @id_empleado;
 END
 GO
-
+-------------------
 CREATE PROCEDURE level1.modificarProducto 
-    @id_producto int, 
-    @producto varchar(50), 
-    @lineaProducto varchar(50) 
+		@id_producto int,
+		@Categoria varchar (50),
+		@NombreProd varchar (50),
+		@Precio decimal(10,2),	
+		@ReferenciaUnidad varchar(30)
 AS
 BEGIN
     update level1.productos 
-    set 
-	producto = @producto, 
-	lineaProducto = @lineaProducto
+    set  
+	Categoria = @lineaProducto,
+	NombreProd = @NombreProd,
+	Precio = @Precio,
+	ReferenciaUnidad = @ReferenciaUnidad
 	WHERE id_producto = @id_producto;
 END
 GO
-
-
-
+-------------------
 CREATE PROCEDURE level1.ModificarSucursal
     @id_sucursal int,
     @NuevaCiudad varchar(25),
@@ -166,12 +166,8 @@ go
 
 
 ------------------------- IMPORTACIÓN ----------------------------
-
-
 CREATE PROCEDURE ImportarProductosImportados @RutaArchivo VARCHAR(255) AS
-
 BEGIN
-
 --Crear tabla temporal
 
 CREATE TABLE #TempProductos (
