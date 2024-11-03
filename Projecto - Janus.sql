@@ -65,6 +65,7 @@ CREATE TABLE level1.VentaRegistrada(ID_Factura VARCHAR(50) primary key,
 									Cantidad int,
 									FechaHora datetime,
 									MedioPago VARCHAR(12),
+									Empleado int,
 									Sucursal VARCHAR(20),
 									id_sucur_ventas int,
 						CONSTRAINT  FK_VentaSucursal foreign key (id_sucur_ventas)
