@@ -90,7 +90,7 @@ BEGIN
 		"Reemplazar por",
 		direccion
 		FROM OPENROWSET('Microsoft.ACE.OLEDB.12.0',
-		'Excel 12.0;Database=C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Informacion_complementaria.xlsx', 
+		'Excel 12.0;Database=directorio.xlsx', 
 		'SELECT * FROM [sucursal$]')
 		-- Hasta aca hace la importacion de datos a la tabla temporal
 		INSERT INTO level1.sucursal(ciudad, sucursal, direccion)
@@ -128,7 +128,7 @@ BEGIN
 		"email personal", "email empresa", CUIL, Cargo,
 		Sucursal, replace(Turno, 'Jornada completa', 'FULL') AS Turno
 		FROM OPENROWSET('Microsoft.ACE.OLEDB.12.0',
-		'Excel 12.0;Database=C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Informacion_complementaria.xlsx', 
+		'Excel 12.0;Database=directorio.xlsx', 
 		'SELECT * FROM [Empleados$]')
 		WHERE "Legajo/ID" is not null
 		-- Hasta aca hace la importacion de datos a la tabla temporal
@@ -231,7 +231,7 @@ BEGIN
     date VARCHAR(50)
 );
 
-BULK INSERT	#tempCatalogo FROM 'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Productos\catalogo.csv'
+BULK INSERT	#tempCatalogo FROM 'directorio.csv'
 WITH( FORMAT= 'csv',
 	FIELDTERMINATOR= ',',
 	ROWTERMINATOR= '0x0a',
@@ -267,7 +267,7 @@ CREATE TABLE #tempImportados(
 INSERT INTO #tempImportados
 SELECT * 
 FROM OPENROWSET('Microsoft.ACE.OLEDB.12.0',
-    'Excel 12.0;Database=C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Productos\Productos_importados.xlsx', 
+    'Excel 12.0;Database=directorio.xlsx', 
     'SELECT * FROM [Listado de Productos$]')
 	-- Hasta aca hace la importacion de datos a la tabla temporal
 	INSERT INTO level1.productos(Categoria, NombreProd, Precio, ReferenciaUnidad)
@@ -295,7 +295,7 @@ CREATE TABLE #tempElectronicos(
 INSERT INTO #tempElectronicos
 SELECT * 
 FROM OPENROWSET('Microsoft.ACE.OLEDB.12.0',
-    'Excel 12.0;Database=C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Productos\Electronic accessories.xlsx', 
+    'Excel 12.0;Database=directorio.xlsx', 
     'SELECT * FROM [Sheet1$]')
 	-- Hasta aca hace la importacion de datos a la tabla temporal
 	INSERT INTO level1.productos(Categoria, ReferenciaUnidad, NombreProd, Precio)
