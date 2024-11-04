@@ -22,7 +22,7 @@ RECONFIGURE;
 
 CREATE TABLE level1.sucursal(				id_sucursal INT PRIMARY KEY IDENTITY(1,1),
 							ciudad VARCHAR(40) not null,
-							sucursal VARCHAR(40) not null,
+							localidad VARCHAR(40) not null,
 							direccion VARCHAR(100) not null)
 							
 CREATE TABLE level1.empleado(id_empleado int primary key,  
@@ -82,10 +82,10 @@ AS
 BEGIN
 		CREATE TABLE #tempSuc(
 		Ciudad VARCHAR(50),
-		Sucursal VARCHAR(50),
+		Localidad VARCHAR(50),
 		Direccion VARCHAR(100));
 
-		INSERT INTO #tempSuc(Ciudad, Sucursal, Direccion)
+		INSERT INTO #tempSuc(Ciudad, Localidad, Direccion)
 		SELECT 
 		Ciudad,
 		"Reemplazar por",
@@ -94,13 +94,13 @@ BEGIN
 		'Excel 12.0;Database=directorio.xlsx', 
 		'SELECT * FROM [sucursal$]')
 		-- Hasta aca hace la importacion de datos a la tabla temporal
-		INSERT INTO level1.sucursal(ciudad, sucursal, direccion)
+		INSERT INTO level1.sucursal(ciudad, localidad, direccion)
 		SELECT 
 		t.Ciudad,
-		t.Sucursal,
+		t.Localidad,
 		t.Direccion
 		FROM #tempSuc t
-		LEFT JOIN level1.sucursal p ON t.Ciudad = p.ciudad and t.Sucursal = p.sucursal
+		LEFT JOIN level1.sucursal p ON t.Ciudad = p.ciudad and t.Localidad = p.localidad
 		WHERE p.ciudad IS NULL;
 		--Hasta aca hace la importacion de unicamente los que no estan incluidos en nuestra tabla de sucursales
 
@@ -205,14 +205,14 @@ END
 CREATE OR ALTER PROCEDURE level1.ModificarSucursal
     @id_sucursal int,
     @NuevaCiudad varchar(25),
-    @NuevaSucursal varchar(25),
+    @NuevaLocalidad varchar(25),
     @NuevaDireccion varchar(50)
 AS
 BEGIN
     UPDATE level1.sucursal
     SET
         ciudad = @NuevaCiudad,
-        sucursal = @NuevaSucursal,
+        localidad = @NuevaLocalidad,
         direccion = @NuevaDireccion
     WHERE id_sucursal = @id_sucursal;
 END
