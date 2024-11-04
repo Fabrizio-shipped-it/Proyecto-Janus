@@ -26,7 +26,7 @@ CREATE TABLE level1.sucursal(				id_sucursal INT PRIMARY KEY IDENTITY(1,1),
 							ciudad VARCHAR(40) not null,
 							localidad VARCHAR(40) not null,
 							direccion VARCHAR(100) not null)
-							
+GO							
 CREATE TABLE level2.empleado(id_empleado int primary key,  
 							nombre VARCHAR(50),
 							apellido VARCHAR(50),
@@ -41,12 +41,7 @@ CREATE TABLE level2.empleado(id_empleado int primary key,
 							id_sucur_emp int,
 						CONSTRAINT  FK_EmpleadoSucursal foreign key (id_sucur_emp)
 						REFERENCES level1.sucursal(id_sucursal))
-
-							drop table level1.sucursal
-							drop table level1.empleado
-							drop table level1.productos
-							drop table level1.VentaRegistrada
-
+GO
 CREATE TABLE level1.productos(	id_producto int primary key identity(1,1),	 	--1
 								Categoria VARCHAR (50) not null,			--electronicos
 								NombreProd VARCHAR (100) not null,			--macbook
@@ -55,7 +50,7 @@ CREATE TABLE level1.productos(	id_producto int primary key identity(1,1),	 	--1
 								id_sucur_prod int,
 						CONSTRAINT  FK_ProductoSucursal foreign key (id_sucur_prod)
 						REFERENCES level1.sucursal(id_sucursal))
--- -----------------------------------------------------------------------------------------------------------------------
+GO
 CREATE TABLE level2.VentaRegistrada(ID_Factura VARCHAR(50) primary key,
 									Tipo_Factura CHAR(1),
 									Ciudad VARCHAR(10),
@@ -73,9 +68,8 @@ CREATE TABLE level2.VentaRegistrada(ID_Factura VARCHAR(50) primary key,
 						CONSTRAINT  FK_VentaSucursal foreign key (id_sucur_ventas)
 						REFERENCES level1.sucursal(id_sucursal),
 							CONSTRAINT check_id_factura
-							check (ID_Factura LIKE '[0-9]%-[0-9]%-[0-9]%')
-)
-
+							check (ID_Factura LIKE '[0-9]%-[0-9]%-[0-9]%'))
+GO
 ------------------- CREAR STOREDS PROCEDURES -------------------
 ------------------------- INSERCION ----------------------------
 -- A continuación se crea las tablas para la creación de los SP que se usaran para la manipulación de tablas
@@ -109,6 +103,7 @@ BEGIN
 		drop table #tempSuc
 
 END;
+GO
 -----------------------
 CREATE OR ALTER PROCEDURE level2.insertarEmpleado
 AS
@@ -146,20 +141,21 @@ BEGIN
 
 		drop table #tempEmpleado
 END;
+GO
 ------------------------- BORRADO ----------------------------
 CREATE OR ALTER PROCEDURE level1.borrarProducto @id_producto int AS
 BEGIN
 	delete from level1.productos
 	WHERE id_producto = @id_producto
-END
-go
+END;
+GO
 ----------------------------
 CREATE OR ALTER PROCEDURE level2.borrarEmpleado @id_empleado int AS
 BEGIN
 	delete from level1.empleado
 	WHERE id_empleado = @id_empleado
-END
-go
+END;
+GO
 ------------------------- MODIFICACIÓN ----------------------------
 CREATE OR ALTER PROCEDURE level2.modificarEmpleado 
     @id_empleado int, 
@@ -183,7 +179,7 @@ BEGIN
 	ciudad = @ciudad, 
 	turno = @turno
 	WHERE id_empleado = @id_empleado;
-END
+END;
 GO
 -----------------------------------------------------------------
 CREATE OR ALTER PROCEDURE level1.modificarProducto 
@@ -201,7 +197,8 @@ BEGIN
 	Precio = @Precio,
 	ReferenciaUnidad = @ReferenciaUnidad
 	WHERE id_producto = @id_producto;
-END
+END;
+GO
 -----------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE level1.ModificarSucursal
     @id_sucursal int,
@@ -216,8 +213,8 @@ BEGIN
         localidad = @NuevaLocalidad,
         direccion = @NuevaDireccion
     WHERE id_sucursal = @id_sucursal;
-END
-go
+END;
+GO
 ------------------------- IMPORTACIÓN ----------------------------
 --- ---------------------------------------------- CATALOGO.CSV
 CREATE OR ALTER PROCEDURE level1.ImportarCatalogo 
@@ -254,6 +251,7 @@ WITH( FORMAT= 'csv',
     DROP TABLE #tempCatalogo
 	
 END;
+GO
 --- ----------------------------------------------Productos_importados.XLSX
 CREATE OR ALTER PROCEDURE level1.ImportarProdImportados
 AS
@@ -286,6 +284,7 @@ FROM OPENROWSET('Microsoft.ACE.OLEDB.12.0',
 	SELECT * FROM level1.productos
 	DROP TABLE #tempImportados
 END;
+GO
 --- ----------------------------------------------Electronic accessories.XLSX
 CREATE OR ALTER PROCEDURE level1.ImportarElectronicos
 AS
@@ -314,6 +313,7 @@ FROM OPENROWSET('Microsoft.ACE.OLEDB.12.0',
 	SELECT * FROM level1.productos
 	DROP TABLE #tempElectronicos
 END;
+GO
 --- ----------------------------------------------Ventas_registradas.csv
 CREATE OR ALTER PROCEDURE level2.InsertarVentasRegistradas
 AS
@@ -355,6 +355,7 @@ BEGIN
 	
 	DROP TABLE #tempVenta
 END;
+GO
 ----- INSERCION DE VALORES INICIALES-------------
 --Se inicializara los valores que los clientes nos han dado 
 
