@@ -394,3 +394,38 @@ SELECT s.name AS SchemaName, o.name AS ProcedureName
 FROM sys.objects o
 JOIN sys.schemas s ON o.schema_id = s.schema_id
 WHERE o.type = 'P' AND s.name = 'level2';
+
+
+-------ASPECTOS DE SEGURIDAD-----------
+--Creo las cuentas y el rol Supervisor
+
+CREATE LOGIN Richtofen
+WITH PASSWORD = 'Elemento115!', DEFAULT_DATABASE = Proyecto_Janus,
+CHECK_POLICY = ON, CHECK_EXPIRATION = OFF ;
+
+create user Richtofen for login Richtofen
+
+CREATE LOGIN Maxis
+WITH PASSWORD = 'Grupo935!', DEFAULT_DATABASE = Proyecto_Janus,
+CHECK_POLICY = ON, CHECK_EXPIRATION = OFF ;
+
+create user Maxis for login Maxis
+
+
+
+CREATE ROLE Supervisor AUTHORIZATION Richtofen;
+GO
+
+
+--Agrego los miembros al rol Supervisor
+ALTER ROLE Supervisor ADD MEMBER Richtofen; 
+ALTER ROLE Supervisor ADD MEMBER Maxis; 
+
+
+
+
+REVOKE INSERT, UPDATE, DELETE ON level1.VentaRegistrada TO PUBLIC;  -- Saco los permisos a todos
+GRANT INSERT, UPDATE, DELETE ON level1.VentaRegistrada TO Supervisor;  --Le doy los permisos solo al rol supervisor
+
+
+
