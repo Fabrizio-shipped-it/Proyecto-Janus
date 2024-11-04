@@ -424,30 +424,56 @@ ALTER ROLE Supervisor ADD MEMBER Maxis;
 
 
 
-REVOKE INSERT, UPDATE, DELETE ON level1.VentaRegistrada TO PUBLIC;  -- Saco los permisos a todos
-GRANT INSERT, UPDATE, DELETE ON level1.VentaRegistrada TO Supervisor;  --Le doy los permisos solo al rol supervisor
+REVOKE INSERT, UPDATE, DELETE ON level2.VentaRegistrada TO PUBLIC;
+go-- Saco los permisos a todos
+GRANT INSERT, UPDATE, DELETE ON level2.VentaRegistrada TO Supervisor;  --Le doy los permisos solo al rol supervisor
+go
 
 -----ENCRIPTACION DE EMPLEADOS -----------
 
 USE Proyecto_Janus;
 GO
 
-CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'EmpleadoSecretos123!';  --Creo la llave
+-- Crear la clave simétrica
+
+CREATE SYMMETRIC KEY keyEmpleado 
+WITH ALGORITHM = AES_256
+ENCRYPTION BY PASSWORD = 'EmpleadoSecretos123!';
 GO
 
-CREATE CERTIFICATE Certificado		--Creo el certificado
-    WITH SUBJECT = 'Certificado';
+
+select * from level2.empleado
+-- Abrir la clave simétrica
+OPEN SYMMETRIC KEY KeyEmpleado
+    DECRYPTION BY PASSWORD = 'EmpleadoSecretos123!';
 GO
 
-CREATE DATABASE ENCRYPTION KEY
-    WITH ALGORITHM = AES_256
-    ENCRYPTION BY SERVER CERTIFICATE Certificado;			--Encripto la tabla
+-- Encriptar cada columna de la tabla empleado
+
+
+UPDATE level2.empleado
+SET 
+    nombre = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), nombre),
+    apellido = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), apellido),
+    dni = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), CONVERT(VARCHAR, dni)), -- Convertir a VARCHAR
+    direccion = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), direccion),
+    emailEmpresa = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), emailEmpresa),
+    emailPersonal = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), emailPersonal),
+    cuil = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), cuil),
+    cargo = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), cargo),
+    sucursal = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), sucursal),
+    turno = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), turno),
+    id_sucur_emp = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), CONVERT(VARCHAR, id_sucur_emp)); -- Convertir a VARCHAR
 GO
 
-ALTER table level2.empleado
-    SET ENCRYPTION ON;
+-- Cerrar la clave simétrica
+CLOSE SYMMETRIC KEY KeyEmpleado;
 GO
 
---Nota: Probar en Base de Datos con otras versiones ya que nuevamente me salta error por mi edicion
+
+select * from level2.empleado
+
+
+--Nota: Probar
 
 
