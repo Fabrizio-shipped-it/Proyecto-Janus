@@ -60,7 +60,7 @@ CREATE TABLE level1.VentaRegistrada(ID_Factura VARCHAR(50) primary key,
 									Tipo_Cliente CHAR(6),
 									Genero VARCHAR(6),
 									Categoria VARCHAR(50),
-									Producto VARCHAR(50),
+									Producto VARCHAR(100),
 									PrecioUnitario decimal(10,2),
 									Cantidad int,
 									FechaHora datetime,
@@ -108,7 +108,7 @@ BEGIN
 
 END;
 -----------------------
-CREATE OR ALTER PROCEDURE level1.insertarEmpleado
+CREATE OR ALTER PROCEDURE level2.insertarEmpleado
 AS
 BEGIN
 		CREATE TABLE #tempEmpleado(
@@ -313,6 +313,47 @@ FROM OPENROWSET('Microsoft.ACE.OLEDB.12.0',
 	SELECT * FROM level1.productos
 	DROP TABLE #tempElectronicos
 END;
+--- ----------------------------------------------Ventas_registradas.csv
+CREATE OR ALTER PROCEDURE level2.InsertarVentasRegistradas
+AS
+BEGIN
+	CREATE TABLE #tempVenta(
+    "ID Factura" VARCHAR(20),
+    "Tipo de Factura" VARCHAR(1),
+    Ciudad VARCHAR(50),
+    "Tipo de cliente" VARCHAR(40),
+    Genero VARCHAR(10),
+    Producto NVARCHAR(100),
+    "Precio Unitario" DECIMAL(10,2),
+	Cantidad INT,
+	Fecha date,
+	hora time,
+	"Medio de Pago" VARCHAR(25),
+	Empleado INT,
+	"Identificador de pago" VARCHAR(50));
+
+	BULK INSERT	#tempVenta
+	FROM 'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Ventas_registradas2.csv'
+	WITH( FORMAT= 'CSV',
+		FIELDTERMINATOR= ';',
+		ROWTERMINATOR= '0x0a',
+		FIRSTROW=2,
+		CODEPAGE='65001');
+	----------------------------------------------
+	INSERT INTO level2.VentaRegistrada(ID_Factura, Tipo_Factura, Ciudad, Tipo_Cliente, Genero, Producto, PrecioUnitario,
+									Cantidad, FechaHora, MedioPago, Empleado)
+	select t.[ID Factura], t.[Tipo de Factura], t.Ciudad, t.[Tipo de cliente], t.Genero, t.Producto, t.[Precio Unitario],
+			t.Cantidad, CAST(t.Fecha AS DATETIME) + CAST(t.hora AS DATETIME) AS FechaHoraCompleta, t.[Medio de Pago],
+				t.Empleado FROM #tempVenta t
+
+	UPDATE v
+	SET v.Categoria = p.Categoria
+	FROM level2.VentaRegistrada AS v
+	JOIN level1.productos AS p ON v.Producto = p.NombreProd
+	WHERE v.Categoria IS NULL;
+	
+	DROP TABLE #tempVenta
+END;
 ----- INSERCION DE VALORES INICIALES-------------
 --Se inicializara los valores que los clientes nos han dado 
 
@@ -325,10 +366,10 @@ EXEC level1.insertarEmpleado
 SELECT * FROM level1.empleado
 
 EXEC level1.insertarSucursal
-SELECT * FROM level1.sucursal
+SELECT * FROM level1.sucursal	
 
 
-SELECT * FROM level1.VentaRegistrada
+SELECT * FROM level2.VentaRegistrada
 
 --Ver tablas
 SELECT s.name AS SchemaName, o.name AS TableName
