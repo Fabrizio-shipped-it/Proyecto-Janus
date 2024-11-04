@@ -9,9 +9,11 @@ USE Proyecto_Janus
 GO
 
 
-CREATE SCHEMA level1; --este nivel de esquema corresponde a la base de informacion del cual trabajara la base de datos
+CREATE SCHEMA level1;
 GO 
-
+CREATE SCHEMA level2;
+GO
+	
 EXEC sp_configure 'show advanced options', 1;
 RECONFIGURE;
 EXEC sp_configure 'Ad Hoc Distributed Queries', 1;
@@ -25,7 +27,7 @@ CREATE TABLE level1.sucursal(				id_sucursal INT PRIMARY KEY IDENTITY(1,1),
 							localidad VARCHAR(40) not null,
 							direccion VARCHAR(100) not null)
 							
-CREATE TABLE level1.empleado(id_empleado int primary key,  
+CREATE TABLE level2.empleado(id_empleado int primary key,  
 							nombre VARCHAR(50),
 							apellido VARCHAR(50),
 							dni int unique not null,
@@ -54,7 +56,7 @@ CREATE TABLE level1.productos(	id_producto int primary key identity(1,1),	 	--1
 						CONSTRAINT  FK_ProductoSucursal foreign key (id_sucur_prod)
 						REFERENCES level1.sucursal(id_sucursal))
 -- -----------------------------------------------------------------------------------------------------------------------
-CREATE TABLE level1.VentaRegistrada(ID_Factura VARCHAR(50) primary key,
+CREATE TABLE level2.VentaRegistrada(ID_Factura VARCHAR(50) primary key,
 									Tipo_Factura CHAR(1),
 									Ciudad VARCHAR(10),
 									Tipo_Cliente CHAR(6),
@@ -151,16 +153,15 @@ BEGIN
 	WHERE id_producto = @id_producto
 END
 go
-
-
-CREATE OR ALTER PROCEDURE level1.borrarEmpleado @id_empleado int AS
+----------------------------
+CREATE OR ALTER PROCEDURE level2.borrarEmpleado @id_empleado int AS
 BEGIN
 	delete from level1.empleado
 	WHERE id_empleado = @id_empleado
 END
 go
 ------------------------- MODIFICACIÓN ----------------------------
-CREATE OR ALTER PROCEDURE level1.modificarEmpleado 
+CREATE OR ALTER PROCEDURE level2.modificarEmpleado 
     @id_empleado int, 
     @nombre varchar(25), 
     @apellido varchar(50), 
@@ -368,7 +369,7 @@ SELECT * FROM level1.empleado
 EXEC level1.insertarSucursal
 SELECT * FROM level1.sucursal	
 
-
+EXEC level2.InsertarVentasRegistradas
 SELECT * FROM level2.VentaRegistrada
 
 --Ver tablas
@@ -377,8 +378,18 @@ FROM sys.objects o
 JOIN sys.schemas s ON o.schema_id = s.schema_id
 WHERE o.type = 'U' AND s.name = 'level1';
 
+SELECT s.name AS SchemaName, o.name AS TableName
+FROM sys.objects o
+JOIN sys.schemas s ON o.schema_id = s.schema_id
+WHERE o.type = 'U' AND s.name = 'level2';
+
 --Ver SP
 SELECT s.name AS SchemaName, o.name AS ProcedureName
 FROM sys.objects o
 JOIN sys.schemas s ON o.schema_id = s.schema_id
 WHERE o.type = 'P' AND s.name = 'level1';
+
+SELECT s.name AS SchemaName, o.name AS ProcedureName
+FROM sys.objects o
+JOIN sys.schemas s ON o.schema_id = s.schema_id
+WHERE o.type = 'P' AND s.name = 'level2';
