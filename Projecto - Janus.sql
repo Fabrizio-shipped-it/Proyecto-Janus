@@ -427,5 +427,27 @@ ALTER ROLE Supervisor ADD MEMBER Maxis;
 REVOKE INSERT, UPDATE, DELETE ON level1.VentaRegistrada TO PUBLIC;  -- Saco los permisos a todos
 GRANT INSERT, UPDATE, DELETE ON level1.VentaRegistrada TO Supervisor;  --Le doy los permisos solo al rol supervisor
 
+-----ENCRIPTACION DE EMPLEADOS -----------
+
+USE Proyecto_Janus;
+GO
+
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'EmpleadoSecretos123!';  --Creo la llave
+GO
+
+CREATE CERTIFICATE Certificado		--Creo el certificado
+    WITH SUBJECT = 'Certificado';
+GO
+
+CREATE DATABASE ENCRYPTION KEY
+    WITH ALGORITHM = AES_256
+    ENCRYPTION BY SERVER CERTIFICATE Certificado;			--Encripto la tabla
+GO
+
+ALTER table level2.empleado
+    SET ENCRYPTION ON;
+GO
+
+--Nota: Probar en Base de Datos con otras versiones ya que nuevamente me salta error por mi edicion
 
 
