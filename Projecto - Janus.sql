@@ -161,11 +161,11 @@ BEGIN
 		WHERE "Legajo/ID" is not null
 		-- Hasta aca hace la importacion de datos a la tabla temporal
 
-		INSERT INTO level1.empleado(id_empleado, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno)
+		INSERT INTO level2.empleado(id_empleado, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno)
 		SELECT 
 		t.id_empleado, t.nombre, t.apellido, t.dni, t.direccion, t.emailEmpresa, t.emailPersonal, t.cuil, t.cargo, t.sucursal, t.turno
 		FROM #tempEmpleado t
-		LEFT JOIN level1.empleado p ON t.id_empleado = p.id_empleado
+		LEFT JOIN level2.empleado p ON t.id_empleado = p.id_empleado
 		WHERE p.id_empleado IS NULL;
 		--Hasta aca hace la importacion de unicamente los que no estan incluidos en nuestra tabla de empleados
 
@@ -496,11 +496,11 @@ GO
 -- Encriptar cada columna de la tabla empleado
 
 
-UPDATE level2.empleado
+UPDATE level2.empleado2
 SET 
     nombre = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), nombre),
     apellido = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), apellido),
-    dni = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), dni),
+    dni = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'),	CONVERT(varchar, dni)),
     direccion = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), direccion),
     emailEmpresa = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), emailEmpresa),
     emailPersonal = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), emailPersonal),
@@ -508,7 +508,7 @@ SET
     cargo = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), cargo),
     sucursal = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), sucursal),
     turno = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), turno),
-    id_sucur_emp = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'),id_sucur_emp);
+    id_sucur_emp = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), CONVERT(varchar, id_sucur_emp));
 GO
 
 -- Cerrar la clave simétrica
