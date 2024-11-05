@@ -503,7 +503,7 @@ UPDATE level2.empleado2
 SET 
     nombre = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), nombre),
     apellido = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), apellido),
-    dni = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'),	CONVERT(varchar, dni)),
+    dni = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'),	CONVERT(varchar(25), dni)),
     direccion = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), direccion),
     emailEmpresa = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), emailEmpresa),
     emailPersonal = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), emailPersonal),
@@ -511,7 +511,7 @@ SET
     cargo = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), cargo),
     sucursal = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), sucursal),
     turno = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), turno),
-    id_sucur_emp = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), CONVERT(varchar, id_sucur_emp));
+    id_sucur_emp = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), CONVERT(varchar(25), id_sucur_emp));
 GO
 
 -- Cerrar la clave simétrica
