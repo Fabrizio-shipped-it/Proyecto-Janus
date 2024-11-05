@@ -250,6 +250,7 @@ GO
 CREATE OR ALTER PROCEDURE level1.ImportarCatalogo 
 AS
 BEGIN
+	DECLARE @Consulta VARCHAR(MAX)
 	CREATE TABLE #tempCatalogo (
     id INT,
     category VARCHAR(50),
@@ -257,15 +258,19 @@ BEGIN
     price DECIMAL(10,2),
     reference_price DECIMAL(10,2),
     reference_unit VARCHAR(10),
-    date VARCHAR(50)
-);
-
-BULK INSERT	#tempCatalogo FROM 'directorio.csv'
-WITH( FORMAT= 'csv',
-	FIELDTERMINATOR= ',',
-	ROWTERMINATOR= '0x0a',
-	FIRSTROW=2,
-	CODEPAGE='65001');
+    date VARCHAR(50));
+	
+	SET @Consulta = N'
+        BULK INSERT #tempCatalogo
+        FROM ''' + @RutaArchivo + '''
+        WITH (
+            FORMAT = ''CSV'',
+            FIELDTERMINATOR = '','',
+            ROWTERMINATOR = ''0x0a'',
+            FIRSTROW = 2,
+            CODEPAGE = ''65001''
+        );'
+		EXEC sp_executesql @Consulta
 	-- hasta aca cargamos en la tabla TEMPORAL
 	INSERT INTO level1.productos(Categoria, NombreProd, Precio, ReferenciaUnidad)
 	SELECT 
@@ -286,7 +291,8 @@ GO
 CREATE OR ALTER PROCEDURE level1.ImportarProdImportados
 AS
 BEGIN
-CREATE TABLE #tempImportados(
+	DECLARE @Consulta VARCHAR(MAX)
+	CREATE TABLE #tempImportados(
 			IdProducto INT,
 			NombreProducto VARCHAR(100),
 			Proveedor VARCHAR(100),
@@ -294,11 +300,15 @@ CREATE TABLE #tempImportados(
 			CantidadPorUnidad VARCHAR(100),
 			PrecioUnidad DECIMAL(10,2));
 
-INSERT INTO #tempImportados
-SELECT * 
-FROM OPENROWSET('Microsoft.ACE.OLEDB.12.0',
-    'Excel 12.0;Database=directorio.xlsx', 
-    'SELECT * FROM [Listado de Productos$]')
+	SET @Consulta = N'
+        INSERT INTO #tempImportados
+        SELECT *
+        FROM OPENROWSET(
+            ''Microsoft.ACE.OLEDB.12.0'',
+            ''Excel 12.0;Database=' + @RutaArchivo + ',
+            ''SELECT * FROM [Listado de Productos$]''
+        );'
+	    EXEC sp_executesql @Consulta
 	-- Hasta aca hace la importacion de datos a la tabla temporal
 	INSERT INTO level1.productos(Categoria, NombreProd, Precio, ReferenciaUnidad)
 	SELECT 
@@ -319,22 +329,27 @@ GO
 CREATE OR ALTER PROCEDURE level1.ImportarElectronicos
 AS
 BEGIN
-CREATE TABLE #tempElectronicos(
+	DECLARE @Consulta VARCHAR(MAX)
+	CREATE TABLE #tempElectronicos(
 			Producto VARCHAR(100),
 			Precio DECIMAL(10,2));
 
-INSERT INTO #tempElectronicos
-SELECT * 
-FROM OPENROWSET('Microsoft.ACE.OLEDB.12.0',
-    'Excel 12.0;Database=directorio.xlsx', 
-    'SELECT * FROM [Sheet1$]')
+	SET @Consulta = N'
+        INSERT INTO #tempElectronicos
+        SELECT *
+        FROM OPENROWSET(
+            ''Microsoft.ACE.OLEDB.12.0'',
+            ''Excel 12.0;Database=' + @RutaArchivo + ',
+            ''SELECT * FROM [Sheet1$]''
+        );'
+   		 EXEC sp_executesql @Consulta
 	-- Hasta aca hace la importacion de datos a la tabla temporal
 	INSERT INTO level1.productos(Categoria, ReferenciaUnidad, NombreProd, Precio)
 	SELECT 
 	'Accesorios Electronicos' AS Categoria,
 	'ud' AS ReferenciaUnidad,
-    t.Producto,
-    t.Precio
+ 	   t.Producto,
+ 	   t.Precio
 	FROM #tempElectronicos t
 	LEFT JOIN level1.productos p ON t.Producto = p.NombreProd
 	WHERE p.NombreProd IS NULL;
