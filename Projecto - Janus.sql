@@ -364,7 +364,7 @@ BEGIN
 	"Identificador de pago" VARCHAR(50));
 
 	BULK INSERT	#tempVenta
-	FROM 'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Ventas_registradas2.csv'
+	FROM 'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Ventas_registradas.csv'
 	WITH( FORMAT= 'CSV',
 		FIELDTERMINATOR= ';',
 		ROWTERMINATOR= '0x0a',
@@ -394,8 +394,8 @@ EXEC level1.ImportarProdImportados
 EXEC level1.ImportarElectronicos
 SELECT  * FROM level1.productos
 
-EXEC level1.insertarEmpleado
-SELECT * FROM level1.empleado
+EXEC level2.insertarEmpleado
+SELECT * FROM level2.empleado
 
 EXEC level1.insertarSucursal
 SELECT * FROM level1.sucursal	
