@@ -439,7 +439,9 @@ WHERE o.type = 'P' AND s.name = 'level2';
 
 -------ASPECTOS DE SEGURIDAD-----------
 --Creo las cuentas y el rol Supervisor
-
+USE master	--Logins van en master
+GO
+	
 CREATE LOGIN Richtofen
 WITH PASSWORD = 'Elemento115!', DEFAULT_DATABASE = Proyecto_Janus,
 CHECK_POLICY = ON, CHECK_EXPIRATION = OFF ;
