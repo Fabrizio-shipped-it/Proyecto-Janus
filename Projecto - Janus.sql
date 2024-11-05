@@ -305,9 +305,7 @@ BEGIN
         SELECT *
         FROM OPENROWSET(
             ''Microsoft.ACE.OLEDB.12.0'',
-            ''Excel 12.0;Database=' + @RutaArchivo + ',
-            ''SELECT * FROM [Listado de Productos$]''
-        );'
+            ''Excel 12.0;Database=' + @RutaArchivo + ''',''SELECT * FROM [Listado de Productos$]'');';
 	    EXEC sp_executesql @Consulta
 	-- Hasta aca hace la importacion de datos a la tabla temporal
 	INSERT INTO level1.productos(Categoria, NombreProd, Precio, ReferenciaUnidad)
@@ -339,9 +337,7 @@ BEGIN
         SELECT *
         FROM OPENROWSET(
             ''Microsoft.ACE.OLEDB.12.0'',
-            ''Excel 12.0;Database=' + @RutaArchivo + ',
-            ''SELECT * FROM [Sheet1$]''
-        );'
+            ''Excel 12.0;Database=' + @RutaArchivo + ''',''SELECT * FROM [Sheet1$]'');';
    		 EXEC sp_executesql @Consulta
 	-- Hasta aca hace la importacion de datos a la tabla temporal
 	INSERT INTO level1.productos(Categoria, ReferenciaUnidad, NombreProd, Precio)
@@ -404,9 +400,9 @@ GO
 ----- INSERCION DE VALORES INICIALES-------------
 --Se inicializara los valores que los clientes nos han dado 
 
-EXEC level1.ImportarCatalogo
-EXEC level1.ImportarProdImportados
-EXEC level1.ImportarElectronicos
+EXEC level1.ImportarCatalogo	   N'directorio.csv'
+EXEC level1.ImportarProdImportados N'directorio.xlsx'
+EXEC level1.ImportarElectronicos   N'directorio.xlsx'
 SELECT  * FROM level1.productos
 
 EXEC level2.insertarEmpleado
