@@ -71,6 +71,34 @@ CREATE TABLE level2.VentaRegistrada(ID_Factura VARCHAR(50) primary key,
 							check (ID_Factura LIKE '[0-9]%-[0-9]%-[0-9]%'))
 GO
 ------------------- CREAR STOREDS PROCEDURES -------------------
+create procedure level1.insertarUnSucursal @ciudad varchar(25), @localidad varchar(25), @direccion varchar(50) as
+
+    BEGIN
+    insert into level1.sucursal (ciudad, localidad, direccion) 
+    values (@ciudad, @localidad, @direccion);
+    END
+go
+
+
+create procedure level2.insertarUnEmpleado @id_empleado int, @nombre varchar(25), @apellido varchar(50), @dni int, @direccion varchar(100),
+	    			@emailEmpresa varchar(100), @emailPersonal varchar(100) , @cuil varchar(13), @cargo varchar(25), @sucursal varchar(25), 
+	    			@turno varchar(4) as
+
+    BEGIN
+    insert into level2.empleado (id_empleado, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno) 
+    values (@id_empleado, @nombre, @apellido, @dni, @direccion, @emailEmpresa, @emailPersonal, @cuil, @cargo, @sucursal, @turno);
+    END
+go
+
+
+create procedure level1.insertarUnProducto @id_producto int, Categoria varchar(50), @NombreProd varchar(100), @Precio decimal(10,2),
+	    				@ReferenciaUnidad varchar(30), @id_sucur_prod int as
+
+    BEGIN
+    insert into level1.productos (id_producto, Categoria, NombreProd, Precio, ReferenciaUnidad, id_sucur_prod) 
+    values (@id_producto, @Categoria, @NombreProd, @Precio, @ReferenciaUnidad, @id_sucur_prod);
+    END
+go
 ------------------------- INSERCION ----------------------------
 -- A continuación se crea las tablas para la creación de los SP que se usaran para la manipulación de tablas
 CREATE OR ALTER PROCEDURE level1.insertarSucursal
