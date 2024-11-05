@@ -1,8 +1,11 @@
 ----------INTODUCCION ------------------
 
 --En este script estara el codigo para crear la base de datos con las tablas iniciales y el contenido inicial que no dio el cliente
+--Cumplimiento de consigna: Entrega 3, 4 y parte de la 5
+--Comision: 2900
+--Materia: Base de Datos Aplicada
 
---Equipo rocket:
+--Equipo 7
 -- 95054445  	MANGHI SCHECK, SANTIAGO
 -- 44161995	ALTAMIRANO, FABRIZIO AUGUSTO
 -- 44005719 	TORRES MORAN, MARIA CELESTE
