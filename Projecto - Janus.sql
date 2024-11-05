@@ -65,6 +65,8 @@ CREATE TABLE level2.VentaRegistrada(ID_Factura VARCHAR(50) primary key,
 									Empleado int,
 									Sucursal VARCHAR(20),
 									id_sucur_ventas int,
+						CONSTRAINT  FK_VentaEmpleado foreign key (Empleado)
+						REFERENCES level2.empleado(id_empleado),
 						CONSTRAINT  FK_VentaSucursal foreign key (id_sucur_ventas)
 						REFERENCES level1.sucursal(id_sucursal),
 							CONSTRAINT check_id_factura
