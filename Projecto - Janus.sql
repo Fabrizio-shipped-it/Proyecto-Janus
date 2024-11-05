@@ -3,7 +3,7 @@
 --En este script estara el codigo para crear la base de datos con las tablas iniciales y el contenido inicial que no dio el cliente
 
 --Equipo rocket:
--- dni  MANGHI SCHECK, SANTIAGO
+-- 95054445  	MANGHI SCHECK, SANTIAGO
 -- 44161995	ALTAMIRANO, FABRIZIO AUGUSTO
 -- 44005719 	TORRES MORAN, MARIA CELESTE
 CREATE DATABASE Proyecto_Janus   
