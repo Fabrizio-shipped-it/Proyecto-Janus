@@ -485,7 +485,7 @@ UPDATE level2.empleado
 SET 
     nombre = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), nombre),
     apellido = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), apellido),
-    dni = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), CONVERT(VARCHAR, dni)), -- Convertir a VARCHAR
+    dni = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), dni),
     direccion = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), direccion),
     emailEmpresa = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), emailEmpresa),
     emailPersonal = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), emailPersonal),
@@ -493,7 +493,7 @@ SET
     cargo = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), cargo),
     sucursal = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), sucursal),
     turno = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), turno),
-    id_sucur_emp = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), CONVERT(VARCHAR, id_sucur_emp)); -- Convertir a VARCHAR
+    id_sucur_emp = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'),id_sucur_emp);
 GO
 
 -- Cerrar la clave simétrica
