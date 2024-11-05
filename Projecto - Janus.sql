@@ -199,7 +199,7 @@ CREATE OR ALTER PROCEDURE level2.modificarEmpleado
     @turno varchar(25)  
 AS
 BEGIN
-    update level1.empleado
+    update level2.empleado
     set 
 	nombre = @nombre, 
 	direccion = @direccion, 
