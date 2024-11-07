@@ -1,7 +1,7 @@
 /* CREACION DE TABLAS Y STORED PROCEDURES BASICOS
 
 -->En este script estara el codigo para crear la base de datos con las tablas iniciales y los sp basicos para hacer funcionar el proyecto
--->Cumplimiento de consigna: Entrega 3, 4 y parte de la 5
+-->Cumplimiento de consigna: Entrega 3
 -->Comision: 2900
 -->Materia: Base de Datos Aplicada
 
@@ -13,13 +13,13 @@
 */
 
 use master
-drop database Proyecto_Janus
+drop database Com2900G07
 go
 
-CREATE database Proyecto_Janus
+CREATE database Com2900G07
 GO
 
-use Proyecto_Janus
+use Com2900G07
 go
 
 CREATE SCHEMA level1;
@@ -29,175 +29,363 @@ GO
 
 ---CREACION DE TABLAS----------
 
-CREATE TABLE level1.sucursal(				id_sucursal INT PRIMARY KEY IDENTITY(1,1),
-							ciudad VARCHAR(40) not null,
-							localidad VARCHAR(40) not null,
-							direccion VARCHAR(100) not null)
-GO							
-CREATE TABLE level2.empleado(id_empleado int primary key,  
-							nombre VARCHAR(50),
-							apellido VARCHAR(50),
-							dni int unique not null,
-							direccion VARCHAR(100),
-							emailEmpresa VARCHAR(100),
-							emailPersonal VARCHAR(100),
-							cuil VARCHAR(13),
-							cargo VARCHAR(25) not null,
-							sucursal VARCHAR(25),
-							turno VARCHAR(4) not null)
+CREATE TABLE level1.sucursal(	idSucursal INT PRIMARY KEY IDENTITY(1,1),
+								ciudad VARCHAR(40) NOT NULL,
+								nombreSucursal VARCHAR (40) NOT NULL,
+								direccion VARCHAR(100) NOT NULL,
+								telefono VARCHAR(10) NOT NULL)
+GO					
+
+
+CREATE TABLE level1.catalogo(	idCatalogo INT PRIMARY KEY IDENTITY(1,1), --  <-- ¿Identity?
+								nombre VARCHAR(50) NOT NULL)
 GO
 
-CREATE TABLE level1.producto(	id_producto int primary key identity(1,1),	 	--1
-								categoria VARCHAR (50) not null,			--electronicos
-								nombreProd VARCHAR (100) not null,			--macbook
-								precio decimal(10,2) not null,				--700
-								referenciaUnidad VARCHAR(30) not null)			--(unidad) o cantidad que viene en el paquete)
+CREATE TABLE level1.producto(	idProducto INT PRIMARY KEY IDENTITY(1,1),	 	
+								idCatalogo INT NOT NULL REFERENCES level1.catalogo(idCatalogo),			
+								nombreProducto VARCHAR (100) NOT NULL,			
+								precio DECIMAL(10,2) NOT NULL)			
+GO
 
-
+CREATE TABLE level2.cargo(	idCargo INT PRIMARY KEY,
+							descripcionCargo VARCHAR (25) NOT NULL UNIQUE)
 GO
 
 
-CREATE TABLE level2.ventaRegistrada(iD_Factura VARCHAR(50) primary key,
-									tipo_Factura CHAR(1),
+CREATE TABLE level2.empleado(	legajo_Id INT PRIMARY KEY CHECK (legajo_Id > 257000),  
+								nombre VARCHAR(50) NOT NULL,
+								apellido VARCHAR(50) NOT NULL,
+								dni INT UNIQUE NOT NULL CHECK (dni >= 10000000 and dni <= 99999999),
+								direccion VARCHAR(100),
+								emailEmpresa VARCHAR(100),
+								emailPersonal VARCHAR(100),
+								cuil VARCHAR(13),
+								idCargo INT REFERENCES level2.cargo(idCargo),				--	<-- FK a la tabla cargo
+								idSucursal INT REFERENCES level1.sucursal (idSucursal),		--  <-- FK a la tabla sucursal
+								turno VARCHAR(4) NOT NULL)
+GO
+
+
+
+
+CREATE TABLE level2.ventaRegistrada(iDFactura VARCHAR(50) PRIMARY KEY,
+									tipoFactura CHAR(1),
 									ciudad VARCHAR(10),
-									tipo_Cliente CHAR(6),
+									tipoCliente CHAR(6),
 									genero VARCHAR(6),
-									categoria VARCHAR(50),
 									producto VARCHAR(100),
-									precioUnitario decimal(10,2),
-									cantidad int,
-									fechaHora datetime,
-									medioPago VARCHAR(12),
-									empleado int,
-									sucursal VARCHAR(20))
+									precioUnitario DECIMAL(10,2),
+									cantidad INT,
+									fecha DATE,
+									hora TIME,
+									idMedioPago INT REFERENCES level2.medioPago(idMedioPago),
+									identificadorPago VARCHAR(50) UNIQUE,
+									legajo_Id INT REFERENCES level2.empleado(legajo_Id),
+									sucursal VARCHAR(20),
+									importeTotal DECIMAL(10,2)
+									)
+GO
+
+CREATE TABLE level2.medioPago(	idMedioPago INT PRIMARY KEY, 
+								descripcionPagoEspanol VARCHAR(25) UNIQUE,
+								descripcionPagoIngles VARCHAR(25) UNIQUE)
 GO
 
 
---------SUCURSAL-------------
-create procedure level1.insertarUnSucursal @ciudad varchar(25), @localidad varchar(25), @direccion varchar(50) as
+
+----------------------------------SUCURSAL---------------------------------------------------------------------
+
+CREATE PROCEDURE level1.insertarUnSucursal @ciudad VARCHAR(25), @nombreSucursal VARCHAR(40), @direccion VARCHAR(100), @telefono VARCHAR(10) AS
+BEGIN
+    if (@ciudad IS NOT NULL and @ciudad != '' and @nombreSucursal IS NOT NULL and @nombreSucursal != '' and @direccion IS NOT NULL and @direccion != '' and @telefono IS NOT NULL and @telefono != '' )
 
     BEGIN
-    insert into level1.sucursal (ciudad, localidad, direccion) 
-    values (@ciudad, @localidad, @direccion);
-	print ('Valores insertados correctamente en la tabla: Sucursal');
+        INSERT INTO level1.sucursal (ciudad, nombreSucursal, direccion, telefono) 
+        VALUES (@ciudad, @nombreSucursal, @direccion, @telefono)
+        PRINT ('Valores insertados correctamente en la tabla: Sucursal')
     END
-go
 
-create procedure level1.borrarSucursal @id_sucursal int AS
-BEGIN
-	if (select id_sucursal from level1.sucursal where id_sucursal = @id_sucursal) is not null
+    else
+    BEGIN
+
+        PRINT ('No se puede insertar a la tabla debido a que falta uno o más valores, o los valores superan el límite permitido.')
+
+    END
+END
+GO
+
+
+
+
+CREATE PROCEDURE level1.modificarSucursal @idSucursal INT, @ciudad VARCHAR(25), @nombreSucursal VARCHAR(40), @direccion VARCHAR(100), @telefono VARCHAR(10) AS
+
 	BEGIN
-		DELETE FROM level1.sucursal WHERE id_sucursal = @id_sucursal
-		print ('La sucursal fue eliminada con exito.');
+	if (SELECT idSucursal FROM level1.sucursal WHERE idSucursal = @idSucursal) IS NOT NULL
+		BEGIN
+
+		if (@ciudad IS NOT NULL and @ciudad != '' and @nombreSucursal IS NOT NULL and @nombreSucursal != '' and @direccion IS NOT NULL and @direccion != '' and @telefono IS NOT NULL and @telefono != '' )
+			BEGIN
+
+			UPDATE level1.sucursal
+			SET
+			ciudad = @ciudad,
+			nombreSucursal = @nombreSucursal,
+			direccion = @direccion,
+			telefono = @telefono
+
+			END
+		else
+			PRINT ('No se puede actualizar valores vacios.')
+
+		END
+	else
+		PRINT ('No se ha encontrado la sucursal que se quiere modificar')
+
+	END
+GO
+
+
+CREATE PROCEDURE level1.borrarSucursal @id_sucursal INT AS
+BEGIN
+	if (SELECT idSucursal FROM level1.sucursal WHERE idSucursal = @id_sucursal) IS NOT NULL
+	BEGIN
+
+		DELETE FROM level1.sucursal WHERE idSucursal = @id_sucursal
+		PRINT ('La sucursal fue eliminada con exito.')
+
 	END
 	else
-		print('No se ha encontrado la sucursal solicitada.');
+		print('No se ha encontrado la sucursal solicitada.')
 
 END
-go
+GO
+
+------------------------------------------------CARGO---------------------------------------------------------------------
+
+CREATE PROCEDURE level2.insertarCargo  @idCargo INT, @descripcionCargo VARCHAR(25) AS
+BEGIN
+
+	if (SELECT descripcionCargo FROM level2.Cargo WHERE descripcionCargo = @descripcionCargo) IS NULL and (SELECT idCargo FROM level2.cargo WHERE idCargo = @idCargo) IS NULL
+		BEGIN
+
+		INSERT INTO level2.cargo (idCargo, descripcionCargo)
+		VALUES (@idCargo, @descripcionCargo)
+		print('Se ha creado el cargo correctamente')
+		END
+	
+	else 
+		print('Ya existe el cargo o el numero de id que quiere crear')
+
+END
+GO
+
+EXEC level2.insertarCargo 1, 'Supervisor'
+GO
+EXEC level2.insertarCargo 2, 'Cajero'
+GO
+EXEC level2.insertarCargo 3, 'Gerente Sucursal'
+GO
 
 
 
-------EMPLEADO------------
-create procedure level2.insertarUnEmpleado @id_empleado int, @nombre varchar(25), @apellido varchar(50), @dni int, @direccion varchar(100),
-	    			@emailEmpresa varchar(100), @emailPersonal varchar(100) , @cuil varchar(13), @cargo varchar(25), @sucursal varchar(25), 
-	    			@turno varchar(4) as
+CREATE PROCEDURE level2.borrarCargo @idCargo INT AS
+BEGIN 
+	if (SELECT idCargo FROM level2.cargo WHERE idCargo=@idCargo) IS NOT NULL
+		BEGIN
+		DELETE FROM level2.cargo WHERE idCargo = @idCargo
+		print('Se ha eliminado el cargo correctamente')
+		END
+	else
+		print('No existe el cargo que quiere eliminar')
+
+END
+GO
+
+
+------------------------------------------------EMPLEADO------------------------------------------------------------------
+
+CREATE PROCEDURE level2.insertarUnEmpleado @legajo_Id INT, @nombre VARCHAR(25), @apellido VARCHAR(50), @dni INT, @direccion VARCHAR(100),
+	    			@emailEmpresa VARCHAR(100), @emailPersonal VARCHAR(100) , @cuil VARCHAR(13), @idCargo INT, @idSucursal INT, @turno VARCHAR(4) AS
 
     BEGIN
 
-	if (select id_empleado from level2.empleado where id_empleado = @id_empleado) is null
+	if (SELECT legajo_Id FROM level2.empleado WHERE legajo_Id = @legajo_Id) IS NULL and (@legajo_Id >257000)
 		BEGIN
-		if (select id_empleado from level2.empleado where dni = @dni) is null
+
+		if (SELECT legajo_Id FROM level2.empleado WHERE dni = @dni) IS NULL and (@dni >=10000000 and @dni <= 99999999)
 			BEGIN
-			insert into level2.empleado (id_empleado, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno) 
-			values (@id_empleado, @nombre, @apellido, @dni, @direccion, @emailEmpresa, @emailPersonal, @cuil, @cargo, @sucursal, @turno);
-			print ('Valores insertados correctamente en la tabla: Empleado.');
+
+			if(SELECT idCargo FROM level2.cargo WHERE idCargo = @idCargo) IS NOT NULL AND (SELECT idSucursal FROM level1.sucursal WHERE idSucursal = @idSucursal) IS NOT NULL
+				BEGIN
+
+				INSERT INTO  level2.empleado (legajo_Id, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, idCargo, idSucursal, turno) 
+				VALUES (@legajo_Id, @nombre, @apellido, @dni, @direccion, @emailEmpresa, @emailPersonal, @cuil, @idCargo, @idSucursal, @turno);
+				print ('Valores insertados correctamente en la tabla: Empleado.');
+				END
+			else
+				print('El valor de idSucursal y/o idCargo no existe')
 			END
-		ELSE
-		print('No se puede insertar el empleado a la tabla debido a que ya existe un empleado con su dni.');
+		else
+		print('No se puede insertar el empleado a la tabla debido a que ya existe un empleado con su dni o el dni tiene un valor incorrecto.');
 		END
-
-	ELSE
-		print('No se puede insertar el empleado a la tabla debido a que ya existe un empleado con su id.');
-
+	else
+		print('No se puede insertar el empleado a la tabla debido a que ya existe un empleado con su legajo o el legajo tiene un valor incorrecto.');
     END
-go
+GO
 
 
-CREATE PROCEDURE level2.modificarEmpleado 
-    @id_empleado int, 
-    @nombre varchar(25), 
-    @apellido varchar(50), 
-    @direccion varchar(100), 
-    @emailEmpresa varchar(100), 
-    @emailPersonal varchar(100),
-	@cuil varchar(13),
-    @cargo varchar(25),
-	@sucursal varchar(25),
-    @turno varchar(25)  
-AS
+
+
+CREATE PROCEDURE level2.modificarEmpleado @legajo_Id INT, @nombre VARCHAR(25), @apellido VARCHAR(50), @direccion VARCHAR(100),
+	    			@emailEmpresa VARCHAR(100), @emailPersonal VARCHAR(100) , @cuil VARCHAR(13), @idCargo INT, @idSucursal INT, @turno VARCHAR(4) AS
 BEGIN
-	if (select id_empleado from level2.empleado where id_empleado = @id_empleado) is not null
+
+	if (SELECT legajo_Id FROM level2.empleado WHERE legajo_Id = @legajo_Id) IS NOT NULL
 	BEGIN
-		update level2.empleado
-		set 
+
+		if(SELECT idCargo FROM level2.cargo WHERE idCargo = @idCargo) IS NOT NULL AND (SELECT idSucursal FROM level1.sucursal WHERE idSucursal = @idSucursal) IS NOT NULL
+		BEGIN
+		UPDATE level2.empleado
+		SET
 		nombre = @nombre, 
 		apellido = @apellido,
 		direccion = @direccion, 
 		emailEmpresa = @emailEmpresa, 
 		emailPersonal = @emailPersonal, 
 		cuil = @cuil,
-		cargo = @cargo,
-		sucursal = @sucursal,
+		idCargo = @idCargo,
+		idSucursal = @idSucursal,
 		turno = @turno
-		WHERE id_empleado = @id_empleado;
-		print('Empleado actualizado.');
+		WHERE legajo_Id = @legajo_Id
+		PRINT('Empleado actualizado.')
+		END
+		else
+			print('Valor del idSucursal o idCargo no existe')
+
 	END
-	ELSE
-		print('No se puede actualizar un empleado que no exista en la tabla.')
+	else
+		PRINT('No se puede actualizar un empleado que no exista en la tabla.')
 END
 GO
 
 
 
-create procedure level2.borrarEmpleado @id_empleado int AS
+CREATE PROCEDURE level2.borrarEmpleado @legajo_Id INT AS
 BEGIN
-	if (select id_empleado from level2.empleado where id_empleado = @id_empleado) is not null
+
+	if (SELECT legajo_Id FROM level2.empleado WHERE legajo_Id = @legajo_Id) IS NOT NULL
 	BEGIN
-		DELETE FROM level2.empleado WHERE id_empleado = @id_empleado
-		print ('El empleado fue eliminado con exito.');
+
+		DELETE FROM level2.empleado WHERE legajo_Id = @legajo_Id
+		print ('El empleado fue eliminado con exito.')
 	END
+
 	else
-		print('No se ha encontrado al empleado.');
+		print('No se ha encontrado al empleado.')
 
 END
-go
+GO
 
 
+------------------------------------------------------CATALOGO------------------------------------------------
 
----------PRODUCTOS----------
+CREATE PROCEDURE level1.insertarCatalogo @nombre VARCHAR(25) AS
+BEGIN
 
-create procedure level1.insertarUnProducto @id_producto int, @categoria varchar(50), @nombreProd varchar(100), @precio decimal(10,2),
-	    				@referenciaUnidad varchar(30) as
+	if(SELECT nombre FROM level1.catalogo WHERE nombre = @nombre) IS NULL
+		BEGIN
+		INSERT INTO level1.catalogo (nombre) 
+		VALUES (@nombre)
+		print('Se ha agregado al catalogo correctamente.')
+		END
+
+	else
+		print('Ya existe ese catalogo en la lista')
+END
+GO
+
+
+CREATE PROCEDURE level1.modificarCatalogo @idCatalogo INT, @nombre VARCHAR(25) AS
+BEGIN
+	if(SELECT idCatalogo FROM level1.catalogo WHERE nombre = @nombre) IS NULL and (SELECT idCatalogo FROM level1.catalogo WHERE idCatalogo = @idCatalogo) IS NOT NULL
+	BEGIN
+	UPDATE level1.catalogo
+	SET
+	nombre = @nombre
+	WHERE idCatalogo = @idCatalogo
+	print('Catalogo actualizado')
+	END
+	else
+	print('No se puede actualizar el catalogo ya sea porque no existe, o porque ya existe un catalogo con ese nombre')
+
+
+END
+GO
+
+CREATE PROCEDURE level1.borrarCatalogo @idCatalogo INT AS
+BEGIN 
+
+	if(SELECT idCatalogo FROM level1.catalogo WHERE idCatalogo = @idCatalogo) IS NOT NULL
+	BEGIN
+	DELETE level1.catalogo WHERE idCatalogo = @idCatalogo
+	print ('Catalogo eliminado')
+	END
+	else 
+	print('No existe el catalogo que quiere eliminar.')
+END
+GO
+
+----------------------------------------------------PRODUCTOS------------------------------------------------------------
+
+
+CREATE PROCEDURE level1.insertarUnProducto  @idCatalogo INT, @nombreProducto VARCHAR(100), @precio DECIMAL(10,2) AS
 
     BEGIN
-	if (select id_producto from level1.producto where id_producto = @id_producto) is null
-		BEGIN
-		insert into level1.producto (id_producto, Categoria, NombreProd, Precio, ReferenciaUnidad) 
-		values (@id_producto, @Categoria, @NombreProd, @Precio, @ReferenciaUnidad);
-		print ('Producto insertado exitosamente.')
+
+	if (@precio >= 0) and (@nombreProducto IS NOT NULL and @nombreProducto != '' and (SELECT idProducto FROM level1.producto WHERE nombreProducto = @nombreProducto) IS NULL) and (SELECT idCatalogo FROM level1.catalogo WHERE idCatalogo = @idCatalogo) IS NOT NULL
+ 		BEGIN
+
+		INSERT INTO level1.producto (idCatalogo, nombreProducto, precio)
+		VALUES (@idCatalogo, @nombreProducto, @precio)
+		print ('Producto insertado exitosamente')
 		END
-	ELSE
-		print('No se puede insertar el producto dado que su id ya existe en la tabla.')
+
+	else
+		print('No se puede insertar el producto dado que los datos a insertar son erroneos.')
     END
-go
+GO
 
+CREATE PROCEDURE level1.modificarProducto @idProducto INT, @idCatalogo INT, @nombreProducto VARCHAR(100), @precio DECIMAL(10,2) AS
 
-create procedure level1.borrarProducto @id_producto int AS
 BEGIN
-	if (select id_producto from level1.producto where id_producto = @id_producto) is not null
+if (SELECT idProducto FROM level1.producto WHERE idProducto = @idProducto) IS NOT NULL
 	BEGIN
-		DELETE FROM level1.producto WHERE id_producto = @id_producto
+	if (@precio >= 0) and (@nombreProducto IS NOT NULL and @nombreProducto != '') and (SELECT idProducto FROM level1.producto WHERE nombreProducto = @nombreProducto) IS NULL and (SELECT idCatalogo FROM level1.catalogo WHERE idCatalogo = @idCatalogo) IS NOT NULL
+		BEGIN
+		UPDATE level1.producto
+		SET
+		@precio = precio,
+		@nombreProducto = nombreProducto,
+		@idCatalogo = idCatalogo
+		print('Se ha actualizado el producto exitosamente')
+		END
+	else
+	print('Los datos a actualizar son erroneos')
+	END
+else
+	print('El producto a actualizar no se encuentra en la tabla')
+
+END
+GO
+
+
+
+CREATE PROCEDURE level1.borrarProducto @idProducto INT AS
+BEGIN
+	if (SELECT idProducto FROM level1.producto WHERE idProducto = @idProducto) IS NOT NULL
+	BEGIN
+
+		DELETE FROM level1.producto WHERE idProducto = @idProducto
 		print ('El producto fue eliminado con exito.');
 	END
 	else
