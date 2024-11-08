@@ -38,9 +38,9 @@ SELECT * FROM level1.sucursal
 
 -->Modificar
 
-EXEC level1.modificarSucursal 21, 'Tatooine', 'Palacio Hutt', 'Mar de Dunas del Norte', '2222-2222'
+EXEC level1.modificarSucursal 1, 'Tatooine', 'Palacio Hutt', 'Mar de Dunas del Norte', '2222-2222'
 go
-EXEC level1.modificarSucursal 33, 'Tatooine', 'Palacio Hotter', 'Mar de Dunas del Norte', '2223-2222'
+EXEC level1.modificarSucursal 2, 'Tatooine', 'Palacio Hotter', 'Mar de Dunas del Norte', '2223-2222'
 go
 
 --Resultado esperado: Solo se modifica el primer valor
@@ -51,10 +51,10 @@ SELECT * FROM level1.sucursal
 
 -->Eliminar
 
-EXEC level1.borrarSucursal 21
-EXEC level1.borrarSucursal 24
+EXEC level1.borrarSucursal 1
+EXEC level1.borrarSucursal 2
 
---Resultado esperado: no haya errores. (No existe sucursal 24 y el 21 sera eliminado)
+--Resultado esperado: no haya errores al eliminarlo
 
 SELECT * FROM level1.sucursal
 
@@ -71,7 +71,7 @@ GO
 
 SELECT * FROM level2.cargo
 
---Resultado esperado: solo debe haber un rol de supervisor
+--Resultado esperado: solo debe haber un rol de supervisor (el existente predeterminado) y debe agregarse el cientifico
 
 -->Borrar
 
@@ -80,11 +80,20 @@ go
 
 SELECT * FROM level2.cargo
 
+--Resultado Esperado: elimina al cientifico de la tabla
+
 -----------------------------------------EMPLEADOS---------------------------------------------
+
+
+--En caso de eliminar el test de Sucursal ejecutar y cambiar el valor idCatalogo al valor actual en la insersion de empleado:
+
+EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'Mar de Dunas del Norte', '1111-1111'
+go
+
 
 -->Insertar
 
-EXEC level2.insertarUnEmpleado 257935, 'Edward', 'Richtofen', 90453233, 'Instalaciones de Der Riese', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 1, 1, 'TM';
+EXEC level2.insertarUnEmpleado 257935, 'Edward', 'Richtofen', 90453233, 'Instalaciones de Der Riese', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 1, 2, 'TM';
 go
 EXEC level2.insertarUnEmpleado 89, 'Samantha', 'Maxis', 111151115, 'Casa en Agatha', '', '', '', 2, 3, 'TN';
 go
@@ -101,7 +110,7 @@ SELECT * FROM level2.empleado
 go
 
 -->Modificado
-EXEC level2.modificarEmpleado 257935, 'Edward', 'Richtofen',  'Instalaciones del Puesto Griffin', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '2', 1, 1, 'TN'
+EXEC level2.modificarEmpleado 257935, 'Edward', 'Richtofen',  'Instalaciones del Puesto Griffin', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '2', 1, 2, 'TN'
 go
 EXEC level2.modificarEmpleado 257935, 'Edward', 'Richtofen',  'Instalaciones del Puesto Griffin', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 2, 1, 'TM'
 go
@@ -143,7 +152,7 @@ SELECT * FROM level1.catalogo
 
 -->Modificar
 
-EXEC level1.modificarCatalogo 1, 'Limpieza'
+EXEC level1.modificarCatalogo 1, 'Limpieza marca ACME'
 GO
 EXEC level1.modificarCatalogo 2, 'Verduras'
 GO
@@ -163,13 +172,19 @@ GO
 --Resultado esperado: Borrado todo
 
 SELECT * FROM level1.catalogo
-
+go
 
 --------------------------------PRODUCTO-------------------------------------------
 
 --- Corregir modificado y probar borrado
 --- Hacer los sp de Modo de pago y ventaRegistrada 
 
+--En caso de que elimino los test de catalogo ejecutar y actualizar el valor de idCatalogo en la insersion de productos:
+
+EXEC level1.insertarCatalogo 'Limpieza'
+GO
+EXEC level1.insertarCatalogo 'Verduras'
+GO
 
 -->Insertar
 
@@ -191,7 +206,7 @@ SELECT * FROM level1.producto
 
 -->Modificado
 
-EXEC level1.modificarProducto  3, 4, 78.9
+EXEC level1.modificarProducto  1, 4, 78.9
 GO
 EXEC level1.modificarProducto 2, 4, 935.115
 GO
@@ -201,18 +216,18 @@ GO
 --Resultado esperado: Solo los dos primeros tienen efecto
 
 SELECT * FROM level1.producto
-
+go
 -->Borrado
 
 EXEC level1.borrarProducto 2
 GO
-EXEC level1.borrarProducto 3
+EXEC level1.borrarProducto 1
 GO
 
 --Resultado esperado: borra los tests
 
 SELECT * FROM level1.producto
-
+go
 
 
 ---------------------------------MEDIO DE PAGO--------------------------------------------------
@@ -238,14 +253,17 @@ SELECT * FROM level2.medioPago
 
 --Funcion Buscar Precio
 
+--En caso de haber eliminado los lotes de prueba de productos, insertarlos 
 EXEC level1.insertarUnProducto 3, 'Cubo de compania', 43.3
 GO
 EXEC level1.insertarUnProducto 4, 'Torreta', 115.935
 GO
 
+SELECT * FROM level1.producto
+go
+
 DECLARE @test DECIMAL(10,2) = level2.buscarPrecioProducto ('Torreta')
 
-SELECT * FROM level1.producto
 
 print('Precio de la torreta: ' + cast(@test AS VARCHAR(10)))
 go
@@ -256,20 +274,22 @@ go
 
  
 
+
+-- Ejecutar estos comandos en caso de que haya eliminado los tests anteriores (actualizar los valores de id)
+EXEC level1.insertarUnProducto 4, 'Torreta', 115.935
+GO
+EXEC level2.insertarUnEmpleado 257935, 'Edward', 'Richtofen', 90453233, 'Instalaciones de Der Riese', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 1, 5, 'TM';
+go
+EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'arena de Oasis entre Mos Esly y Mos Espa', '1111-1111'
+go
+
+
 SELECT * FROM level1.producto
 SELECT * FROM level1.catalogo
 select * from level2.empleado
 SELECT * FROM level1.sucursal
 SELECT * FROM level2.medioPago
-
--- Ejecutar estos comandos en caso de que haya eliminado los tests anteriores
-EXEC level1.insertarUnProducto 4, 'Torreta', 115.935
-GO
-EXEC level2.insertarUnEmpleado 257935, 'Edward', 'Richtofen', 90453233, 'Instalaciones de Der Riese', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 1, 1, 'TM';
 go
-EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'arena de Oasis entre Mos Esly y Mos Espa', '1111-1111'
-go
-
 
 -- El test comienza aqui
 
@@ -299,3 +319,14 @@ EXEC level2.eliminarVentaRegistrada 1
 go
 
 SELECT * from level2.ventaRegistrada
+go
+
+-->Limpieza de test
+
+EXEC level1.borrarSucursal 5
+EXEC level2.borrarEmpleado 257935
+EXEC level1.borrarCatalogo 3
+EXEC level1.borrarCatalogo 4
+EXEC level1.borrarProducto 3
+EXEC level1.borrarProducto 4
+go

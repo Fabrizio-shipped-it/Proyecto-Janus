@@ -35,7 +35,7 @@ GO
 
 CREATE TABLE level1.sucursal(	idSucursal INT PRIMARY KEY IDENTITY(1,1),
 								ciudad VARCHAR(40) NOT NULL,
-								nombreSucursal VARCHAR (40) NOT NULL,
+								nombreSucursal VARCHAR (40) NOT NULL UNIQUE,
 								direccion VARCHAR(100) NOT NULL,
 								telefono VARCHAR(10) NOT NULL)
 GO					
@@ -107,13 +107,17 @@ GO
 CREATE OR ALTER PROCEDURE level1.insertarUnSucursal @ciudad VARCHAR(25), @nombreSucursal VARCHAR(40), @direccion VARCHAR(100), @telefono VARCHAR(10) AS
 BEGIN
     if (@ciudad IS NOT NULL and @ciudad != '' and @nombreSucursal IS NOT NULL and @nombreSucursal != '' and @direccion IS NOT NULL and @direccion != '' and @telefono IS NOT NULL and @telefono != '' )
+	BEGIN
 
-    BEGIN
+		if((SELECT idSucursal FROM level1.sucursal WHERE nombreSucursal=@nombreSucursal) IS NULL) 
+		BEGIN
         INSERT INTO level1.sucursal (ciudad, nombreSucursal, direccion, telefono) 
         VALUES (@ciudad, @nombreSucursal, @direccion, @telefono)
         PRINT ('Valores insertados correctamente en la tabla: Sucursal')
+		END
+		else
+		print('Sucursal ya existente')
     END
-
     else
     BEGIN
 
@@ -158,7 +162,7 @@ CREATE OR ALTER PROCEDURE level1.borrarSucursal @id_sucursal INT AS
 BEGIN
 	if (SELECT idSucursal FROM level1.sucursal WHERE idSucursal = @id_sucursal) IS NOT NULL
 	BEGIN
-
+		DELETE FROM level2.empleado WHERE idSucursal = @id_sucursal
 		DELETE FROM level1.sucursal WHERE idSucursal = @id_sucursal
 		PRINT ('La sucursal fue eliminada con exito.')
 
