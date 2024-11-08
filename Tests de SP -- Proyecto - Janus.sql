@@ -1,9 +1,26 @@
 -----------------------------------------<LOTE DE PRUEBAS>-----------------------------------------------
+/* PRUEBAS DE LOS STORED PROCEDURES BASICOS
+
+-->En este script contiene los lotes de pruebas de los SP basicos
+
+
+-->Cumplimiento de consigna: Entrega 3
+-->Comision: 2900
+-->Materia: Base de Datos Aplicada
+
+-->Equipo 7: Proyecto Janus
+
+
+	DNI			DIRECTORES DEL PROYECTO
+ 95054445  	MANGHI SCHECK, SANTIAGO
+ 44161995	ALTAMIRANO, FABRIZIO AUGUSTO
+ 44005719 	TORRES MORAN, MARIA CELESTE
+
+*/
+
+
 use Com2900G07
 go
-
-
-
 
 --------------------------------------SUCURSAL----------------------------------------------------------
 
@@ -167,21 +184,118 @@ GO
 EXEC level1.insertarUnProducto 3, 'GLaDOS', -2323
 GO
 
+
 --Resultado esperado: Solo debe existir la torreta y el cubo de compania
 SELECT * FROM level1.producto
 
 
 -->Modificado
 
-EXEC level1.modificarProducto 1, 4, 'Cubo de compania', '43.30'
+EXEC level1.modificarProducto  3, 4, 78.9
 GO
-EXEC level1.modificarProducto 2, 4, 'Torreta', '95.115'
+EXEC level1.modificarProducto 2, 4, 935.115
 GO
-EXEC level1.modificarProducto 1, 4, 'Cubo de compania', '-34'
+EXEC level1.modificarProducto 1, 4,  -34
 GO
 
 --Resultado esperado: Solo los dos primeros tienen efecto
 
 SELECT * FROM level1.producto
 
+-->Borrado
 
+EXEC level1.borrarProducto 2
+GO
+EXEC level1.borrarProducto 3
+GO
+
+--Resultado esperado: borra los tests
+
+SELECT * FROM level1.producto
+
+
+
+---------------------------------MEDIO DE PAGO--------------------------------------------------
+
+
+--->Insertar Medio Pago
+
+
+EXEC level2.insertarMedioPago 4, 'Creditos Imperiales', 'Imperial Credits'
+GO
+
+SELECT * FROM level2.medioPago 
+
+-->Eliminar Medio Pago
+
+EXEC level2.eliminarMedioPago 4
+
+SELECT * FROM level2.medioPago
+
+
+------------------------------------- Ventas Registrada------------------------------
+
+
+--Funcion Buscar Precio
+
+EXEC level1.insertarUnProducto 3, 'Cubo de compania', 43.3
+GO
+EXEC level1.insertarUnProducto 4, 'Torreta', 115.935
+GO
+
+DECLARE @test DECIMAL(10,2) = level2.buscarPrecioProducto ('Torreta')
+
+SELECT * FROM level1.producto
+
+print('Precio de la torreta: ' + cast(@test AS VARCHAR(10)))
+go
+
+
+
+-->Insercion VentasRegistrada
+
+ 
+
+SELECT * FROM level1.producto
+SELECT * FROM level1.catalogo
+select * from level2.empleado
+SELECT * FROM level1.sucursal
+SELECT * FROM level2.medioPago
+
+-- Ejecutar estos comandos en caso de que haya eliminado los tests anteriores
+EXEC level1.insertarUnProducto 4, 'Torreta', 115.935
+GO
+EXEC level2.insertarUnEmpleado 257935, 'Edward', 'Richtofen', 90453233, 'Instalaciones de Der Riese', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 1, 1, 'TM';
+go
+EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'arena de Oasis entre Mos Esly y Mos Espa', '1111-1111'
+go
+
+
+-- El test comienza aqui
+
+EXEC level2.insertarUnaVentaRegistrada '111-111-111', 'A', 'Palacio Hutt', 'Wookye', 'Wookye', 'Torreta', 2, '2002-07-24', '9:32', 'Cash', '0000-935-115', 257935
+go
+EXEC level2.insertarUnaVentaRegistrada '111-111-111', 'A', 'Palacio Hutt', 'Wookye', 'Wookye', 'Torreta', 2, '2002-07-24', '9:32', 'Cash', '0000-935-115', 257935
+go
+EXEC level2.insertarUnaVentaRegistrada '112-111-111', 'A', 'Palacio Hutt', 'Wookye', 'Wookye', 'Torreta', 2, '2002-07-24', '9:32', 'Cash', '0000-935-115', 257935
+go
+EXEC level2.insertarUnaVentaRegistrada '111-111-111', 'A', 'Palacio Hutt', 'Wookye', 'Wookye', 'Torreta', 2, '2002-07-24', '9:32', 'Cash', '0002-935-115', 257935
+go
+EXEC level2.insertarUnaVentaRegistrada '112-111-111', 'A', 'Palacio Hutter', 'Wookye', 'Wookye', 'Torreta', 2, '2002-07-24', '9:32', 'Cash', '0002-935-115', 257935
+go
+EXEC level2.insertarUnaVentaRegistrada '112-111-111', 'A', 'Palacio Hutt', 'Wookye', 'Wookye', 'Torreta de Half Life', 2, '2002-07-24', '9:32', 'Cash', '0002-935-115', 257935
+go
+EXEC level2.insertarUnaVentaRegistrada '112-111-111', 'A', 'Palacio Hutt', 'Wookye', 'Wookye', 'Torreta', 2, '2002-07-24', '9:32', 'creditos de la Federacion', '0002-935-115', 257935
+go
+
+SELECT * from level2.ventaRegistrada
+
+--Resultado esperado: Se ha ejecutado duplicados e insercion de valores incorrectos. Solo debe existir un valor: 
+--111-111-111	A	Tatooine	Wookye	Wookye	Torreta	115.94 2	2002-07-24	09:32:00	Cash	0000-935-115	257935	Palacio Hutt	289.85
+
+-->Borrado
+
+EXEC level2.eliminarVentaRegistrada 1
+go
+
+SELECT * from level2.ventaRegistrada
