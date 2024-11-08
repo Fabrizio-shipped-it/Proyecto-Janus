@@ -1,33 +1,37 @@
-/* CREACION DE TABLAS Y STORED PROCEDURES BASICOS
+-------------------------------<CREACION DE TABLAS Y STORED PROCEDURES BASICOS>-----------------------------------------
 
--->En este script estara el codigo para crear la base de datos con las tablas iniciales y los sp basicos para hacer funcionar el proyecto
+/* 
+
+-->En este script estara el codigo para crear la base de datos con las tablas iniciales y los sp basicos para hacer funcionar el
+-- proyecto
+
+
 -->Cumplimiento de consigna: Entrega 3
 -->Comision: 2900
 -->Materia: Base de Datos Aplicada
 
--->Equipo 7
+-->Equipo 7: Proyecto Janus
+
+
+	DNI			DIRECTORES DEL PROYECTO
  95054445  	MANGHI SCHECK, SANTIAGO
  44161995	ALTAMIRANO, FABRIZIO AUGUSTO
  44005719 	TORRES MORAN, MARIA CELESTE
 
 */
 
-use master
-drop database Com2900G07
-go
 
 CREATE database Com2900G07
-GO
-
+go
 use Com2900G07
 go
 
-CREATE SCHEMA level1;
+CREATE SCHEMA level1
 GO 
-CREATE SCHEMA level2;
+CREATE SCHEMA level2
 GO
 
----CREACION DE TABLAS----------
+---------------------------------------------------------CREACION DE TABLAS-----------------------------------------------
 
 CREATE TABLE level1.sucursal(	idSucursal INT PRIMARY KEY IDENTITY(1,1),
 								ciudad VARCHAR(40) NOT NULL,
@@ -68,17 +72,18 @@ GO
 
 
 
-CREATE TABLE level2.ventaRegistrada(iDFactura VARCHAR(50) PRIMARY KEY,
+CREATE TABLE level2.ventaRegistrada(idVenta INT PRIMARY KEY IDENTITY(1,1),
+									iDFactura VARCHAR(50) UNIQUE,
 									tipoFactura CHAR(1),
-									ciudad VARCHAR(10),
+									ciudad VARCHAR(40),
 									tipoCliente CHAR(6),
 									genero VARCHAR(6),
 									producto VARCHAR(100),
 									precioUnitario DECIMAL(10,2),
-									cantidad INT,
+									cantidad INT CHECK (cantidad > 0),
 									fecha DATE,
 									hora TIME,
-									idMedioPago INT REFERENCES level2.medioPago(idMedioPago),
+									medioPagoIngles VARCHAR(25) REFERENCES level2.medioPago(descripcionPagoIngles),
 									identificadorPago VARCHAR(50) UNIQUE,
 									legajo_Id INT REFERENCES level2.empleado(legajo_Id),
 									sucursal VARCHAR(20),
@@ -86,16 +91,20 @@ CREATE TABLE level2.ventaRegistrada(iDFactura VARCHAR(50) PRIMARY KEY,
 									)
 GO
 
-CREATE TABLE level2.medioPago(	idMedioPago INT PRIMARY KEY, 
+
+
+CREATE TABLE level2.medioPago(	idMedioPago INT PRIMARY KEY CHECK (idMedioPago > 0), 
 								descripcionPagoEspanol VARCHAR(25) UNIQUE,
 								descripcionPagoIngles VARCHAR(25) UNIQUE)
 GO
 
 
 
-----------------------------------SUCURSAL---------------------------------------------------------------------
+----------------------------------SUCURSAL--------------------------------------------------------------------------
 
-CREATE PROCEDURE level1.insertarUnSucursal @ciudad VARCHAR(25), @nombreSucursal VARCHAR(40), @direccion VARCHAR(100), @telefono VARCHAR(10) AS
+
+
+CREATE OR ALTER PROCEDURE level1.insertarUnSucursal @ciudad VARCHAR(25), @nombreSucursal VARCHAR(40), @direccion VARCHAR(100), @telefono VARCHAR(10) AS
 BEGIN
     if (@ciudad IS NOT NULL and @ciudad != '' and @nombreSucursal IS NOT NULL and @nombreSucursal != '' and @direccion IS NOT NULL and @direccion != '' and @telefono IS NOT NULL and @telefono != '' )
 
@@ -117,7 +126,7 @@ GO
 
 
 
-CREATE PROCEDURE level1.modificarSucursal @idSucursal INT, @ciudad VARCHAR(25), @nombreSucursal VARCHAR(40), @direccion VARCHAR(100), @telefono VARCHAR(10) AS
+CREATE OR ALTER PROCEDURE level1.modificarSucursal @idSucursal INT, @ciudad VARCHAR(25), @nombreSucursal VARCHAR(40), @direccion VARCHAR(100), @telefono VARCHAR(10) AS
 
 	BEGIN
 	if (SELECT idSucursal FROM level1.sucursal WHERE idSucursal = @idSucursal) IS NOT NULL
@@ -145,7 +154,7 @@ CREATE PROCEDURE level1.modificarSucursal @idSucursal INT, @ciudad VARCHAR(25), 
 GO
 
 
-CREATE PROCEDURE level1.borrarSucursal @id_sucursal INT AS
+CREATE OR ALTER PROCEDURE level1.borrarSucursal @id_sucursal INT AS
 BEGIN
 	if (SELECT idSucursal FROM level1.sucursal WHERE idSucursal = @id_sucursal) IS NOT NULL
 	BEGIN
@@ -162,7 +171,7 @@ GO
 
 ------------------------------------------------CARGO---------------------------------------------------------------------
 
-CREATE PROCEDURE level2.insertarCargo  @idCargo INT, @descripcionCargo VARCHAR(25) AS
+CREATE OR ALTER PROCEDURE level2.insertarCargo  @idCargo INT, @descripcionCargo VARCHAR(25) AS
 BEGIN
 
 	if (SELECT descripcionCargo FROM level2.Cargo WHERE descripcionCargo = @descripcionCargo) IS NULL and (SELECT idCargo FROM level2.cargo WHERE idCargo = @idCargo) IS NULL
@@ -188,7 +197,7 @@ GO
 
 
 
-CREATE PROCEDURE level2.borrarCargo @idCargo INT AS
+CREATE OR ALTER PROCEDURE level2.borrarCargo @idCargo INT AS
 BEGIN 
 	if (SELECT idCargo FROM level2.cargo WHERE idCargo=@idCargo) IS NOT NULL
 		BEGIN
@@ -204,7 +213,7 @@ GO
 
 ------------------------------------------------EMPLEADO------------------------------------------------------------------
 
-CREATE PROCEDURE level2.insertarUnEmpleado @legajo_Id INT, @nombre VARCHAR(25), @apellido VARCHAR(50), @dni INT, @direccion VARCHAR(100),
+CREATE OR ALTER PROCEDURE level2.insertarUnEmpleado @legajo_Id INT, @nombre VARCHAR(25), @apellido VARCHAR(50), @dni INT, @direccion VARCHAR(100),
 	    			@emailEmpresa VARCHAR(100), @emailPersonal VARCHAR(100) , @cuil VARCHAR(13), @idCargo INT, @idSucursal INT, @turno VARCHAR(4) AS
 
     BEGIN
@@ -236,7 +245,7 @@ GO
 
 
 
-CREATE PROCEDURE level2.modificarEmpleado @legajo_Id INT, @nombre VARCHAR(25), @apellido VARCHAR(50), @direccion VARCHAR(100),
+CREATE OR ALTER PROCEDURE level2.modificarEmpleado @legajo_Id INT, @nombre VARCHAR(25), @apellido VARCHAR(50), @direccion VARCHAR(100),
 	    			@emailEmpresa VARCHAR(100), @emailPersonal VARCHAR(100) , @cuil VARCHAR(13), @idCargo INT, @idSucursal INT, @turno VARCHAR(4) AS
 BEGIN
 
@@ -270,7 +279,7 @@ GO
 
 
 
-CREATE PROCEDURE level2.borrarEmpleado @legajo_Id INT AS
+CREATE OR ALTER PROCEDURE level2.borrarEmpleado @legajo_Id INT AS
 BEGIN
 
 	if (SELECT legajo_Id FROM level2.empleado WHERE legajo_Id = @legajo_Id) IS NOT NULL
@@ -289,7 +298,7 @@ GO
 
 ------------------------------------------------------CATALOGO------------------------------------------------
 
-CREATE PROCEDURE level1.insertarCatalogo @nombre VARCHAR(25) AS
+CREATE OR ALTER PROCEDURE level1.insertarCatalogo @nombre VARCHAR(25) AS
 BEGIN
 
 	if(SELECT nombre FROM level1.catalogo WHERE nombre = @nombre) IS NULL
@@ -305,7 +314,7 @@ END
 GO
 
 
-CREATE PROCEDURE level1.modificarCatalogo @idCatalogo INT, @nombre VARCHAR(25) AS
+CREATE OR ALTER PROCEDURE level1.modificarCatalogo @idCatalogo INT, @nombre VARCHAR(25) AS
 BEGIN
 	if(SELECT idCatalogo FROM level1.catalogo WHERE nombre = @nombre) IS NULL and (SELECT idCatalogo FROM level1.catalogo WHERE idCatalogo = @idCatalogo) IS NOT NULL
 	BEGIN
@@ -322,7 +331,7 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE level1.borrarCatalogo @idCatalogo INT AS
+CREATE OR ALTER PROCEDURE level1.borrarCatalogo @idCatalogo INT AS
 BEGIN 
 
 	if(SELECT idCatalogo FROM level1.catalogo WHERE idCatalogo = @idCatalogo) IS NOT NULL
@@ -338,7 +347,7 @@ GO
 ----------------------------------------------------PRODUCTOS------------------------------------------------------------
 
 
-CREATE PROCEDURE level1.insertarUnProducto  @idCatalogo INT, @nombreProducto VARCHAR(100), @precio DECIMAL(10,2) AS
+CREATE OR ALTER PROCEDURE level1.insertarUnProducto  @idCatalogo INT, @nombreProducto VARCHAR(100), @precio DECIMAL(10,2) AS
 
     BEGIN
 
@@ -355,32 +364,32 @@ CREATE PROCEDURE level1.insertarUnProducto  @idCatalogo INT, @nombreProducto VAR
     END
 GO
 
-CREATE PROCEDURE level1.modificarProducto @idProducto INT, @idCatalogo INT, @nombreProducto VARCHAR(100), @precio DECIMAL(10,2) AS
 
+CREATE OR ALTER PROCEDURE level1.modificarProducto @idProducto INT, @idCatalogo INT, @precio DECIMAL(10,2) AS
 BEGIN
-if (SELECT idProducto FROM level1.producto WHERE idProducto = @idProducto) IS NOT NULL
-	BEGIN
-	if (@precio >= 0) and (@nombreProducto IS NOT NULL and @nombreProducto != '') and (SELECT idProducto FROM level1.producto WHERE nombreProducto = @nombreProducto) IS NULL and (SELECT idCatalogo FROM level1.catalogo WHERE idCatalogo = @idCatalogo) IS NOT NULL
+	if (SELECT idProducto FROM level1.producto WHERE idProducto = @idProducto) IS NOT NULL
 		BEGIN
-		UPDATE level1.producto
-		SET
-		@precio = precio,
-		@nombreProducto = nombreProducto,
-		@idCatalogo = idCatalogo
-		print('Se ha actualizado el producto exitosamente')
+		if (@precio >= 0)  and (SELECT idCatalogo FROM level1.catalogo WHERE idCatalogo = @idCatalogo) IS NOT NULL
+			BEGIN
+			UPDATE level1.producto
+			SET
+			precio = @precio,
+			idCatalogo = @idCatalogo
+			WHERE idProducto = @idProducto
+			print('Se ha actualizado el producto exitosamente')
+			END
+		else
+			print('Los datos a actualizar son erroneos')
 		END
 	else
-	print('Los datos a actualizar son erroneos')
-	END
-else
-	print('El producto a actualizar no se encuentra en la tabla')
+		print('El producto a actualizar no se encuentra en la tabla')
 
 END
 GO
 
 
 
-CREATE PROCEDURE level1.borrarProducto @idProducto INT AS
+CREATE OR ALTER PROCEDURE level1.borrarProducto @idProducto INT AS
 BEGIN
 	if (SELECT idProducto FROM level1.producto WHERE idProducto = @idProducto) IS NOT NULL
 	BEGIN
@@ -392,4 +401,125 @@ BEGIN
 		print('No se ha encontrado el producto.');
 
 END
+GO
+
+
+-------------------------------------MEDIO PAGO --------------------------------------------------------------
+
+CREATE OR ALTER PROCEDURE level2.insertarMedioPago @idMedioPago INT, @descripcionPagoEspanol VARCHAR(25), @descripcionPagoIngles VARCHAR(25) AS
+BEGIN
+	if(@idMedioPago>0 and (SELECT idMedioPago FROM level2.medioPago WHERE idMedioPago = @idMedioPago) IS NULL and (SELECT idMedioPago FROM level2.medioPago WHERE descripcionPagoEspanol = @descripcionPagoEspanol) IS NULL and (SELECT idMedioPago FROM level2.medioPago WHERE descripcionPagoIngles = @descripcionPagoIngles) IS NULL ) 
+		BEGIN
+
+		INSERT INTO level2.medioPago (idMedioPago, descripcionPagoEspanol, descripcionPagoIngles) 
+		VALUES(@idMedioPago, @descripcionPagoEspanol, @descripcionPagoIngles)
+		print('Nuevo medio pago aceptado')
+		END
+	else
+		print('Id invalido, o algun valor se repite')
+END
+GO
+
+---Valores predeterminados de medio de pago
+
+CREATE OR ALTER PROCEDURE level2.modificarMedioPago @idMedioPago INT, @descripcionEspanol VARCHAR(100), @descripcionIngles VARCHAR(100) AS
+BEGIN
+
+UPDATE level2.medioPago
+SET 
+descripcionPagoEspanol = @descripcionEspanol,
+descripcionPagoIngles = @descripcionIngles
+WHERE idMedioPago = @idMedioPago
+
+END
+
+--VALORES PREDETERMINADOS
+
+EXEC level2.insertarMedioPago 1, 'Tarjeta de Credito', 'Credit Card'
 go
+EXEC level2.insertarMedioPago 2,  'Efectivo', 'Cash'
+go
+EXEC level2.insertarMedioPago 3,  'Billetera Electronica', 'Ewallet'
+go
+
+
+
+CREATE OR ALTER PROCEDURE level2.eliminarMedioPago @idMedioPago INT AS
+BEGIN
+	if (SELECT idMedioPAgo FROM level2.medioPago WHERE idMedioPago = @idMedioPago) IS NOT NULL
+	BEGIN
+	DELETE level2.medioPago WHERE idMedioPago = @idMedioPago
+	print('Medio de pago eliminado')
+	END
+	else
+	print('No se ha encontrado el medio de pago que quiere eliminar')
+END
+go
+-----------------------VENTA REGISTRADA----------------------------------------
+
+
+
+--Funcion para buscar el precio de un producto. En caso de no encontrar el producto devuelve 0.
+
+CREATE OR ALTER FUNCTION level2.buscarPrecioProducto (@producto VARCHAR(100)) RETURNS DECIMAL (10,2)
+BEGIN
+DECLARE @precio DECIMAL(10,2) = 0
+
+SET @precio = (SELECT precio FROM level1.producto WHERE nombreProducto = @producto)
+
+RETURN @precio
+END
+GO
+
+
+CREATE OR ALTER PROCEDURE level2.insertarUnaVentaRegistrada @idFactura VARCHAR(50), @tipoFactura CHAR(1),  @sucursal VARCHAR(20), @tipoCliente CHAR(6), @genero VARCHAR(6), @producto VARCHAR(100), @cantidad INT,
+										 @fecha DATE, @hora TIME, @medioPagoIngles VARCHAR(25), @identificadorPago VARCHAR(50), @legajo_Id INT AS
+
+BEGIN
+
+--PRIMERO VALIDO SI LA ID FACTURA Y EL IDENTIFICADOR PAGO ES UNICA 
+
+	if( (SELECT idVenta FROM level2.ventaRegistrada WHERE iDFactura = @idFactura) IS NULL and (SELECT idVenta FROM level2.ventaRegistrada WHERE identificadorPago = @identificadorPago) IS NULL)
+		BEGIN
+
+--SEGUNDO VALIDO SI LA SUCURSAL, EL EMPLEADO, EL MEDIO DE PAGO Y EL PRODUCTO ESTAN REGISTRADOS EN LA BASE DE DATOS, Y DE PASO LA CANTIDAD NO SEA NEGATIVA 
+
+		if((SELECT idSucursal FROM level1.sucursal WHERE nombreSucursal = @sucursal) IS NOT NULL and (SELECT idProducto FROM level1.producto WHERE nombreProducto = @producto) IS NOT NULL and 
+			(SELECT idMedioPago FROM level2.medioPago WHERE descripcionPagoIngles = @medioPagoIngles) IS NOT NULL and (SELECT legajo_Id FROM level2.empleado WHERE legajo_Id = @legajo_Id) IS NOT NULL and @cantidad > 0)
+			BEGIN
+
+--TERCERO CALCULO Y BUSCO LOS VALORES FALTANTES
+
+			DECLARE @precioUnitario DECIMAL (10,2) = level2.buscarPrecioProducto(@producto)
+
+			DECLARE @ciudad VARCHAR (40) = (SELECT ciudad FROM level1.sucursal WHERE nombreSucursal = @sucursal)
+
+			DECLARE @precioTotal DECIMAL (10,2) = @precioUnitario * @cantidad
+			SET @precioTotal = @precioTotal + (@precioTotal * 0.25)			--Le agrego el IVA
+--INSERTO
+
+			INSERT INTO level2.ventaRegistrada (iDFactura,tipoFactura, ciudad,tipoCliente, genero,producto,precioUnitario, cantidad, fecha, 
+									hora, medioPagoIngles, identificadorPago, legajo_Id, sucursal, importeTotal)
+
+			VALUES (@idFactura, @tipoFactura, @ciudad, @tipoCliente, @genero, @producto, @precioUnitario, @cantidad, @fecha, @hora, @medioPagoIngles,
+					@identificadorPago, @legajo_Id, @sucursal, @precioTotal)
+			print('Se ha registrado la factura exitosamente')
+			END
+
+		else 
+			print('Revise si los datos son correctos dado que, o no existe la sucursal, producto o empleado, o el medio de pago o la cantidad es invalida')
+
+		END
+	else
+		print('El id de Factura o el identificador de pago ya existen en la tabla.')
+
+END
+go
+
+CREATE OR ALTER PROCEDURE level2.eliminarVentaRegistrada @idVenta INT AS
+BEGIN
+
+DELETE level2.ventaRegistrada WHERE idVenta = @idVenta
+
+
+END
