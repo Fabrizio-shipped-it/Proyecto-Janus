@@ -1,20 +1,33 @@
-INTRODUCCION
+# Proyecto Janus
 
-Proyecto Janus es un trabajo practico de Base de Datos Aplicada del cual consiste en que, a partir de una base de datos, se descargan productos de archivos y se registran ventas realizadas por las diferentes sucursales.
+## Introducción
 
-INSTRUCCIONES
+**Proyecto Janus** es un trabajo práctico de *Base de Datos Aplicada* cuyo objetivo es gestionar datos de productos y ventas de diferentes sucursales. A partir de una base de datos, el proyecto permite descargar productos desde archivos y registrar ventas realizadas en varias ubicaciones.
 
-Primero debe ejecutar el CreadorDeTablasYSP, eso creara las tablas y SP necesarios para el funcionamiento del Proyecto.
+---
 
-Segundo, si desea probar el funcionamiento de las tablas y SP, debe ejecutar el Lote de Pruebas I del cual obtiene un juego de lotes predeterminado que puede ser modificado. Esto debe hacerse en este punto dado que una vez que se carguen las tablas, podria complicarse las pruebas. No olvide de ejecutar los SP de borrado para limpiar las tablas
+## Instrucciones de Instalación y Uso
 
-Tercero ya puede ejecutar el archivo de importaciones donde se llenaran las tablas
+1. **Ejecución del Creador de Tablas y Procedimientos Almacenados**
+   - Primero, ejecute el script `CreadorDeTablasYSP`. Esto creará todas las tablas y procedimientos almacenados (SP) necesarios para el correcto funcionamiento del proyecto.
 
-Cuarto, ejecute el archivo de Seguridad para implementar la encriptacion en la tabla de Empleados y los roles de Supervisor. 
+2. **Pruebas de Funcionamiento (Opcional)**
+   - Si deseas probar el funcionamiento de las tablas y SP, ejecuta el `Lote de Pruebas I`. Este conjunto de pruebas incluye datos de ejemplo que puedes modificar según tus necesidades.
+   - **Nota:** Se recomienda realizar esta prueba en este punto, ya que una vez cargadas las tablas, podría complicarse el proceso de prueba. Recuerda ejecutar los SP de limpieza para vaciar las tablas antes de cargar datos reales.
 
-EXTRA
-El Proyecto Janus contiene un DER con el diseño del proyecto mas una documentación sobre los requisitos y como instalar la base de datos con la configuración para el correcto funcionamiento del proyecto. 
+3. **Ejecución del Archivo de Importaciones**
+   - Ejecuta el archivo de importaciones para llenar las tablas con los datos correspondientes.
 
-Muchas Gracias por eleguirnos.
+4. **Ejecución del Archivo de Seguridad**
+   - Finalmente, ejecuta el archivo de seguridad para implementar la encriptación en la tabla de `Empleados` y asignar los roles de `Supervisor`.
 
--Proyecto Janus
+---
+
+## Información Adicional
+
+El **Proyecto Janus** incluye un **DER** con el diseño del proyecto, además de documentación sobre los requisitos y pasos para instalar la base de datos. Asegúrate de seguir la configuración detallada para garantizar el correcto funcionamiento del proyecto.
+
+---
+
+¡Gracias por elegirnos!  
+**- Proyecto Janus**
