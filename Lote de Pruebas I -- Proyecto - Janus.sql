@@ -19,6 +19,11 @@
 */
 
 
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'Com2900G07')
+BEGIN
+    print('Debe ejecutar el script de creacion de tablas y sq para poder usar este script')
+END;
+
 use Com2900G07
 go
 
@@ -38,9 +43,9 @@ SELECT * FROM level1.sucursal
 
 -->Modificar
 
-EXEC level1.modificarSucursal 1, 'Tatooine', 'Palacio Hutt', 'Mar de Dunas del Norte', '2222-2222'
+EXEC level1.modificarSucursal 'Tatooine', 'Palacio Hutt', 'Mar de Dunas del Norte', '2222-2222'
 go
-EXEC level1.modificarSucursal 2, 'Tatooine', 'Palacio Hotter', 'Mar de Dunas del Norte', '2223-2222'
+EXEC level1.modificarSucursal  'Tatooine', 'Palacio Hotter', 'Mar de Dunas del Norte', '2223-2222'
 go
 
 --Resultado esperado: Solo se modifica el primer valor
@@ -93,13 +98,13 @@ go
 
 -->Insertar
 
-EXEC level2.insertarUnEmpleado 257935, 'Edward', 'Richtofen', 90453233, 'Instalaciones de Der Riese', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 1, 2, 'TM';
+EXEC level2.insertarUnEmpleado 257935, 'Edward', 'Richtofen', 90453233, 'Instalaciones de Der Riese', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 'Supervisor', 'Palacio Hutt', 'TM';
 go
-EXEC level2.insertarUnEmpleado 89, 'Samantha', 'Maxis', 111151115, 'Casa en Agatha', '', '', '', 2, 3, 'TN';
+EXEC level2.insertarUnEmpleado 89, 'Samantha', 'Maxis', 111151115, 'Casa en Agatha', '', '', '', 'Stoomtroper', 'Palacio Hutt', 'TN';
 go
-EXEC level2.insertarUnEmpleado 257115, 'Ledwing', 'Maxis', 12, 'Kino der Toten', 'dereisendrache@grupo935.com', 'lmaxis@grupo935.com', '', 1, 2, 'TM';
+EXEC level2.insertarUnEmpleado 257115, 'Ledwing', 'Maxis', 12, 'Kino der Toten', 'dereisendrache@grupo935.com', 'lmaxis@grupo935.com', '', 'Cajero', 'Placio Hutt', 'TM';
 go
-EXEC level2.insertarUnEmpleado 257115, 'Ledwing', 'Maxis', 12222222, 'Kino der Toten', 'dereisendrache@grupo935.com', 'lmaxis@grupo935.com', '', 4, 2, 'TM';
+EXEC level2.insertarUnEmpleado 257115, 'Ledwing', 'Maxis', 12222222, 'Kino der Toten', 'dereisendrache@grupo935.com', 'lmaxis@grupo935.com', '', 'Cajero', 'Gallefrey', 'TM';
 go
 
 
@@ -110,14 +115,14 @@ SELECT * FROM level2.empleado
 go
 
 -->Modificado
-EXEC level2.modificarEmpleado 257935, 'Edward', 'Richtofen',  'Instalaciones del Puesto Griffin', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '2', 1, 2, 'TN'
+EXEC level2.modificarEmpleado 257935, 'Edward', 'Richtofen',  'Instalaciones del Puesto Griffin', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', 2, 1, 2, 'TN'
 go
-EXEC level2.modificarEmpleado 257935, 'Edward', 'Richtofen',  'Instalaciones del Puesto Griffin', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 2, 1, 'TM'
+EXEC level2.modificarEmpleado 257935, 'Edward', 'Richtofen',  'Instalaciones del Puesto Griffin', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', 2, 'Cajero', 'Palacio Hutt', 'TM'
 go
 EXEC level2.modificarEmpleado 935, 'Edwara', 'Richtofenia',  'Instalaciones de Shino Numa', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 1, 1, 'TN'
 go
 
--- Resultado esperado: Richtofen esta en el Puesto Griffin, con cul 2, idCargo 2 y en el turno TM.
+-- Resultado esperado: Richtofen esta en el Puesto Griffin, con cuil 2, cargo cajero y en el turno TN.
 
 SELECT * FROM level2.empleado 
 go
@@ -130,7 +135,7 @@ go
 SELECT * FROM level2.empleado
 go
 
---Resultado esperado: solo deberia borrar el id 2
+--Resultado esperado: solo deberia borrar el test
 
 
 
@@ -139,25 +144,25 @@ go
 
 -->Insertar
 
-EXEC level1.insertarCatalogo 'Limpieza'
+EXEC level1.insertarCatalogo 'Exterminadores Dalek'
 GO
-EXEC level1.insertarCatalogo 'Limpieza'
+EXEC level1.insertarCatalogo 'Exterminadores Dalek'
 GO
-EXEC level1.insertarCatalogo 'Verduras'
+EXEC level1.insertarCatalogo 'Cybermans'
 GO
 
---Resultado esperado: Solo debe haber un catalogo limpieza y verduras
+--Resultado esperado: Solo debe haber un catalogo para Dalkes y otro para Cybermans
 
 SELECT * FROM level1.catalogo
 
 -->Modificar
 
-EXEC level1.modificarCatalogo 1, 'Limpieza marca ACME'
+EXEC level1.modificarCatalogo 2, 'Cybermans marca ACME'
 GO
-EXEC level1.modificarCatalogo 2, 'Verduras'
+EXEC level1.modificarCatalogo 3, 'Verduras'
 GO
 
---Resultado esperado: Solo debe haberse actualizado el catalogo de limpieza
+--Resultado esperado: Solo debe haberse actualizado el catalogo de CYBERMAN
 
 SELECT * FROM level1.catalogo
 
@@ -176,27 +181,25 @@ go
 
 --------------------------------PRODUCTO-------------------------------------------
 
---- Corregir modificado y probar borrado
---- Hacer los sp de Modo de pago y ventaRegistrada 
+--Ejecute el catalogo siguiente:
 
---En caso de que elimino los test de catalogo ejecutar y actualizar el valor de idCatalogo en la insersion de productos:
-
-EXEC level1.insertarCatalogo 'Limpieza'
+EXEC level1.insertarCatalogo 'Aperture Science'
 GO
-EXEC level1.insertarCatalogo 'Verduras'
+EXEC level1.insertarCatalogo 'Half Life'
 GO
 
+SELECT * FROM level1.catalogo
 -->Insertar
 
-EXEC level1.insertarUnProducto 3, 'Cubo de compania', 43.3
+EXEC level1.insertarUnProducto 'Cubo de compania', 'Aperture Science', 43.3
 GO
-EXEC level1.insertarUnProducto 4, 'Torreta', 115.935
+EXEC level1.insertarUnProducto 'Torreta', 'Half Life',  115.935
 GO
-EXEC level1.insertarUnProducto 3, 'Cubo de compania', 43.3
+EXEC level1.insertarUnProducto  'Cubo de compania', 'Aperture Science', 43.3
 GO
-EXEC level1.insertarUnProducto 5, 'Cubo laser', 89
+EXEC level1.insertarUnProducto 'Cubo laser','Imperio Klingon',  89
 GO
-EXEC level1.insertarUnProducto 3, 'GLaDOS', -2323
+EXEC level1.insertarUnProducto  'GLaDOS', 'Aperture Science', -2323
 GO
 
 
@@ -206,11 +209,11 @@ SELECT * FROM level1.producto
 
 -->Modificado
 
-EXEC level1.modificarProducto  1, 4, 78.9
+EXEC level1.modificarProducto  1, 'Aperture Science', 78.9
 GO
-EXEC level1.modificarProducto 2, 4, 935.115
+EXEC level1.modificarProducto 2, 'Half Life', 935.115
 GO
-EXEC level1.modificarProducto 1, 4,  -34
+EXEC level1.modificarProducto 1, 'Aperture Science',  -34
 GO
 
 --Resultado esperado: Solo los dos primeros tienen efecto
@@ -254,9 +257,9 @@ SELECT * FROM level2.medioPago
 --Funcion Buscar Precio
 
 --En caso de haber eliminado los lotes de prueba de productos, insertarlos 
-EXEC level1.insertarUnProducto 3, 'Cubo de compania', 43.3
+EXEC level1.insertarUnProducto 'Cubo de compania', 'Aperture Science' ,43.3
 GO
-EXEC level1.insertarUnProducto 4, 'Torreta', 115.935
+EXEC level1.insertarUnProducto  'Torreta','Half Life', 115.935
 GO
 
 SELECT * FROM level1.producto
@@ -276,12 +279,11 @@ go
 
 
 -- Ejecutar estos comandos en caso de que haya eliminado los tests anteriores (actualizar los valores de id)
-EXEC level1.insertarUnProducto 4, 'Torreta', 115.935
-GO
-EXEC level2.insertarUnEmpleado 257935, 'Edward', 'Richtofen', 90453233, 'Instalaciones de Der Riese', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 1, 5, 'TM';
-go
 EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'arena de Oasis entre Mos Esly y Mos Espa', '1111-1111'
 go
+EXEC level2.insertarUnEmpleado 257935, 'Edward', 'Richtofen', 90453233, 'Instalaciones de Der Riese', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 'Supervisor', 'Palacio Hutt', 'TM';
+go
+
 
 
 SELECT * FROM level1.producto
@@ -323,7 +325,7 @@ go
 
 -->Limpieza de test
 
-EXEC level1.borrarSucursal 5
+EXEC level1.borrarSucursal 1
 EXEC level2.borrarEmpleado 257935
 EXEC level1.borrarCatalogo 3
 EXEC level1.borrarCatalogo 4
