@@ -45,14 +45,14 @@ BEGIN
 	PRINT @direccion;
 
 
-    -- Construcción de la consulta dinámica para cargar datos en #tempEmpleado
+    -- ConstrucciÃ³n de la consulta dinÃ¡mica para cargar datos en #tempEmpleado
     SET @direccion = N'SELECT * INTO #tempEmpleado FROM OPENROWSET(''Microsoft.ACE.OLEDB.12.0'', 
                    ''Excel 12.0; Database=' + @rutaArchivo + ''', [Empleados$])';
 
-    -- Ejecutar la consulta dinámica
+    -- Ejecutar la consulta dinÃ¡mica
     EXEC sp_executesql @direccion;
 
-    -- Insertar los registros únicos en la tabla 'empleado'
+    -- Insertar los registros Ãºnicos en la tabla 'empleado'
     INSERT INTO level2.empleado(id_empleado, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno)
 		SELECT 
 		t.id_empleado, t.nombre, t.apellido, t.dni, t.direccion, t.emailEmpresa, t.emailPersonal, t.cuil, t.cargo, t.sucursal, t.turno
