@@ -18,6 +18,20 @@
  44161995	ALTAMIRANO, FABRIZIO AUGUSTO
  44005719 	TORRES MORAN, MARIA CELESTE
 
+
+
+--<Indice>--
+
++TABLAS
++SP Sucrusal
++SP Cargo
++SP Empleado
++SP Catalogo
++SP Productos
++SP MedioPago
++SP VentaResgistrada
+
+
 */
 
 
