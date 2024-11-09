@@ -1,4 +1,4 @@
------------------------------------------<LOTE DE PRUEBAS>-----------------------------------------------
+-----------------------------------------<LOTE DE PRUEBAS I>-----------------------------------------------
 /* PRUEBAS DE LOS STORED PROCEDURES BASICOS
 
 -->En este script contiene los lotes de pruebas de los SP basicos
