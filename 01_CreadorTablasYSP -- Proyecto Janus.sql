@@ -120,15 +120,12 @@ BEGIN
 										ciudad VARCHAR(40),
 										tipoCliente CHAR(6),
 										genero VARCHAR(6),
-										producto VARCHAR(100),
-										precioUnitario DECIMAL(10,2),
-										cantidad INT CHECK (cantidad > 0),
 										fechaHora DATETIME,
-										medioPago VARCHAR(25) CHECK(medioPago ='Credit Card' or medioPago ='Cash' or medioPago ='Ewallet'), 
-										identificadorPago VARCHAR(50),
-										legajo_Id INT REFERENCES level2.empleado(legajo_Id),
-										sucursal VARCHAR(20)
-										)
+										medioPago VARCHAR(25) CHECK(medioPago ='Credit Card' or medioPago ='Cash' or medioPago ='Ewallet'),
+										Empleado INT REFERENCES level2.empleado(legajo_Id),
+										identificadorPago VARCHAR(50)
+)
+										
 END
 GO
 
