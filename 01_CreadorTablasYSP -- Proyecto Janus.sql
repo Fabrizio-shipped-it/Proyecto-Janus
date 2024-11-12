@@ -302,9 +302,9 @@ BEGIN
         PRINT('No se puede insertar el empleado a la tabla debido a que ya existe un empleado con ese DNI o el DNI tiene un valor incorrecto.');
 END
 GO
-
-exec level2.insertarUnEmpleado 'maria', 'moran', 44005719, 'roldan', 'abc@gmial', 'asd@gmail', '30-12221-00', 'Supervisor', 'Palacio Hutt', 'TT'
-select * from level2.empleado
+--ES UN EJEMPLO PARA VER SI FUNCIONA
+--exec level2.insertarUnEmpleado 'maria', 'moran', 44005719, 'roldan', 'abc@gmial', 'asd@gmail', '30-12221-00', 'Supervisor', 'Palacio Hutt', 'TT'
+--select * from level2.empleado
 
 
 
