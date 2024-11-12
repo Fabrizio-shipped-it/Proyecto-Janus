@@ -585,7 +585,7 @@ select * from level2.detalleVenta
 
 
 	
-
+/*
 CREATE OR ALTER PROCEDURE level2.atiendeDetalleVentaDevolucion @idVenta INT, @cantidad INT AS
 BEGIN
 
@@ -636,4 +636,4 @@ BEGIN
 DELETE level2.notaCredito WHERE iDNotaCredito = @idNC
 
 END
-
+*/
