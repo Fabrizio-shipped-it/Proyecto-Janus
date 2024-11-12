@@ -116,7 +116,7 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ventaRegistrada')
 BEGIN
 	CREATE TABLE level2.ventaRegistrada(
-						iDFactura VARCHAR(50),
+						iDFactura VARCHAR(50) PRIMARY KEY,
 						tipoFactura CHAR(1),
 						ciudad VARCHAR(40),
 						tipoCliente CHAR(6),
@@ -135,12 +135,13 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'detalleVenta')
 BEGIN
 	CREATE TABLE level2.detalleVenta(				
-						iDFactura VARCHAR(50) PRIMARY KEY,
+						iDNroDetalle INT PRIMARY KEY IDENTITY(1,1),
+						iDFactura VARCHAR(50),
 						NombreProducto VARCHAR(100),
 						Cantidad INT,
 						PrecioUnitario DECIMAL(10,2),
-							CONSTRAINT FK_FacturaDetalle (iDFactura)
-							REFERENCES level2.ventaRegistrada (iDFactura)
+						CONSTRAINT FK_FacturaDetalle (iDFactura)
+						REFERENCES level2.ventaRegistrada (iDFactura)
 )
 END
 GO
