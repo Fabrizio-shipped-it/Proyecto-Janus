@@ -133,12 +133,12 @@ DROP table level2.ventaRegistrada
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'detalleVenta')
 BEGIN
-	CREATE TABLE level2.detalleVenta(	iDFactura VARCHAR(50) PRIMARY KEY,
-										tipoFactura CHAR(1),
-										sucursal VARCHAR(20),
-										total DECIMAL(10, 2),
-										cantidadCompras INT
-										)
+	CREATE TABLE level2.detalleVenta(				
+						iDFactura VARCHAR(50) PRIMARY KEY,
+						NombreProducto VARCHAR(100),
+						Cantidad INT,
+						PrecioUnitario DECIMAL(10,2)
+)
 END
 GO
 
