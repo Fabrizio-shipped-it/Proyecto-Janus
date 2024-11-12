@@ -25,13 +25,14 @@
 --<Indice>--
 
 +TABLAS
-+SP Sucrusal
++SP Sucursal
 +SP Cargo
 +SP Empleado
 +SP Catalogo
 +SP Productos
 +SP MedioPago
-
++SP VentaRegistrada
++SP DetalleVenta
 
 
 */
