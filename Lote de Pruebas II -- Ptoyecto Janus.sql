@@ -16,6 +16,8 @@
  44161995	ALTAMIRANO, FABRIZIO AUGUSTO
  44005719 	TORRES MORAN, MARIA CELESTE
 
+Fecha de entrega: 12/11/2024
+
 */
 
 
@@ -57,8 +59,15 @@ go
 -- Ejecutar estos comandos en caso de que haya eliminado los tests anteriores (actualizar los valores de id)
 EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'arena de Oasis entre Mos Esly y Mos Espa', '1111-1111'
 go
+EXEC level2.insertarUnEmpleado 257935, 'Edward', 'Richtofen', 90453233, 'Instalaciones de Der Riese', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 'Supervisor', 'Palacio Hutt', 'TM';
+go
+/*
+En caso de que ya exista el empleado reactivelo con el siguiente comando:
+
 EXEC level2.reactivarEmpleado 257935
 go
+
+*/
 EXEC level1.insertarUnProducto 'Cubo de compania', 'Aperture Science' ,43.3
 GO
 EXEC level1.insertarUnProducto  'Torreta','Half Life', 115.935
@@ -108,7 +117,43 @@ SELECT * FROM level2.detalleVenta
 --111-111-111	A	Tatooine	Wookye Cash	257935	Palacio Hutt 782.24 4
 --112-111-111	A	Tatooine	Wookye Cash	257935	Palacio Hutt 231.88 1
 
+
+
+-->Nota Credito
+
+
+EXEC level2.crearNotaCredito 2, 2
+go
+EXEC level2.crearNotaCredito 2, 1
+go
+
+SELECT * from level2.ventaRegistrada
+
+SELECT * FROM level2.detalleVenta
+
+SELECT * FROM level2.notaCredito
+
+--Resultado esperado:
+
+--111-111-111	A	Tatooine	Wookye	Hombre	Torreta	115.94 2	2002-07-24 09:32:00	Cash	0000-935-115	257935	Palacio Hutt
+--111-111-111	A	Tatooine	Wookye	Mujer	Torreta	115.94 0	2002-07-24 09:32:00	Cash	0000-935-115	257935	Palacio Hutt
+--112-111-111	A	Tatooine	Wookye	Hombre	Torreta	115.94 2	2002-07-24 09:32:00	Cash	0000-935-115	257935	Palacio Hutt
+--111-111-111	A	Tatooine	Wookye	Mujer	Torreta	115.94 2	2002-07-24 09:32:00	Cash	0000-935-115	257935	Palacio Hutt
+--111-111-111	A	Tatooine	Wookye	Hombre	Cubo de compania	43.30 2	2002-07-24 09:32:00	Cash	0000-935-115	257935	Palacio Hutt
+
+--detalleVenta:
+--111-111-111	A	Tatooine	Wookye Cash	257935	Palacio Hutt 738.1 6
+--112-111-111	A	Tatooine	Wookye Cash	257935	Palacio Hutt 231.88 1
+
+--notaCredito:
+
+-- 1    2   Torreta 115 2
+
 -->Borrado
+
+truncate table level2.detalleVenta
+truncate table level2.ventaRegistrada
+truncate table level2.notaCredito
 
 EXEC level2.eliminarVentaRegistrada 1
 go
@@ -128,17 +173,21 @@ go
 SELECT * from level2.ventaRegistrada
 go
 
+
+
 --El detalle Venta no debe verse afectado por cambios de la base de datos, es una entidad independiente
 SELECT * FROM level2.detalleVenta
 
 
--->Limpieza de test
 
+
+-->Limpieza de test
+EXEC level2.eliminarNotaCredito 1
 EXEC level2.eliminarDetalleVenta '111-111-111'
 exec level2.eliminarDetalleVenta '112-111-111'
 EXEC level1.borrarSucursal 'Palacio Hutt'
 EXEC level2.borrarEmpleado 257935
-EXEC level1.borrarProducto 3
-EXEC level1.borrarProducto 4
+EXEC level1.borrarProducto 1
+EXEC level1.borrarProducto 2
 go
 
