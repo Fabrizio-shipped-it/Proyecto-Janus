@@ -266,35 +266,45 @@ GO
 
 ------------------------------------------------<EMPLEADO>------------------------------------------------------------------
 
-CREATE OR ALTER PROCEDURE level2.insertarUnEmpleado @legajo_Id INT, @nombre VARCHAR(25), @apellido VARCHAR(50), @dni INT, @direccion VARCHAR(100),
-	    			@emailEmpresa VARCHAR(100), @emailPersonal VARCHAR(100) , @cuil VARCHAR(13), @idCargo VARCHAR(25), @idSucursal VARCHAR(40), @turno VARCHAR(4) AS
-
+CREATE OR ALTER PROCEDURE level2.insertarUnEmpleado 
+	@nombre VARCHAR(25), 
+	@apellido VARCHAR(50), 
+	@dni INT, 
+	@direccion VARCHAR(100),
+	@emailEmpresa VARCHAR(100), 
+	@emailPersonal VARCHAR(100) , 
+	@cuil VARCHAR(13), 
+	@idCargo VARCHAR(25), 
+	@idSucursal VARCHAR(40), 
+	@turno VARCHAR(4) 
+AS
+BEGIN
+    -- Valida que el DNI no esté repetido y esté dentro del rango
+    IF (SELECT dni FROM level2.empleado WHERE dni = @dni) IS NULL 
+        AND (@dni >= 10000000 AND @dni <= 99999999)
     BEGIN
-
-	if (SELECT legajo_Id FROM level2.empleado WHERE legajo_Id = @legajo_Id) IS NULL)	--VALIDO EL LEGAJO SEA DE 257
-		BEGIN
-
-		if (SELECT legajo_Id FROM level2.empleado WHERE dni = @dni) IS NULL and (@dni >=10000000 and @dni <= 99999999)  --DVALIDO DNI ACEPTABLE Y NO REPETIBLE
-			BEGIN
-
-				--VALIDO QUE EXISTA EL CARGO Y LA SUCURSAL
-			if(SELECT idCargo FROM level2.cargo WHERE descripcionCargo = @idCargo) IS NOT NULL AND (SELECT idSucursal FROM level1.sucursal WHERE nombreSucursal = @idSucursal) IS NOT NULL
-				BEGIN
-
-				INSERT INTO  level2.empleado (legajo_Id, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno, estado) 
-				VALUES (@legajo_Id, @nombre, @apellido, @dni, @direccion, @emailEmpresa, @emailPersonal, @cuil, @idCargo, @idSucursal, @turno, '1');
-				print ('Valores insertados correctamente en la tabla: Empleado.');
-				END
-			else
-				print('El valor de idSucursal y/o idCargo no existe')
-			END
-		else
-		print('No se puede insertar el empleado a la tabla debido a que ya existe un empleado con su dni o el dni tiene un valor incorrecto.');
-		END
-	else
-		print('No se puede insertar el empleado a la tabla debido a que ya existe un empleado con su legajo o el legajo tiene un valor incorrecto.');
+        -- Valida que el cargo y la sucursal existan
+        IF (SELECT descripcionCargo FROM level2.cargo WHERE descripcionCargo = @idCargo) IS NOT NULL 
+            AND (SELECT nombreSucursal FROM level1.sucursal WHERE nombreSucursal = @idSucursal) IS NOT NULL
+        BEGIN
+            -- Inserta el nuevo empleado
+            INSERT INTO level2.empleado 
+                (nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno, estado) 
+            VALUES 
+                (@nombre, @apellido, @dni, @direccion, @emailEmpresa, @emailPersonal, @cuil, @idCargo, @idSucursal, @turno, '1');
+            
+            PRINT ('Valores insertados correctamente en la tabla: Empleado.');
+        END
+        ELSE
+            PRINT('El valor de idSucursal y/o idCargo no existe');
     END
+    ELSE
+        PRINT('No se puede insertar el empleado a la tabla debido a que ya existe un empleado con ese DNI o el DNI tiene un valor incorrecto.');
+END
 GO
+
+exec level2.insertarUnEmpleado 'maria', 'moran', 44005719, 'roldan', 'abc@gmial', 'asd@gmail', '30-12221-00', 'Supervisor', 'Palacio Hutt', 'TT'
+select * from level2.empleado
 
 
 
