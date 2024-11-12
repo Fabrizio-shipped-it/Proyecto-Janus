@@ -91,7 +91,7 @@ CREATE TABLE level2.empleado(		legajo_Id INT PRIMARY KEY IDENTITY(257020,1),
 					direccion VARCHAR(100),
 					emailEmpresa VARCHAR(100),
 					emailPersonal VARCHAR(100),
-					cuil VARCHAR(13),
+					cuil VARCHAR(13) DEFAULT '0',
 					cargo VARCHAR(25) REFERENCES level2.cargo(descripcionCargo),				--	<-- FK a la tabla cargo
 					sucursal VARCHAR(40) REFERENCES level1.sucursal (nombreSucursal),		--  <-- FK a la tabla sucursal
 					turno VARCHAR(4) NOT NULL CHECK (turno = 'TM' or turno = 'TT' or turno='TN' or turno='FULL'),
