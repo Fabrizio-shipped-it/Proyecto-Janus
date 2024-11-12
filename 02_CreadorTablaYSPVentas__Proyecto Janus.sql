@@ -21,6 +21,7 @@
  44161995	ALTAMIRANO, FABRIZIO AUGUSTO
  44005719 	TORRES MORAN, MARIA CELESTE
 
+Fecha de Entrega: 12/11/2024
 
 --<Indice>--
 
@@ -42,6 +43,7 @@ use Com2900G07
 go
 
 
+
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ventaRegistrada')
 BEGIN
 	CREATE TABLE level2.ventaRegistrada(idVenta INT PRIMARY KEY IDENTITY(1,1),
@@ -52,7 +54,7 @@ BEGIN
 										genero VARCHAR(6) CHECK(genero = 'Mujer' or genero = 'Hombre'),
 										producto VARCHAR(100),
 										precioUnitario DECIMAL(10,2),
-										cantidad INT CHECK (cantidad > 0),
+										cantidad INT CHECK (cantidad >= 0),
 										fechaHora DATETIME,
 										medioPago VARCHAR(25) CHECK(medioPago ='Credit Card' or medioPago ='Cash' or medioPago ='Ewallet'), 
 										identificadorPago VARCHAR(50),
@@ -75,6 +77,17 @@ BEGIN
 										sucursal VARCHAR(20),
 										total DECIMAL(10, 2),
 										cantidadCompras INT
+										)
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'notaCredito')
+BEGIN
+	CREATE TABLE level2.notaCredito(	iDNotaCredito INT PRIMARY KEY IDENTITY (1,1),
+										ticketVenta INT,
+										nombreProducto VARCHAR(25),
+										precioUnitario DECIMAL(10, 2),
+										cantidad INT
 										)
 END
 GO
@@ -148,16 +161,17 @@ CREATE OR ALTER PROCEDURE level2.atiendeDetalleVenta @iDFactura VARCHAR(25) AS
 BEGIN
     DECLARE @total DECIMAL(10, 2);
 
+
     -- Calcular el nuevo total de la factura sumando todos los productos de la factura actual
     SET @total = (SELECT SUM(cantidad * precioUnitario) FROM level2.ventaRegistrada WHERE iDFactura = @iDFactura)
 
 	SET @total = @total + (@total * 0.24)--SE LE AGREGA EL IVA
-
+	DECLARE @cantidad int = (SELECT SUM(cantidad) FROM level2.ventaRegistrada WHERE iDFactura = @iDFactura)
     IF EXISTS (SELECT 1 FROM level2.detalleVenta WHERE idFactura = @idFactura)	--Si existe actualizo el precio
     BEGIN
         UPDATE detalleVenta
         SET total = @total,
-		cantidadCompras = (cantidadCompras + 1)
+		cantidadCompras =  @cantidad
         WHERE idFactura = @idFactura;
     END
     ELSE	--Si no existe, creo el nuevo
@@ -186,3 +200,55 @@ BEGIN
 END
 go
 
+
+CREATE OR ALTER PROCEDURE level2.atiendeDetalleVentaDevolucion @idVenta INT, @cantidad INT AS
+BEGIN
+
+    DECLARE @total DECIMAL(10, 2);
+
+    -- RESTAR EL MONTO DE DETALLE VENTA LA DEVOLUCION
+	DECLARE @idFactura VARCHAR(50) = (SELECT idFactura FROM level2.ventaRegistrada WHERE idVenta = @idVenta )
+    SET @total = (SELECT total FROM level2.detalleVenta WHERE iDFactura = @idFactura)
+	DECLARE @reembolso DECIMAL(10,2) = (SELECT precioUnitario FROM level2.ventaRegistrada WHERE idVenta = @idVenta) * @cantidad
+	SET @total = @total - @reembolso
+	--Actualizo
+    UPDATE level2.detalleVenta
+    SET total = @total,
+	cantidadCompras = (cantidadCompras - @cantidad)
+    WHERE idFactura = @idFactura;
+
+	UPDATE level2.ventaRegistrada
+	SET cantidad = cantidad - @cantidad
+	WHERE idVenta = @idVenta
+END;
+
+go
+
+----------------------------------------------<Nota Credito>---------------------------------------------------
+
+CREATE OR ALTER PROCEDURE level2.crearNotaCredito @ticketVenta INT, @cantidad INT AS
+BEGIN
+
+	if((SELECT idVenta FROM level2.ventaRegistrada WHERE idVenta = @ticketVenta) IS NOT NULL 			--Verifico si la venta existe
+	and @cantidad>0 and @cantidad<= (SELECT cantidad FROM level2.ventaRegistrada WHERE idVenta = @ticketVenta) 	--Verifico que la cantidad sea mayor a 0 y menor a los comprado
+	)
+	BEGIN
+	DECLARE @producto VARCHAR(50) = (SELECT producto FROM level2.ventaRegistrada WHERE idVenta = @ticketVenta)
+	DECLARE @precioUnitario INT = (SELECT precioUnitario FROM level2.ventaRegistrada WHERE idVenta = @ticketVenta)
+	INSERT INTO level2.notaCredito (ticketVenta, nombreProducto, precioUnitario, cantidad)
+	VALUES (@ticketVenta, @producto, @precioUnitario, @cantidad)
+	EXEC level2.atiendeDetalleVentaDevolucion @ticketVenta, @cantidad
+	END
+	
+	else
+		print('Valores no aceptados')
+
+
+END
+
+CREATE OR ALTER PROCEDURE level2.eliminarNotaCredito @idNC INT AS
+BEGIN
+
+DELETE level2.notaCredito WHERE iDNotaCredito = @idNC
+
+END
