@@ -112,21 +112,6 @@ END
 GO
 
 
-
-
-
-
-
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'medioPago')
-BEGIN
-CREATE TABLE level2.medioPago(	idMedioPago INT PRIMARY KEY CHECK (idMedioPago > 0), 
-								descripcionPagoEspanol VARCHAR(25) UNIQUE,
-								descripcionPagoIngles VARCHAR(25) UNIQUE)
-END
-GO
-
-
-
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ventaRegistrada')
 BEGIN
 	CREATE TABLE level2.ventaRegistrada(idVenta INT PRIMARY KEY IDENTITY(1,1),
