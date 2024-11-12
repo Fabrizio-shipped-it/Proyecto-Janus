@@ -93,7 +93,7 @@ CREATE TABLE level2.empleado(	legajo_Id INT PRIMARY KEY CHECK (legajo_Id > 25700
 								cuil VARCHAR(13),
 								cargo VARCHAR(25) REFERENCES level2.cargo(descripcionCargo),				--	<-- FK a la tabla cargo
 								sucursal VARCHAR(40) REFERENCES level1.sucursal (nombreSucursal),		--  <-- FK a la tabla sucursal
-								turno VARCHAR(4) NOT NULL CHECK (turno = 'TM' or turno = 'TT' or turno='TN'),
+								turno VARCHAR(4) NOT NULL CHECK (turno = 'TM' or turno = 'TT' or turno='TN' or turno='FULL'),
 								estado varchar(10) CHECK (estado = 'Activo' or estado = 'Inactivo'))
 END
 GO
@@ -133,7 +133,7 @@ BEGIN
 										tipoFactura CHAR(1),
 										ciudad VARCHAR(40),
 										tipoCliente CHAR(6),
-										genero VARCHAR(6) CHECK(genero = 'Mujer' or genero = 'Hombre'),
+										genero VARCHAR(6),
 										producto VARCHAR(100),
 										precioUnitario DECIMAL(10,2),
 										cantidad INT CHECK (cantidad > 0),
