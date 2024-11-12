@@ -28,8 +28,6 @@ use Com2900G07
 go
 
 --------------------------------------SUCURSAL----------------------------------------------------------
-
-
 -->Insertar
 
 EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'arena de Oasis entre Mos Esly y Mos Espa', '1111-1111'
@@ -56,8 +54,8 @@ SELECT * FROM level1.sucursal
 
 -->Eliminar
 
-EXEC level1.borrarSucursal 1
-EXEC level1.borrarSucursal 2
+EXEC level1.borrarSucursal 'Palacio Hutt'
+EXEC level1.borrarSucursal 'Templo Jedi'
 
 --Resultado esperado: no haya errores al eliminarlo
 
@@ -104,12 +102,14 @@ EXEC level2.insertarUnEmpleado 89, 'Samantha', 'Maxis', 111151115, 'Casa en Agat
 go
 EXEC level2.insertarUnEmpleado 257115, 'Ledwing', 'Maxis', 12, 'Kino der Toten', 'dereisendrache@grupo935.com', 'lmaxis@grupo935.com', '', 'Cajero', 'Placio Hutt', 'TM';
 go
-EXEC level2.insertarUnEmpleado 257115, 'Ledwing', 'Maxis', 12222222, 'Kino der Toten', 'dereisendrache@grupo935.com', 'lmaxis@grupo935.com', '', 'Cajero', 'Gallefrey', 'TM';
+EXEC level2.insertarUnEmpleado 257115, 'Ledwing', 'Maxis', 12222222, 'Kino der Toten', 'dereisendrache@grupo935.com', 'lmaxis@grupo935.com', '', 'Comandante', 'Palacio Hutt', 'TM';
+go
+EXEC level2.insertarUnEmpleado 257115, 'Ledwing', 'Maxis', 12222222, 'Kino der Toten', 'dereisendrache@grupo935.com', 'lmaxis@grupo935.com', '', 'Cajero', 'Palacio Hutt', 'TM';
 go
 
 
 
---Resultado esperado: solo debe existir la primera insercion
+--Resultado esperado: solo debe existir la primera insercion y la ultima
 
 SELECT * FROM level2.empleado 
 go
@@ -130,65 +130,22 @@ go
 
 EXEC level2.borrarEmpleado 257935
 go
+EXEC level2.borrarEmpleado 257115
+go
 EXEC level2.borrarEmpleado 4
 go
 SELECT * FROM level2.empleado
 go
 
---Resultado esperado: solo deberia borrar el test
+--Resultado esperado: solo deberia borrar los tests
 
 
-
-
----------------------------CATALOGO-------------------------------
-
--->Insertar
-
-EXEC level1.insertarCatalogo 'Exterminadores Dalek'
-GO
-EXEC level1.insertarCatalogo 'Exterminadores Dalek'
-GO
-EXEC level1.insertarCatalogo 'Cybermans'
-GO
-
---Resultado esperado: Solo debe haber un catalogo para Dalkes y otro para Cybermans
-
-SELECT * FROM level1.catalogo
-
--->Modificar
-
-EXEC level1.modificarCatalogo 2, 'Cybermans marca ACME'
-GO
-EXEC level1.modificarCatalogo 3, 'Verduras'
-GO
-
---Resultado esperado: Solo debe haberse actualizado el catalogo de CYBERMAN
-
-SELECT * FROM level1.catalogo
-
-
--->Borrado
-
-EXEC level1.borrarCatalogo 1
-GO
-EXEC level1.borrarCatalogo 2
-GO
-
---Resultado esperado: Borrado todo
-
-SELECT * FROM level1.catalogo
+EXEC level2.reactivarEmpleado 257935
+SELECT * FROM level2.empleado
 go
 
 --------------------------------PRODUCTO-------------------------------------------
 
---Ejecute el catalogo siguiente:
-
-EXEC level1.insertarCatalogo 'Aperture Science'
-GO
-EXEC level1.insertarCatalogo 'Half Life'
-GO
-
-SELECT * FROM level1.catalogo
 -->Insertar
 
 EXEC level1.insertarUnProducto 'Cubo de compania', 'Aperture Science', 43.3
@@ -203,7 +160,7 @@ EXEC level1.insertarUnProducto  'GLaDOS', 'Aperture Science', -2323
 GO
 
 
---Resultado esperado: Solo debe existir la torreta y el cubo de compania
+--Resultado esperado: Solo debe existir la torreta, el cubo de compania y el cubo laser
 SELECT * FROM level1.producto
 
 
@@ -226,6 +183,8 @@ EXEC level1.borrarProducto 2
 GO
 EXEC level1.borrarProducto 1
 GO
+EXEC level1.borrarProducto 3
+GO
 
 --Resultado esperado: borra los tests
 
@@ -233,102 +192,3 @@ SELECT * FROM level1.producto
 go
 
 
----------------------------------MEDIO DE PAGO--------------------------------------------------
-
-
---->Insertar Medio Pago
-
-
-EXEC level2.insertarMedioPago 4, 'Creditos Imperiales', 'Imperial Credits'
-GO
-
-SELECT * FROM level2.medioPago 
-
--->Eliminar Medio Pago
-
-EXEC level2.eliminarMedioPago 4
-
-SELECT * FROM level2.medioPago
-
-
-------------------------------------- Ventas Registrada------------------------------
-
-
---Funcion Buscar Precio
-
---En caso de haber eliminado los lotes de prueba de productos, insertarlos 
-EXEC level1.insertarUnProducto 'Cubo de compania', 'Aperture Science' ,43.3
-GO
-EXEC level1.insertarUnProducto  'Torreta','Half Life', 115.935
-GO
-
-SELECT * FROM level1.producto
-go
-
-DECLARE @test DECIMAL(10,2) = level2.buscarPrecioProducto ('Torreta')
-
-
-print('Precio de la torreta: ' + cast(@test AS VARCHAR(10)))
-go
-
-
-
--->Insercion VentasRegistrada
-
- 
-
-
--- Ejecutar estos comandos en caso de que haya eliminado los tests anteriores (actualizar los valores de id)
-EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'arena de Oasis entre Mos Esly y Mos Espa', '1111-1111'
-go
-EXEC level2.insertarUnEmpleado 257935, 'Edward', 'Richtofen', 90453233, 'Instalaciones de Der Riese', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 'Supervisor', 'Palacio Hutt', 'TM';
-go
-
-
-
-SELECT * FROM level1.producto
-SELECT * FROM level1.catalogo
-select * from level2.empleado
-SELECT * FROM level1.sucursal
-SELECT * FROM level2.medioPago
-go
-
--- El test comienza aqui
-
-EXEC level2.insertarUnaVentaRegistrada '111-111-111', 'A', 'Palacio Hutt', 'Wookye', 'Wookye', 'Torreta', 2, '2002-07-24', '9:32', 'Cash', '0000-935-115', 257935
-go
-EXEC level2.insertarUnaVentaRegistrada '111-111-111', 'A', 'Palacio Hutt', 'Wookye', 'Wookye', 'Torreta', 2, '2002-07-24', '9:32', 'Cash', '0000-935-115', 257935
-go
-EXEC level2.insertarUnaVentaRegistrada '112-111-111', 'A', 'Palacio Hutt', 'Wookye', 'Wookye', 'Torreta', 2, '2002-07-24', '9:32', 'Cash', '0000-935-115', 257935
-go
-EXEC level2.insertarUnaVentaRegistrada '111-111-111', 'A', 'Palacio Hutt', 'Wookye', 'Wookye', 'Torreta', 2, '2002-07-24', '9:32', 'Cash', '0002-935-115', 257935
-go
-EXEC level2.insertarUnaVentaRegistrada '112-111-111', 'A', 'Palacio Hutter', 'Wookye', 'Wookye', 'Torreta', 2, '2002-07-24', '9:32', 'Cash', '0002-935-115', 257935
-go
-EXEC level2.insertarUnaVentaRegistrada '112-111-111', 'A', 'Palacio Hutt', 'Wookye', 'Wookye', 'Torreta de Half Life', 2, '2002-07-24', '9:32', 'Cash', '0002-935-115', 257935
-go
-EXEC level2.insertarUnaVentaRegistrada '112-111-111', 'A', 'Palacio Hutt', 'Wookye', 'Wookye', 'Torreta', 2, '2002-07-24', '9:32', 'creditos de la Federacion', '0002-935-115', 257935
-go
-
-SELECT * from level2.ventaRegistrada
-
---Resultado esperado: Se ha ejecutado duplicados e insercion de valores incorrectos. Solo debe existir un valor: 
---111-111-111	A	Tatooine	Wookye	Wookye	Torreta	115.94 2	2002-07-24	09:32:00	Cash	0000-935-115	257935	Palacio Hutt	289.85
-
--->Borrado
-
-EXEC level2.eliminarVentaRegistrada 1
-go
-
-SELECT * from level2.ventaRegistrada
-go
-
--->Limpieza de test
-
-EXEC level1.borrarSucursal 1
-EXEC level2.borrarEmpleado 257935
-EXEC level1.borrarCatalogo 3
-EXEC level1.borrarCatalogo 4
-EXEC level1.borrarProducto 3
-EXEC level1.borrarProducto 4
-go
