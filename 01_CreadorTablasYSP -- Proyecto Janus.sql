@@ -447,8 +447,6 @@ GO
 
 -----------------------<VENTA REGISTRADA>----------------------------------------
 
-
-
 --Funcion para buscar el precio de un producto. En caso de no encontrar el producto devuelve 0.
 
 CREATE OR ALTER FUNCTION level2.buscarPrecioProducto (@producto VARCHAR(100)) RETURNS DECIMAL (10,2)
@@ -461,44 +459,38 @@ RETURN @precio
 END
 GO
 
-
-
-CREATE OR ALTER PROCEDURE level2.insertarUnaVentaRegistrada @iDFactura VARCHAR(50), @tipoFactura CHAR(1),  @ciudad VARCHAR(40), @tipoCliente CHAR(6), @genero VARCHAR(6), @fechaHora DATETIME,
-															@medioPago VARCHAR(25), @legajo_Id INT, @identificadorPago VARCHAR(50)  AS
+CREATE OR ALTER PROCEDURE level2.insertarUnaVentaRegistrada @idFactura VARCHAR(50), @tipoFactura CHAR(1),  @ciudad VARCHAR(40), @tipoCliente CHAR(6), @genero VARCHAR(6), 
+															@fechaHora DATETIME, @medioPago VARCHAR(25), @legajo_Id INT, @identificadorPago VARCHAR(50)  AS
 BEGIN
 
---PRIMERO VALIDO SI LA ID FACTURA Y EL IDENTIFICADOR PAGO ES UNICA 
+-- VALIDO SI LA SUCURSAL, EL EMPLEADO, EL MEDIO DE PAGO, GENERO Y EL PRODUCTO ESTAN REGISTRADOS EN LA BASE DE DATOS, Y DE PASO LA CANTIDAD NO SEA NEGATIVA 
 
---SEGUNDO VALIDO SI LA SUCURSAL, EL EMPLEADO, EL MEDIO DE PAGO, GENERO Y EL PRODUCTO ESTAN REGISTRADOS EN LA BASE DE DATOS, Y DE PASO LA CANTIDAD NO SEA NEGATIVA 
+		IF (SELECT idSucursal FROM level1.sucursal WHERE ciudad = @ciudad) IS NOT NULL  
+        AND (@medioPago ='Credit Card' or @medioPago ='Cash' or @medioPago ='Ewallet')
+        AND (@genero = 'Female'or @genero = 'Male') 
+        AND (SELECT legajo_Id FROM level2.empleado WHERE legajo_Id = @legajo_Id) IS NOT NULL 
+		BEGIN
 
-		if((SELECT idSucursal FROM level1.sucursal WHERE nombreSucursal = @ciudad) IS NOT NULL and (@medioPago ='Credit Card' or @medioPago ='Cash' or @medioPago ='Ewallet') 
-		and (SELECT legajo_Id FROM level2.empleado WHERE legajo_Id = @legajo_Id) IS NOT NULL and @cantidad > 0)
-			BEGIN
-
---TERCERO CALCULO Y BUSCO LOS VALORES FALTANTES
-
-
-			DECLARE @ciudad VARCHAR (40) = (SELECT ciudad FROM level1.sucursal WHERE nombreSucursal = @sucursal)
 --INSERTO
-
-			INSERT INTO level2.ventaRegistrada (idVenta, tipoFactura, ciudad,tipoCliente, genero,producto,precioUnitario, cantidad, fechaHora, medioPago, identificadorPago, legajo_Id, sucursal)
-
-			VALUES (@idFactura, @tipoFactura, @ciudad, @tipoCliente, @genero, @producto, @precioUnitario, @cantidad, @fechaHora, @medioPago,
-					@identificadorPago, @legajo_Id, @sucursal)
-			EXEC level2.atiendeDetalleVenta @idFactura
+			-- Insertar en la tabla entaRegistrada
+			INSERT INTO level2.ventaRegistrada (iDFactura, tipoFactura, ciudad, tipoCliente, genero, fechaHora, medioPago, Empleado, identificadorPago)
+			VALUES (@idFactura, @tipoFactura, @ciudad, @tipoCliente, @genero, @fechaHora, @medioPago, @legajo_Id, @identificadorPago);
 			print('Se ha registrado la factura exitosamente')
-			END
+		END
 
 		else 
+		BEGIN
 			print('Revise si los datos son correctos dado que, o no existe la sucursal, producto o empleado, o el medio de pago o la cantidad es invalida')
+		END
+
 
 END
 go
--- ---------------------------------------
-CREATE OR ALTER PROCEDURE level2.eliminarVentaRegistrada @idVenta INT AS
+
+CREATE OR ALTER PROCEDURE level2.eliminarVentaRegistrada @idFactura INT AS
 BEGIN
 
-DELETE level2.ventaRegistrada WHERE idVenta = @idVenta
+DELETE level2.ventaRegistrada WHERE iDFactura = @idFactura
 
 
 END
@@ -506,38 +498,27 @@ go
 
 -------------------------------------------------------<DETALLE VENTA>-------------------------------------------------------------------
 
-CREATE OR ALTER PROCEDURE level2.atiendeDetalleVenta @iDFactura VARCHAR(25) AS
+CREATE OR ALTER PROCEDURE level2.InsertarDetalleVenta @idFactura VARCHAR(50), @producto VARCHAR(100), @cantidad INT  AS
 BEGIN
     DECLARE @total DECIMAL(10, 2);
 
+	-- Obtener el precio unitario del producto
+	DECLARE @precioUnitario DECIMAL (10,2) = level2.buscarPrecioProducto(@producto)
+
+	-- Insertar en la tabla detalleVenta
+	INSERT INTO level2.detalleVenta (iDFactura, NombreProducto, Cantidad, PrecioUnitario)
+	VALUES (@idFactura, @producto, @cantidad, @precioUnitario);
 
     -- Calcular el nuevo total de la factura sumando todos los productos de la factura actual
-    SET @total = (SELECT SUM(cantidad * precioUnitario) FROM level2.ventaRegistrada WHERE iDFactura = @iDFactura)
+    SET @total = @cantidad * @precioUnitario;
 
-	SET @total = @total + (@total * 0.24)--SE LE AGREGA EL IVA
-	DECLARE @cantidad int = (SELECT SUM(cantidad) FROM level2.ventaRegistrada WHERE iDFactura = @iDFactura)
-    IF EXISTS (SELECT 1 FROM level2.detalleVenta WHERE idFactura = @idFactura)	--Si existe actualizo el precio
-    BEGIN
-        UPDATE detalleVenta
-        SET total = @total,
-		cantidadCompras =  @cantidad
+	SET @total = (@total *  1.21) --SE LE AGREGA EL IVA
+
+        UPDATE level2.ventaRegistrada
+        SET MontoTotal = MontoTotal + @total
         WHERE idFactura = @idFactura;
-    END
-    ELSE	--Si no existe, creo el nuevo
-    	BEGIN
-
-		DECLARE @tipoFactura char(1) = (SELECT tipoFactura FROM level2.ventaRegistrada WHERE idFactura = @iDFactura)
-		DECLARE @ciudad VARCHAR(40) = (SELECT ciudad FROM level2.ventaRegistrada WHERE idFactura = @iDFactura)
-		DECLARE @tipoCliente CHAR(6) = (SELECT tipoCliente FROM level2.ventaRegistrada WHERE idFactura = @iDFactura)
-		DECLARE @medioPago VARCHAR(25) = (SELECT medioPago FROM level2.ventaRegistrada WHERE idFactura = @iDFactura)
-		DECLARE @legajo_Id INT = (SELECT legajo_Id FROM level2.ventaRegistrada WHERE idFactura = @iDFactura)
-		DECLARE @sucursal VARCHAR(20) = (SELECT sucursal FROM level2.ventaRegistrada WHERE idFactura = @iDFactura)
-	
-        INSERT INTO level2.detalleVenta (idFactura, tipoFactura, ciudad, tipoCliente, medioPago, legajo_Id, sucursal, total, cantidadCompras)
-        VALUES (@idFactura, @tipoFactura, @ciudad, @tipoCliente, @medioPago, @legajo_Id, @sucursal, @total, 1);
-    END
+	PRINT 'Monto total actualizado correctamente en ventaRegistrada con el IVA incluido'
 END;
-
 go
 
 CREATE OR ALTER PROCEDURE level2.eliminarDetalleVenta @idFactura VARCHAR(25) AS
@@ -570,7 +551,6 @@ BEGIN
 	SET cantidad = cantidad - @cantidad
 	WHERE idVenta = @idVenta
 END;
-
 go
 
 ----------------------------------------------<Nota Credito>---------------------------------------------------
