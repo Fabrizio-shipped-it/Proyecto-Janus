@@ -530,15 +530,61 @@ BEGIN
 END;
 go
 
-CREATE OR ALTER PROCEDURE level2.eliminarDetalleVenta @idFactura VARCHAR(25) AS
+CREATE OR ALTER PROCEDURE level2.eliminarDetalleVenta @id VARCHAR(25) AS
 BEGIN
 
-	DELETE FROM level2.detalleVenta WHERE idFactura = @idFactura
+	DELETE FROM level2.detalleVenta WHERE idNroDetalle = @id
 
 
 END
 go
+--------------------------------------LOTES DE PRUEBA PARA VALIDAR EL FUNCIONAMIENTO DE LAS SP---------------------------------------
+EXEC level1.insertarUnSucursal 'Milagro', 'Moron', 'Av. Brig. Gral. Juan Manuel de Rosas 3634, B1754 San Justo, Provincia de Buenos Aires', '5555-5551'
+go
+EXEC level1.insertarUnSucursal ' ', 'Ramos Mejía', 'Av. de Mayo 791, B1704 Ramos Mejía, Provincia de Buenos Aires', '5555-5552'
+go --ESTE MARCA ERROR APROPOSITO
+EXEC level1.insertarUnSucursal  'Mandalay', 'Lomas del Mirador', 'Pres. Juan Domingo Perón 763, B1753AWO Villa Luzuriaga, Provincia de Buenos Aires', '5555-5553'
+go
+select * from level1.sucursal
 
+EXEC level2.insertarCargo 1, 'Supervisor'
+GO
+EXEC level2.insertarCargo 2, 'Cajero'
+GO
+EXEC level2.insertarCargo 3, 'Gerente de sucursal'
+GO
+select * from level2.cargo
+
+EXEC level2.insertarUnEmpleado 'celeste', 'moran', 44005719, 'roldan', 'abc@gmial', 'asd@gmail', '30-12221-00', 'Supervisor', 'Moron', 'TT'
+select * from level2.empleado
+
+EXEC level1.insertarUnProducto 'Crema facial', 'cosmetico', 35.8, '330 gr'
+go
+EXEC level1.insertarUnProducto 'Leche', 'lacteos', 50, '1 litro'
+go
+EXEC level1.insertarUnProducto 'Pitusas', 'galletitas', 1000, ' gr'
+go
+select* from level1.producto
+
+EXEC level2.insertarUnaVentaRegistrada '750-67-8428', 'A', 'Milagro', 'Member', 'Female', '01/05/2019 13:08:00', 'Ewallet', 257020, '0000003100099475144530'
+go
+EXEC level2.insertarUnaVentaRegistrada '226-31-3081', 'C', 'Naypyitaw', 'Normal', 'Female', '03/08/2019 10:29:00',	'Cash',	257020, '--'
+go --MARCA ERROR PORQUE EN ESTE CASO LA SUCURSAL NO EXISTE
+
+select * from level2.ventaRegistrada
+
+EXEC level2.InsertarDetalleVenta '750-67-8428', 'Crema facial', 7
+GO 
+EXEC level2.InsertarDetalleVenta '750-67-8429', 'Leche', 5 --ESTE NO ME DEJA PORQUE PUSE UN ID TRUCHO
+GO 
+EXEC level2.InsertarDetalleVenta '750-67-8428', 'Pitusas', 1
+GO 
+
+select * from level2.detalleVenta
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+	
 
 CREATE OR ALTER PROCEDURE level2.atiendeDetalleVentaDevolucion @idVenta INT, @cantidad INT AS
 BEGIN
