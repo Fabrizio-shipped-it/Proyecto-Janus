@@ -533,7 +533,7 @@ go
 CREATE OR ALTER PROCEDURE level2.eliminarDetalleVenta @id VARCHAR(25) AS
 BEGIN
 
-	DELETE FROM level2.detalleVenta WHERE idNroDetalle = @id
+	DELETE FROM level2.detalleVenta WHERE iDNroDetalle = @id
 
 
 END
