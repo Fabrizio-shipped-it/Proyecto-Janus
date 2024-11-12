@@ -108,7 +108,7 @@ BEGIN
 							Categoria VARCHAR(50) NOT NULL,			
 							nombreProducto VARCHAR (100) NOT NULL,			
 							precio DECIMAL(10,2) NOT NULL,
-							ReferenciaUnidad VARCHAR(20))			
+							ReferenciaUnidad VARCHAR(30))			
 END
 GO
 
