@@ -84,7 +84,7 @@ GO
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'empleado')
 BEGIN
-CREATE TABLE level2.empleado(	legajo_Id INT PRIMARY KEY CHECK (legajo_Id > 257000),  
+CREATE TABLE level2.empleado(	legajo_Id INT PRIMARY KEY CHECK (legajo_Id >= 257000),  
 								nombre VARCHAR(50) NOT NULL,
 								apellido VARCHAR(50) NOT NULL,
 								dni INT UNIQUE NOT NULL CHECK (dni >= 10000000 and dni <= 99999999),
