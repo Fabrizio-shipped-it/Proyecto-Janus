@@ -461,28 +461,26 @@ END
 GO
 
 
-CREATE OR ALTER PROCEDURE level2.insertarUnaVentaRegistrada @idFactura VARCHAR(50), @tipoFactura CHAR(1),  @sucursal VARCHAR(20), @tipoCliente CHAR(6), @genero VARCHAR(6), @producto VARCHAR(100), @cantidad INT,
-										 @fechaHora DATETIME, @medioPago VARCHAR(25), @identificadorPago VARCHAR(50), @legajo_Id INT AS
 
+CREATE OR ALTER PROCEDURE level2.insertarUnaVentaRegistrada @iDFactura VARCHAR(50), @tipoFactura CHAR(1),  @ciudad VARCHAR(40), @tipoCliente CHAR(6), @genero VARCHAR(6), @fechaHora DATETIME,
+															@medioPago VARCHAR(25), @legajo_Id INT, @identificadorPago VARCHAR(50)  AS
 BEGIN
 
 --PRIMERO VALIDO SI LA ID FACTURA Y EL IDENTIFICADOR PAGO ES UNICA 
 
 --SEGUNDO VALIDO SI LA SUCURSAL, EL EMPLEADO, EL MEDIO DE PAGO, GENERO Y EL PRODUCTO ESTAN REGISTRADOS EN LA BASE DE DATOS, Y DE PASO LA CANTIDAD NO SEA NEGATIVA 
 
-		if((SELECT idSucursal FROM level1.sucursal WHERE nombreSucursal = @sucursal) IS NOT NULL and (SELECT idProducto FROM level1.producto WHERE nombreProducto = @producto) IS NOT NULL and 
-			(@medioPago ='Credit Card' or @medioPago ='Cash' or @medioPago ='Ewallet') and (@genero = 'Mujer' or @genero = 'Hombre') and 
-			(SELECT legajo_Id FROM level2.empleado WHERE legajo_Id = @legajo_Id) IS NOT NULL and @cantidad > 0)
+		if((SELECT idSucursal FROM level1.sucursal WHERE nombreSucursal = @ciudad) IS NOT NULL and (@medioPago ='Credit Card' or @medioPago ='Cash' or @medioPago ='Ewallet') 
+		and (SELECT legajo_Id FROM level2.empleado WHERE legajo_Id = @legajo_Id) IS NOT NULL and @cantidad > 0)
 			BEGIN
 
 --TERCERO CALCULO Y BUSCO LOS VALORES FALTANTES
 
-			DECLARE @precioUnitario DECIMAL (10,2) = level2.buscarPrecioProducto(@producto)
 
 			DECLARE @ciudad VARCHAR (40) = (SELECT ciudad FROM level1.sucursal WHERE nombreSucursal = @sucursal)
 --INSERTO
 
-			INSERT INTO level2.ventaRegistrada (iDFactura,tipoFactura, ciudad,tipoCliente, genero,producto,precioUnitario, cantidad, fechaHora, medioPago, identificadorPago, legajo_Id, sucursal)
+			INSERT INTO level2.ventaRegistrada (idVenta, tipoFactura, ciudad,tipoCliente, genero,producto,precioUnitario, cantidad, fechaHora, medioPago, identificadorPago, legajo_Id, sucursal)
 
 			VALUES (@idFactura, @tipoFactura, @ciudad, @tipoCliente, @genero, @producto, @precioUnitario, @cantidad, @fechaHora, @medioPago,
 					@identificadorPago, @legajo_Id, @sucursal)
@@ -493,11 +491,9 @@ BEGIN
 		else 
 			print('Revise si los datos son correctos dado que, o no existe la sucursal, producto o empleado, o el medio de pago o la cantidad es invalida')
 
-
-
 END
 go
-
+-- ---------------------------------------
 CREATE OR ALTER PROCEDURE level2.eliminarVentaRegistrada @idVenta INT AS
 BEGIN
 
