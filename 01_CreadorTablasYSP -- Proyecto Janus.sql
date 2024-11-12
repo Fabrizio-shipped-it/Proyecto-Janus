@@ -104,7 +104,7 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'producto')
 BEGIN
 	CREATE TABLE level1.producto(	idProducto INT PRIMARY KEY IDENTITY(1,1),	 	
-									lineaProducto VARCHAR(50) NOT NULL,			
+									Categoria VARCHAR(50) NOT NULL,			
 									nombreProducto VARCHAR (100) NOT NULL,			
 									precio DECIMAL(10,2) NOT NULL)			
 END
@@ -394,15 +394,15 @@ GO
 ----------------------------------------------------<PRODUCTOS>------------------------------------------------------------
 
 
-CREATE OR ALTER PROCEDURE level1.insertarUnProducto   @nombreProducto VARCHAR(100), @lineaProducto VARCHAR(50), @precio DECIMAL(10,2) AS
+CREATE OR ALTER PROCEDURE level1.insertarUnProducto   @nombreProducto VARCHAR(100), @Categoria VARCHAR(50), @precio DECIMAL(10,2) AS
 
     BEGIN
 	--Verifico precio, que el producto no exista
 	if (@precio >= 0) and (@nombreProducto IS NOT NULL and @nombreProducto != '' and (SELECT idProducto FROM level1.producto WHERE nombreProducto = @nombreProducto) IS NULL)
  		BEGIN
 
-		INSERT INTO level1.producto (nombreProducto, lineaProducto, precio)
-		VALUES (@nombreProducto, @lineaProducto, @precio)
+		INSERT INTO level1.producto (nombreProducto, Categoria, precio)
+		VALUES (@nombreProducto, @Categoria, @precio)
 		print ('Producto insertado exitosamente')
 		END
 
@@ -412,7 +412,7 @@ CREATE OR ALTER PROCEDURE level1.insertarUnProducto   @nombreProducto VARCHAR(10
 GO
 
 
-CREATE OR ALTER PROCEDURE level1.modificarProducto @idProducto INT, @lineaProducto VARCHAR(40), @precio DECIMAL(10,2) AS
+CREATE OR ALTER PROCEDURE level1.modificarProducto @idProducto INT, @Categoria VARCHAR(40), @precio DECIMAL(10,2) AS
 BEGIN
 --Veridico que el nombre del producto exista
 	if (SELECT idProducto FROM level1.producto WHERE idProducto = @idProducto) IS NOT NULL
@@ -423,7 +423,7 @@ BEGIN
 			UPDATE level1.producto
 			SET
 			precio = @precio,
-			lineaProducto = @lineaProducto
+			Categoria = @Categoria
 			WHERE idProducto = @idProducto
 			print('Se ha actualizado el producto exitosamente')
 			END
