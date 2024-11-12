@@ -500,24 +500,32 @@ go
 
 CREATE OR ALTER PROCEDURE level2.InsertarDetalleVenta @idFactura VARCHAR(50), @producto VARCHAR(100), @cantidad INT  AS
 BEGIN
-    DECLARE @total DECIMAL(10, 2);
+	-- Verificar si el idFactura existe en la tabla ventaRegistrada
+	IF EXISTS(SELECT 1 FROM level2.ventaRegistrada WHERE iDFactura = @idFactura)
+	BEGIN
+		DECLARE @total DECIMAL(10, 2);
 
-	-- Obtener el precio unitario del producto
-	DECLARE @precioUnitario DECIMAL (10,2) = level2.buscarPrecioProducto(@producto)
+		-- Obtener el precio unitario del producto
+		DECLARE @precioUnitario DECIMAL (10,2) = level2.buscarPrecioProducto(@producto)
 
-	-- Insertar en la tabla detalleVenta
-	INSERT INTO level2.detalleVenta (iDFactura, NombreProducto, Cantidad, PrecioUnitario)
-	VALUES (@idFactura, @producto, @cantidad, @precioUnitario);
+		-- Insertar en la tabla detalleVenta
+		INSERT INTO level2.detalleVenta (iDFactura, NombreProducto, Cantidad, PrecioUnitario)
+		VALUES (@idFactura, @producto, @cantidad, @precioUnitario);
 
-    -- Calcular el nuevo total de la factura sumando todos los productos de la factura actual
-    SET @total = @cantidad * @precioUnitario;
+		-- Calcular el nuevo total de la factura sumando todos los productos de la factura actual
+		SET @total = @cantidad * @precioUnitario;
 
-	SET @total = (@total *  1.21) --SE LE AGREGA EL IVA
+		SET @total = (@total *  1.21) --SE LE AGREGA EL IVA
 
         UPDATE level2.ventaRegistrada
         SET MontoTotal = MontoTotal + @total
         WHERE idFactura = @idFactura;
-	PRINT 'Monto total actualizado correctamente en ventaRegistrada con el IVA incluido'
+			PRINT 'Monto total actualizado correctamente en ventaRegistrada con el IVA incluido'
+	END
+	ELSE 
+	BEGIN
+		PRINT 'Error: La factura con el ID especificado no existe en ventaRegistrada';
+	END
 END;
 go
 
