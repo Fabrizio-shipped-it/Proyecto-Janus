@@ -408,8 +408,8 @@ BEGIN
 --Veridico que el nombre del producto exista
 	if (SELECT idProducto FROM level1.producto WHERE idProducto = @idProducto) IS NOT NULL
 		BEGIN
-		--Verifico que el precio no sea menor a 1
-		if (@precio >= 0)
+		--Verifico que el precio no sea menor a 0
+		if (@precio > 0)
 			BEGIN
 			UPDATE level1.producto
 			SET
