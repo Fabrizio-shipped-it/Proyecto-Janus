@@ -138,7 +138,9 @@ BEGIN
 						iDFactura VARCHAR(50) PRIMARY KEY,
 						NombreProducto VARCHAR(100),
 						Cantidad INT,
-						PrecioUnitario DECIMAL(10,2)
+						PrecioUnitario DECIMAL(10,2),
+							CONSTRAINT FK_FacturaDetalle (iDFactura)
+							REFERENCES level2.ventaRegistrada (iDFactura)
 )
 END
 GO
