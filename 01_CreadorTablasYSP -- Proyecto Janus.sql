@@ -264,7 +264,7 @@ EXEC level2.insertarCargo 1, 'Supervisor'
 GO
 EXEC level2.insertarCargo 2, 'Cajero'
 GO
-EXEC level2.insertarCargo 3, 'Gerente Sucursal'
+EXEC level2.insertarCargo 3, 'Gerente de sucursal'
 GO
 
 
