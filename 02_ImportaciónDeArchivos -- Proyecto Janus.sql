@@ -221,8 +221,8 @@ EXEC level1.ImportarElectronicos N'TU DIRECTORIO';
 	select * from level1.producto
 	truncate table level1.producto
 
---- ----------------------------------------------Ventas_registradas.csv		----FALTA MODIFICARLA
-CREATE OR ALTER PROCEDURE level2.InsertarVentasRegistradas
+--- ----------------------------------------------Ventas_registradas.csv
+CREATE OR ALTER PROCEDURE level2.InsertarVentasRegistradas @RutaArchivo NVARCHAR(270)
 AS
 BEGIN 
 	CREATE TABLE #tempVenta(
@@ -240,26 +240,56 @@ BEGIN
 	Empleado INT,
 	"Identificador de pago" VARCHAR(50));
 
-	BULK INSERT	#tempVenta
-	FROM 'TU DIRECTORIO'
-	WITH( FORMAT= 'CSV',
-		FIELDTERMINATOR= ';',
-		ROWTERMINATOR= '0x0a',
-		FIRSTROW=2,
-		CODEPAGE='65001');
+	DECLARE @Consulta NVARCHAR(MAX);
+    SET @Consulta = N'
+        BULK INSERT #tempVenta
+        FROM ''' + @RutaArchivo + '''
+        WITH (
+            FORMAT = ''CSV'',
+            FIELDTERMINATOR = '';'',
+            ROWTERMINATOR = ''0x0a'',
+            FIRSTROW = 2,
+            CODEPAGE = ''65001''
+        );';
+
+    -- Ejecutar la consulta dinámica
+    EXEC sp_executesql @Consulta;
 	----------------------------------------------
-	INSERT INTO level2.VentaRegistrada(ID_Factura, Tipo_Factura, Ciudad, Tipo_Cliente, Genero, Producto, PrecioUnitario,
-									Cantidad, FechaHora, MedioPago, Empleado)
-	select t.[ID Factura], t.[Tipo de Factura], t.Ciudad, t.[Tipo de cliente], t.Genero, t.Producto, t.[Precio Unitario],
-			t.Cantidad, CAST(t.Fecha AS DATETIME) + CAST(t.hora AS DATETIME) AS FechaHoraCompleta, t.[Medio de Pago],
-				t.Empleado FROM #tempVenta t
+
+		INSERT INTO level2.ventaRegistrada(iDFactura, tipoFactura, Ciudad, tipoCliente, Genero, fechaHora, medioPago,
+																								Empleado, MontoTotal, identificadorPago)
+				SELECT t.[ID Factura], t.[Tipo de Factura], t.Ciudad, t.[Tipo de cliente], t.Genero,
+					CAST(t.Fecha AS DATETIME) + CAST(t.hora AS DATETIME) AS FechaHoraCompleta, t.[Medio de Pago], t.Empleado,
+					 t.Cantidad * t.[Precio Unitario] AS MontoTotal, t.[Identificador de pago]
+						FROM #tempVenta t
+				LEFT JOIN level2.ventaRegistrada vr ON t.[ID Factura] = vr.iDFactura
+				WHERE vr.iDFactura IS NULL; 
 	
-	UPDATE v
-	SET v.Categoria = p.Categoria
-	FROM level2.VentaRegistrada AS v
-	JOIN level1.productos AS p ON v.Producto = p.NombreProd
-	WHERE v.Categoria IS NULL;
+			INSERT INTO level2.detalleVenta(iDFactura, NombreProducto, Cantidad, PrecioUnitario)
+					SELECT x.[ID Factura], x.Producto, x.Cantidad, x.[Precio Unitario]
+					FROM #tempVenta x
+			LEFT JOIN level2.detalleVenta dv ON x.[ID Factura] = dv.iDFactura
+			WHERE dv.iDFactura IS NULL;
 	
 	DROP TABLE #tempVenta
 END;
 GO
+EXEC level2.InsertarVentasRegistradas N'TU DIRECTORIO';
+
+
+/*
+select * from level2.ventaRegistrada
+truncate table level2.ventaRegistrada
+
+select * from level2.detalleVenta
+truncate table level2.detalleVenta
+
+select * from level1.producto
+truncate table level1.producto
+
+select * from level2.empleado
+truncate table level2.empleado
+
+select * from level1.sucursal
+truncate table level1.sucursal
+*/
