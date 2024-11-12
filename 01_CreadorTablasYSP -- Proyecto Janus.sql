@@ -138,10 +138,6 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'detalleVenta')
 BEGIN
 	CREATE TABLE level2.detalleVenta(	iDFactura VARCHAR(50) PRIMARY KEY,
 										tipoFactura CHAR(1),
-										ciudad VARCHAR(40),
-										tipoCliente CHAR(6),
-										medioPago VARCHAR(25) CHECK(medioPago ='Credit Card' or medioPago ='Cash' or medioPago ='Ewallet'), 
-										legajo_Id INT REFERENCES level2.empleado(legajo_Id),
 										sucursal VARCHAR(20),
 										total DECIMAL(10, 2),
 										cantidadCompras INT
