@@ -389,7 +389,7 @@ CREATE OR ALTER PROCEDURE level1.insertarUnProducto   @nombreProducto VARCHAR(10
 
     BEGIN
 	--Verifico precio, que el producto no exista
-	if (@precio >= 0) and (@nombreProducto IS NOT NULL and @nombreProducto != '' and (SELECT idProducto FROM level1.producto WHERE nombreProducto = @nombreProducto) IS NULL)
+	if (@precio > 0) and (@nombreProducto IS NOT NULL and @nombreProducto != '' and (SELECT idProducto FROM level1.producto WHERE nombreProducto = @nombreProducto) IS NULL)
  		BEGIN
 
 		INSERT INTO level1.producto (nombreProducto, Categoria, precio, ReferenciaUnidad)
