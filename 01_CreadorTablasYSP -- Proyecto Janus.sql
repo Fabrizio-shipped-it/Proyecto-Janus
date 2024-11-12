@@ -123,6 +123,7 @@ BEGIN
 										fechaHora DATETIME,
 										medioPago VARCHAR(25) CHECK(medioPago ='Credit Card' or medioPago ='Cash' or medioPago ='Ewallet'),
 										Empleado INT REFERENCES level2.empleado(legajo_Id),
+										MontoTotal DECIMAL(10,2),
 										identificadorPago VARCHAR(50)
 )
 										
