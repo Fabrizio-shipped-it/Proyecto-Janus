@@ -104,10 +104,11 @@ GO
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'producto')
 BEGIN
-	CREATE TABLE level1.producto(	idProducto INT PRIMARY KEY IDENTITY(1,1),	 	
-									Categoria VARCHAR(50) NOT NULL,			
-									nombreProducto VARCHAR (100) NOT NULL,			
-									precio DECIMAL(10,2) NOT NULL)			
+	CREATE TABLE level1.producto(			idProducto INT PRIMARY KEY IDENTITY(1,1),	 	
+							Categoria VARCHAR(50) NOT NULL,			
+							nombreProducto VARCHAR (100) NOT NULL,			
+							precio DECIMAL(10,2) NOT NULL,
+							ReferenciaUnidad VARCHAR(20))			
 END
 GO
 
