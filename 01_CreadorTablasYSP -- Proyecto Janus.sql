@@ -271,7 +271,7 @@ CREATE OR ALTER PROCEDURE level2.insertarUnEmpleado @legajo_Id INT, @nombre VARC
 
     BEGIN
 
-	if (SELECT legajo_Id FROM level2.empleado WHERE legajo_Id = @legajo_Id) IS NULL and (@legajo_Id >257000)	--VALIDO EL LEGAJO SEA DE 257
+	if (SELECT legajo_Id FROM level2.empleado WHERE legajo_Id = @legajo_Id) IS NULL)	--VALIDO EL LEGAJO SEA DE 257
 		BEGIN
 
 		if (SELECT legajo_Id FROM level2.empleado WHERE dni = @dni) IS NULL and (@dni >=10000000 and @dni <= 99999999)  --DVALIDO DNI ACEPTABLE Y NO REPETIBLE
@@ -282,7 +282,7 @@ CREATE OR ALTER PROCEDURE level2.insertarUnEmpleado @legajo_Id INT, @nombre VARC
 				BEGIN
 
 				INSERT INTO  level2.empleado (legajo_Id, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno, estado) 
-				VALUES (@legajo_Id, @nombre, @apellido, @dni, @direccion, @emailEmpresa, @emailPersonal, @cuil, @idCargo, @idSucursal, @turno, 'Activo');
+				VALUES (@legajo_Id, @nombre, @apellido, @dni, @direccion, @emailEmpresa, @emailPersonal, @cuil, @idCargo, @idSucursal, @turno, '1');
 				print ('Valores insertados correctamente en la tabla: Empleado.');
 				END
 			else
@@ -342,7 +342,7 @@ BEGIN
 		UPDATE
 		level2.empleado
 		SET
-		estado = 'Inactivo'
+		estado = '0'
 		WHERE legajo_Id = @legajo_Id
 		print ('El empleado fue eliminado con exito.')
 	END
@@ -362,7 +362,7 @@ BEGIN
 		UPDATE
 		level2.empleado
 		SET
-		estado = 'Activo'
+		estado = '1'
 		WHERE legajo_Id = @legajo_Id
 		print ('El empleado fue reactivado.')
 	END
@@ -375,15 +375,15 @@ GO
 ----------------------------------------------------<PRODUCTOS>------------------------------------------------------------
 
 
-CREATE OR ALTER PROCEDURE level1.insertarUnProducto   @nombreProducto VARCHAR(100), @Categoria VARCHAR(50), @precio DECIMAL(10,2) AS
+CREATE OR ALTER PROCEDURE level1.insertarUnProducto   @nombreProducto VARCHAR(100), @Categoria VARCHAR(50), @precio DECIMAL(10,2), @ReferenciaUnidad VARCHAR(30) AS
 
     BEGIN
 	--Verifico precio, que el producto no exista
 	if (@precio >= 0) and (@nombreProducto IS NOT NULL and @nombreProducto != '' and (SELECT idProducto FROM level1.producto WHERE nombreProducto = @nombreProducto) IS NULL)
  		BEGIN
 
-		INSERT INTO level1.producto (nombreProducto, Categoria, precio)
-		VALUES (@nombreProducto, @Categoria, @precio)
+		INSERT INTO level1.producto (nombreProducto, Categoria, precio, ReferenciaUnidad)
+		VALUES (@nombreProducto, @Categoria, @precio, @ReferenciaUnidad)
 		print ('Producto insertado exitosamente')
 		END
 
@@ -433,22 +433,6 @@ BEGIN
 END
 GO
 
-
--------------------------------------<MEDIO PAGO> --------------------------------------------------------------
-
-CREATE OR ALTER PROCEDURE level2.insertarMedioPago @idMedioPago INT, @descripcionPagoEspanol VARCHAR(25), @descripcionPagoIngles VARCHAR(25) AS
-BEGIN
-	if(@idMedioPago>0 and (SELECT idMedioPago FROM level2.medioPago WHERE idMedioPago = @idMedioPago) IS NULL and (SELECT idMedioPago FROM level2.medioPago WHERE descripcionPagoEspanol = @descripcionPagoEspanol) IS NULL and (SELECT idMedioPago FROM level2.medioPago WHERE descripcionPagoIngles = @descripcionPagoIngles) IS NULL ) 
-		BEGIN
-
-		INSERT INTO level2.medioPago (idMedioPago, descripcionPagoEspanol, descripcionPagoIngles) 
-		VALUES(@idMedioPago, @descripcionPagoEspanol, @descripcionPagoIngles)
-		print('Nuevo medio pago aceptado')
-		END
-	else
-		print('Id invalido, o algun valor se repite')
-END
-GO
 
 -----------------------<VENTA REGISTRADA>----------------------------------------
 
