@@ -81,9 +81,9 @@ BEGIN
 		WHERE "Legajo/ID" is not null
 		-- Hasta aca hace la importacion de datos a la tabla temporal
 
-		INSERT INTO level2.empleado(nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno)
+		INSERT INTO level2.empleado(nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno, estado)
 		SELECT 
-		t.nombre, t.apellido, t.dni, t.direccion, t.emailEmpresa, t.emailPersonal, t.cuil, t.cargo, t.sucursal, t.turno
+		t.nombre, t.apellido, t.dni, t.direccion, t.emailEmpresa, t.emailPersonal, t.cuil, t.cargo, t.sucursal, t.turno, '1' AS estado
 		FROM #tempEmpleado t
 		--Hasta aca hace la importacion de unicamente los que no estan incluidos en nuestra tabla de empleados
 
