@@ -66,10 +66,10 @@ go
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'sucursal')
 BEGIN
 	CREATE TABLE level1.sucursal(	idSucursal INT PRIMARY KEY IDENTITY(1,1),
-									ciudad VARCHAR(40) NOT NULL,
-									nombreSucursal VARCHAR (40) NOT NULL UNIQUE,
-									direccion VARCHAR(100) NOT NULL,
-									telefono VARCHAR(10) NOT NULL)
+					ciudad VARCHAR(40) NOT NULL,
+					nombreSucursal VARCHAR (40) NOT NULL UNIQUE,
+					direccion VARCHAR(100) NOT NULL,
+					telefono VARCHAR(10) NOT NULL)
 END					
 GO
 
@@ -78,7 +78,7 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'cargo')
 BEGIN
 
 	CREATE TABLE level2.cargo(	idCargo INT PRIMARY KEY,
-								descripcionCargo VARCHAR (25) NOT NULL UNIQUE)
+					descripcionCargo VARCHAR (25) NOT NULL UNIQUE)
 END
 GO
 
@@ -115,23 +115,22 @@ GO
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ventaRegistrada')
 BEGIN
-	CREATE TABLE level2.ventaRegistrada(idVenta INT PRIMARY KEY IDENTITY(1,1),
-										iDFactura VARCHAR(50),
-										tipoFactura CHAR(1),
-										ciudad VARCHAR(40),
-										tipoCliente CHAR(6),
-										genero VARCHAR(6),
-										fechaHora DATETIME,
-										medioPago VARCHAR(25) CHECK(medioPago ='Credit Card' or medioPago ='Cash' or medioPago ='Ewallet'),
-										Empleado INT REFERENCES level2.empleado(legajo_Id),
-										MontoTotal DECIMAL(10,2) DEFAULT 0,
-										identificadorPago VARCHAR(50)
+	CREATE TABLE level2.ventaRegistrada(
+						iDFactura VARCHAR(50),
+						tipoFactura CHAR(1),
+						ciudad VARCHAR(40),
+						tipoCliente CHAR(6),
+						genero VARCHAR(6),
+						fechaHora DATETIME,
+						medioPago VARCHAR(25) CHECK(medioPago ='Credit Card' or medioPago ='Cash' or medioPago ='Ewallet'),
+						Empleado INT REFERENCES level2.empleado(legajo_Id),
+						MontoTotal DECIMAL(10,2) DEFAULT 0,
+						identificadorPago VARCHAR(50)
 )
 										
 END
 GO
 
-DROP table level2.ventaRegistrada
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'detalleVenta')
 BEGIN
