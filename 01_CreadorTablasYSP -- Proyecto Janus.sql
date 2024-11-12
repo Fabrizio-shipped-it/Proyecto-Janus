@@ -84,18 +84,18 @@ GO
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'empleado')
 BEGIN
-CREATE TABLE level2.empleado(	legajo_Id INT PRIMARY KEY CHECK (legajo_Id >= 257000),  
-								nombre VARCHAR(50) NOT NULL,
-								apellido VARCHAR(50) NOT NULL,
-								dni INT UNIQUE NOT NULL CHECK (dni >= 10000000 and dni <= 99999999),
-								direccion VARCHAR(100),
-								emailEmpresa VARCHAR(100),
-								emailPersonal VARCHAR(100),
-								cuil VARCHAR(13),
-								cargo VARCHAR(25) REFERENCES level2.cargo(descripcionCargo),				--	<-- FK a la tabla cargo
-								sucursal VARCHAR(40) REFERENCES level1.sucursal (nombreSucursal),		--  <-- FK a la tabla sucursal
-								turno VARCHAR(4) NOT NULL CHECK (turno = 'TM' or turno = 'TT' or turno='TN' or turno='FULL'),
-								estado varchar(10) CHECK (estado = 'Activo' or estado = 'Inactivo'))
+CREATE TABLE level2.empleado(		legajo_Id INT PRIMARY KEY IDENTITY(257000,1),  
+					nombre VARCHAR(50) NOT NULL,
+					apellido VARCHAR(50) NOT NULL,
+					dni INT UNIQUE NOT NULL CHECK (dni >= 10000000 and dni <= 99999999),
+					direccion VARCHAR(100),
+					emailEmpresa VARCHAR(100),
+					emailPersonal VARCHAR(100),
+					cuil VARCHAR(13),
+					cargo VARCHAR(25) REFERENCES level2.cargo(descripcionCargo),				--	<-- FK a la tabla cargo
+					sucursal VARCHAR(40) REFERENCES level1.sucursal (nombreSucursal),		--  <-- FK a la tabla sucursal
+					turno VARCHAR(4) NOT NULL CHECK (turno = 'TM' or turno = 'TT' or turno='TN' or turno='FULL'),
+					estado varchar(10) CHECK (estado = 'Activo' or estado = 'Inactivo'))
 END
 GO
 
