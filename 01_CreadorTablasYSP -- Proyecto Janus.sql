@@ -140,7 +140,7 @@ BEGIN
 						NombreProducto VARCHAR(100),
 						Cantidad INT,
 						PrecioUnitario DECIMAL(10,2),
-						CONSTRAINT FK_FacturaDetalle (iDFactura)
+						CONSTRAINT FK_FacturaDetalle FOREIGN KEY(iDFactura)
 						REFERENCES level2.ventaRegistrada (iDFactura)
 )
 END
