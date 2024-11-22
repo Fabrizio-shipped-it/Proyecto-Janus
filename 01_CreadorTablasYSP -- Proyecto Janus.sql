@@ -109,7 +109,7 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'producto')
 BEGIN
 	CREATE TABLE level1.producto(			idProducto INT PRIMARY KEY IDENTITY(1,1),	 	
 							categoria VARCHAR(50) NOT NULL,			
-							nombreProducto VARCHAR (100) NOT NULL,			
+							nombreProducto VARCHAR (100) NOT NULL UNIQUE,			
 							precio DECIMAL(10,2) NOT NULL,
 							referenciaUnidad VARCHAR(30),
 							estado char(10) CHECK (estado = '1' or estado = '0'))			
@@ -160,7 +160,7 @@ BEGIN
 						iD_Cliente INT REFERENCES level2.cliente(idCliente),
 						fechaHora DATETIME,
 						estado VARCHAR(20),
-						cuit VARCHAR(13) REFERENCES level1.sucursal(cuit)
+						cuit VARCHAR(13) 
 )									
 END
 GO
@@ -177,6 +177,7 @@ BEGIN
 )
 END
 GO
+
 
 
 
