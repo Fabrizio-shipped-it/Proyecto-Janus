@@ -43,16 +43,15 @@ SELECT * FROM level1.sucursal
 
 -->Modificar
 
-EXEC level1.modificarSucursal 1, 'Tatooine', 'Palacio Hutt', 'Mar de Dunas del Norte', '2222-2222', '20-22222222-3'
+EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'arena de Oasis entre Mos Esly y Mos Espa', '1111-1111', '20-22222222-3'
 go
-EXEC level1.modificarSucursal  2, 'Tatooine', 'Palacio Hotter', 'Mar de Dunas del Norte', '2223-2222', '20-22222222-3'
+EXEC level1.insertarUnSucursal 'Kamino', '', 'Plataforma 115 en el medio del oceano', '1234-5678', '20-22222222-3'
 go
-
+	
 --Resultado esperado: 
--- 1    Tatooine    Palacio Hutt     Mar de Dunas del Norte   2222-2222  20-22222222-3
+-- 1    Tatooine    Palacio Hutt     arena de Oasis entre Mos Esly y Mos Espa    1111-1111  20-22222222-3
 
-SELECT * FROM level1.sucursal
-
+SELECT * FROM level1.sucursal 
 
 
 -->Eliminar
@@ -61,7 +60,6 @@ EXEC level1.borrarSucursal 'Palacio Hutt'
 EXEC level1.borrarSucursal 'Templo Jedi'
 
 --Resultado esperado: 
-
 -- 
 
 SELECT * FROM level1.sucursal
@@ -84,10 +82,11 @@ GO
 SELECT * FROM level2.cargo
 
 --Resultado esperado: 
-
 -- 4    Cientifico
 -- 1    Supervisor
 
+
+	
 -->Borrar
 
 EXEC level2.borrarCargo 2
@@ -100,7 +99,6 @@ go
 SELECT * FROM level2.cargo
 
 --Resultado Esperado: 
-
 --
 
 
@@ -128,18 +126,17 @@ EXEC level2.insertarUnEmpleado  'Ledwing', 'Maxis', 12222222, 'Kino der Toten', 
 go
 
 
-
 --Resultado esperado: 
-
 -- Edward   Richtofen   90453233    Instalaciones de Der Riese  dereisendrache@grupo935.com     erichtofen@grupo935.com  '' 
 -- Cientifico   Palacio Hutt     TM 1
-
 -- Ledwing   Maxis  12222222    Kino der Toten  dereisendrache@grupo935.com     lmaxis@grupo935.com  ''
 --  Cientifico  Palacio Hutt    TM  1
 
 SELECT * FROM level2.empleado 
 go
 
+
+	
 -->Modificado
 EXEC level2.modificarEmpleado 257020, 'Edward', 'Richtofen',  'Instalaciones del Puesto Griffin', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', 2, 'Cientifico', 'Palacio Hutt', 'TN'
 go
@@ -148,11 +145,9 @@ go
 EXEC level2.modificarEmpleado 935, 'Edwara', 'Richtofenia',  'Instalaciones de Shino Numa', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 1, 1, 'TN'
 go
 
--- Resultado esperado
-
+-- Resultado esperado:
 -- Edward   Richtofen   90453233    Instalaciones del Puesto Griffin  dereisendrache@grupo935.com     erichtofen@grupo935.com  2 
 -- Cientifico   Palacio Hutt     TM 1
-
 -- Ledwing   Maxis  12222222    Kino der Toten  dereisendrache@grupo935.com     lmaxis@grupo935.com  ''
 --  Cientifico  Palacio Hutt    TM  1
 
@@ -173,7 +168,6 @@ go
 --Resultado esperado: 
 -- Edward   Richtofen   90453233    Instalaciones del Puesto Griffin  dereisendrache@grupo935.com     erichtofen@grupo935.com  2 
 -- Cientifico   Palacio Hutt     TM     0
-
 -- Ledwing   Maxis  12222222    Kino der Toten  dereisendrache@grupo935.com     lmaxis@grupo935.com  ''
 --  Cientifico  Palacio Hutt    TM      0
 
@@ -186,10 +180,15 @@ go
 --Resultado esperado: 
 -- Edward   Richtofen   90453233    Instalaciones del Puesto Griffin  dereisendrache@grupo935.com     erichtofen@grupo935.com  2 
 -- Cientifico   Palacio Hutt     TM     1
-
 -- Ledwing   Maxis  12222222    Kino der Toten  dereisendrache@grupo935.com     lmaxis@grupo935.com  ''
 --  Cientifico  Palacio Hutt    TM      0
+
+-Deshabilitar tests
 EXEC level2.bajarEmpleado 257020
+go
+EXEC level1.borrarSucursal 'Palacio Hutt'
+go
+EXEC level2.borrarCargo 4
 go
 
 
@@ -265,6 +264,7 @@ SELECT * FROM level1.producto
 go
 
 
+--Deshabilitar tests
 EXEC level1.bajarProducto 1
 go
 EXEC level1.bajarProducto 2
