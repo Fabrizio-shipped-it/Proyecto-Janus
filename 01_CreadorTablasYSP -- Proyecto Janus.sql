@@ -135,11 +135,11 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ventaRegistrada')
 BEGIN
 	CREATE TABLE level2.ventaRegistrada(
-						ID_Venta INT PRIMARY KEY IDENTITY(1,1),
+						iD_Venta INT PRIMARY KEY IDENTITY(1,1),
 						total_Bruto DECIMAL(10,2),
 						total_IVA DECIMAL(10,2),
-						Empleado INT REFERENCES level2.empleado(legajo_Id),
-						ID_MedioPago INT REFERENCES level1.medioPago(idMedioPago),
+						empleado INT REFERENCES level2.empleado(legajo_Id),
+						iD_MedioPago INT REFERENCES level1.medioPago(idMedioPago),
 						identificadorPago VARCHAR(50)
 )									
 END
@@ -149,11 +149,11 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'factura')
 BEGIN
 	CREATE TABLE level2.factura(
-						ID_Factura VARCHAR(50) PRIMARY KEY,
-						ID_Venta INT REFERENCES level2.ventaRegistrada(ID_Venta),
-						ID_Sucursal INT REFERENCES level1.sucursal(idSucursal),
+						iD_Factura VARCHAR(50) PRIMARY KEY,
+						iD_Venta INT REFERENCES level2.ventaRegistrada(ID_Venta),
+						iD_Sucursal INT REFERENCES level1.sucursal(idSucursal),
 						tipoFactura CHAR(1),
-						ID_Cliente INT REFERENCES level2.cliente(idCliente),
+						iD_Cliente INT REFERENCES level2.cliente(idCliente),
 						fechaHora DATETIME,
 						estado VARCHAR(20),
 						cuit VARCHAR(13) REFERENCES level1.sucursal(cuit)
@@ -166,10 +166,10 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'detalleVenta')
 BEGIN
 	CREATE TABLE level2.detalleVenta(				
 						iDNroDetalle INT PRIMARY KEY IDENTITY(1,1),
-						ID_Venta INT REFERENCES level2.ventaRegistrada(ID_Venta),
+						iD_Venta INT REFERENCES level2.ventaRegistrada(ID_Venta),
 						nombreProducto VARCHAR(100) REFERENCES level1.producto(nombreProducto),
-						Cantidad INT,
-						PrecioUnitario DECIMAL(10,2)
+						cantidad INT,
+						precioUnitario DECIMAL(10,2)
 )
 END
 GO
