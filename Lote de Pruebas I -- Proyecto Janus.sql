@@ -183,7 +183,7 @@ go
 -- Ledwing   Maxis  12222222    Kino der Toten  dereisendrache@grupo935.com     lmaxis@grupo935.com  ''
 --  Cientifico  Palacio Hutt    TM      0
 
--Deshabilitar tests
+--Deshabilitar tests
 EXEC level2.bajarEmpleado 257020
 go
 EXEC level1.borrarSucursal 'Palacio Hutt'
