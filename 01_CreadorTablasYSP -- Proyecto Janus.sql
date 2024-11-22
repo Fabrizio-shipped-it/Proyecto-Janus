@@ -63,11 +63,12 @@ go
 
 ---------------------------------------------------------<CREACION DE TABLAS>-----------------------------------------------
 
+
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'sucursal')
 BEGIN
 	CREATE TABLE level1.sucursal(	idSucursal INT PRIMARY KEY IDENTITY(1,1),
 						ciudad VARCHAR(40),
-						nombreSucursal VARCHAR (40),
+						nombreSucursal VARCHAR (40) UNIQUE,
 						direccion VARCHAR(100),
 						telefono VARCHAR(10),
 						cuit VARCHAR(13))
@@ -79,9 +80,12 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'cargo')
 BEGIN
 
 	CREATE TABLE level2.cargo(	idCargo INT PRIMARY KEY ,
-						descripcionCargo VARCHAR (25) )
+						descripcionCargo VARCHAR (25) unique )
 END
 GO
+
+
+
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'empleado')
 BEGIN
@@ -173,6 +177,8 @@ BEGIN
 )
 END
 GO
+
+
 
 
 
