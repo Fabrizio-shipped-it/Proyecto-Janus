@@ -66,10 +66,11 @@ go
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'sucursal')
 BEGIN
 	CREATE TABLE level1.sucursal(	idSucursal INT PRIMARY KEY IDENTITY(1,1),
-					ciudad VARCHAR(40) NOT NULL,
-					nombreSucursal VARCHAR (40) NOT NULL UNIQUE,
-					direccion VARCHAR(100) NOT NULL,
-					telefono VARCHAR(10) NOT NULL)
+						ciudad VARCHAR(40),
+						nombreSucursal VARCHAR (40),
+						direccion VARCHAR(100),
+						telefono VARCHAR(10),
+						cuit VARCHAR(13))
 END					
 GO
 
@@ -77,38 +78,54 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'cargo')
 BEGIN
 
-	CREATE TABLE level2.cargo(	idCargo INT PRIMARY KEY,
-					descripcionCargo VARCHAR (25) NOT NULL UNIQUE)
+	CREATE TABLE level2.cargo(	idCargo INT PRIMARY KEY ,
+						descripcionCargo VARCHAR (25) )
 END
 GO
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'empleado')
 BEGIN
 CREATE TABLE level2.empleado(		legajo_Id INT PRIMARY KEY IDENTITY(257020,1),  
-					nombre VARCHAR(50) NOT NULL,
-					apellido VARCHAR(50) NOT NULL,
-					dni INT UNIQUE NOT NULL CHECK (dni >= 10000000 and dni <= 99999999),
+					nombre VARCHAR(50),
+					apellido VARCHAR(50),
+					dni INT,
 					direccion VARCHAR(100),
 					emailEmpresa VARCHAR(100),
 					emailPersonal VARCHAR(100),
 					cuil VARCHAR(13) DEFAULT '0',
 					cargo VARCHAR(25) REFERENCES level2.cargo(descripcionCargo),				--	<-- FK a la tabla cargo
 					sucursal VARCHAR(40) REFERENCES level1.sucursal (nombreSucursal),		--  <-- FK a la tabla sucursal
-					turno VARCHAR(4) NOT NULL CHECK (turno = 'TM' or turno = 'TT' or turno='TN' or turno='FULL'),
+					turno VARCHAR(4),
 					estado char(10) CHECK (estado = '1' or estado = '0'))
 END
 GO
 
 
-
-
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'producto')
 BEGIN
 	CREATE TABLE level1.producto(			idProducto INT PRIMARY KEY IDENTITY(1,1),	 	
-							Categoria VARCHAR(50) NOT NULL,			
+							categoria VARCHAR(50) NOT NULL,			
 							nombreProducto VARCHAR (100) NOT NULL,			
 							precio DECIMAL(10,2) NOT NULL,
-							ReferenciaUnidad VARCHAR(30))			
+							referenciaUnidad VARCHAR(30))			
+END
+GO
+
+
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'cliente')
+BEGIN
+	CREATE TABLE level2.cliente(	idCliente INT PRIMARY KEY IDENTITY(1,1),	 	
+							nombreComp VARCHAR(100) NOT NULL,			
+							genero VARCHAR (100) NOT NULL,
+							cuil VARCHAR(13))			
+END
+GO
+
+
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'medioPago')
+BEGIN
+	CREATE TABLE level1.medioPago(	idMedioPago INT PRIMARY KEY IDENTITY(1,1),	 	
+								descripcion VARCHAR(20) NOT NULL)			
 END
 GO
 
@@ -116,18 +133,29 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ventaRegistrada')
 BEGIN
 	CREATE TABLE level2.ventaRegistrada(
-						iDFactura VARCHAR(50) PRIMARY KEY,
-						tipoFactura CHAR(1),
-						ciudad VARCHAR(40),
-						tipoCliente CHAR(6),
-						genero VARCHAR(6),
-						fechaHora DATETIME,
-						medioPago VARCHAR(25) CHECK(medioPago ='Credit Card' or medioPago ='Cash' or medioPago ='Ewallet'),
+						ID_Venta INT PRIMARY KEY IDENTITY(1,1),
+						total_Bruto DECIMAL(10,2),
+						total_IVA DECIMAL(10,2),
 						Empleado INT REFERENCES level2.empleado(legajo_Id),
-						MontoTotal DECIMAL(10,2) DEFAULT 0,
+						ID_MedioPago INT REFERENCES level1.medioPago(idMedioPago),
 						identificadorPago VARCHAR(50)
-)
-										
+)									
+END
+GO
+
+
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'factura')
+BEGIN
+	CREATE TABLE level2.factura(
+						ID_Factura VARCHAR(50) PRIMARY KEY,
+						ID_Venta INT REFERENCES level2.ventaRegistrada(ID_Venta),
+						ID_Sucursal INT REFERENCES level1.sucursal(idSucursal),
+						tipoFactura CHAR(1),
+						ID_Cliente INT REFERENCES level2.cliente(idCliente),
+						fechaHora DATETIME,
+						estado VARCHAR(20),
+						cuit VARCHAR(13) REFERENCES level1.sucursal(cuit)
+)									
 END
 GO
 
@@ -136,16 +164,13 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'detalleVenta')
 BEGIN
 	CREATE TABLE level2.detalleVenta(				
 						iDNroDetalle INT PRIMARY KEY IDENTITY(1,1),
-						iDFactura VARCHAR(50),
-						NombreProducto VARCHAR(100),
+						ID_Venta INT REFERENCES level2.ventaRegistrada(ID_Venta),
+						nombreProducto VARCHAR(100) REFERENCES level1.producto(nombreProducto),
 						Cantidad INT,
-						PrecioUnitario DECIMAL(10,2),
-						CONSTRAINT FK_FacturaDetalle FOREIGN KEY(iDFactura)
-						REFERENCES level2.ventaRegistrada (iDFactura)
+						PrecioUnitario DECIMAL(10,2)
 )
 END
 GO
-
 
 
 
