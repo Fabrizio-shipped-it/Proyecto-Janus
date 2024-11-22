@@ -189,7 +189,7 @@ GO
 
 
 
-CREATE OR ALTER PROCEDURE level1.insertarUnSucursal @ciudad VARCHAR(25), @nombreSucursal VARCHAR(40), @direccion VARCHAR(100), @telefono VARCHAR(10) AS
+CREATE OR ALTER PROCEDURE level1.insertarUnSucursal @ciudad VARCHAR(25), @nombreSucursal VARCHAR(40), @direccion VARCHAR(100), @telefono VARCHAR(10), @cuit VARCHAR(13) AS
 BEGIN
     if (@ciudad IS NOT NULL and @ciudad != '' and @nombreSucursal IS NOT NULL and @nombreSucursal != '' and @direccion IS NOT NULL and @direccion != '' and @telefono IS NOT NULL and @telefono != '' )
 	BEGIN
@@ -197,7 +197,7 @@ BEGIN
 		if((SELECT idSucursal FROM level1.sucursal WHERE nombreSucursal=@nombreSucursal) IS NULL) 
 		BEGIN
         INSERT INTO level1.sucursal (ciudad, nombreSucursal, direccion, telefono, cuit) 
-        VALUES (@ciudad, @nombreSucursal, @direccion, @telefono, '20-22222222-3')
+        VALUES (@ciudad, @nombreSucursal, @direccion, @telefono, @cuit)
         PRINT ('Valores insertados correctamente en la tabla: Sucursal')
 		END
 		else
