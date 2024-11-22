@@ -107,7 +107,8 @@ BEGIN
 							categoria VARCHAR(50) NOT NULL,			
 							nombreProducto VARCHAR (100) NOT NULL,			
 							precio DECIMAL(10,2) NOT NULL,
-							referenciaUnidad VARCHAR(30))			
+							referenciaUnidad VARCHAR(30),
+							estado char(10) CHECK (estado = '1' or estado = '0'))			
 END
 GO
 
@@ -117,7 +118,8 @@ BEGIN
 	CREATE TABLE level2.cliente(	idCliente INT PRIMARY KEY IDENTITY(1,1),	 	
 							nombreComp VARCHAR(100) NOT NULL,			
 							genero VARCHAR (100) NOT NULL,
-							cuil VARCHAR(13))			
+							cuil VARCHAR(13),
+							estado char(10) CHECK (estado = '1' or estado = '0'))			
 END
 GO
 
