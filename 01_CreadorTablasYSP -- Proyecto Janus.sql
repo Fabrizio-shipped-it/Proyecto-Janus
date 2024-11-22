@@ -109,7 +109,7 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'producto')
 BEGIN
 	CREATE TABLE level1.producto(			idProducto INT PRIMARY KEY IDENTITY(1,1),	 	
 							categoria VARCHAR(50) NOT NULL,			
-							nombreProducto VARCHAR (100) NOT NULL UNIQUE,			
+							nombreProducto VARCHAR (100) NOT NULL,			
 							precio DECIMAL(10,2) NOT NULL,
 							referenciaUnidad VARCHAR(30),
 							estado char(10) CHECK (estado = '1' or estado = '0'))			
@@ -422,8 +422,8 @@ GO
 CREATE OR ALTER PROCEDURE level1.insertarUnProducto   @nombreProducto VARCHAR(100), @categoria VARCHAR(50), @precio DECIMAL(10,2), @referenciaUnidad VARCHAR(30) AS
 
     BEGIN
-	--Verifico precio, que el producto no exista
-	if (@precio > 0) and (@nombreProducto IS NOT NULL and @nombreProducto != '' and (SELECT idProducto FROM level1.producto WHERE nombreProducto = @nombreProducto) IS NULL)
+	--Verifico precio, que el producto con la misma unidad de referencia no exista
+	if (@precio > 0) and (@nombreProducto IS NOT NULL and @nombreProducto != '' and (SELECT idProducto FROM level1.producto WHERE nombreProducto = @nombreProducto and referenciaUnidad = @referenciaUnidad) IS NULL)
  		BEGIN
 
 		INSERT INTO level1.producto (nombreProducto, categoria, precio, referenciaUnidad, estado)
