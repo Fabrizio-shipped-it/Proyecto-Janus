@@ -186,6 +186,9 @@ GO
 
 ----------------------------------<SUCURSAL>--------------------------------------------------------------------------
 
+
+
+
 CREATE OR ALTER PROCEDURE level1.insertarUnSucursal @ciudad VARCHAR(25), @nombreSucursal VARCHAR(40), @direccion VARCHAR(100), @telefono VARCHAR(10) AS
 BEGIN
     if (@ciudad IS NOT NULL and @ciudad != '' and @nombreSucursal IS NOT NULL and @nombreSucursal != '' and @direccion IS NOT NULL and @direccion != '' and @telefono IS NOT NULL and @telefono != '' )
@@ -193,8 +196,8 @@ BEGIN
 
 		if((SELECT idSucursal FROM level1.sucursal WHERE nombreSucursal=@nombreSucursal) IS NULL) 
 		BEGIN
-        INSERT INTO level1.sucursal (ciudad, nombreSucursal, direccion, telefono) 
-        VALUES (@ciudad, @nombreSucursal, @direccion, @telefono)
+        INSERT INTO level1.sucursal (ciudad, nombreSucursal, direccion, telefono, cuit) 
+        VALUES (@ciudad, @nombreSucursal, @direccion, @telefono, '20-22222222-3')
         PRINT ('Valores insertados correctamente en la tabla: Sucursal')
 		END
 		else
@@ -211,7 +214,7 @@ GO
 
 
 
-CREATE OR ALTER PROCEDURE level1.modificarSucursal  @idSucursal INT, @ciudad VARCHAR(25), @nombreSucursal VARCHAR(40), @direccion VARCHAR(100), @telefono VARCHAR(10) AS
+CREATE OR ALTER PROCEDURE level1.modificarSucursal  @idSucursal INT, @ciudad VARCHAR(25), @nombreSucursal VARCHAR(40), @direccion VARCHAR(100), @telefono VARCHAR(10), @cuit varchar(13) AS
 
 	BEGIN
 	if (SELECT idSucursal FROM level1.sucursal WHERE nombreSucursal = @nombreSucursal) IS NOT NULL
@@ -225,7 +228,8 @@ CREATE OR ALTER PROCEDURE level1.modificarSucursal  @idSucursal INT, @ciudad VAR
 			ciudad = @ciudad,
 			nombreSucursal = @nombreSucursal,
 			direccion = @direccion,
-			telefono = @telefono
+			telefono = @telefono,
+            cuit = @cuit
 			WHERE @idSucursal = idSucursal
 
 			END
@@ -254,9 +258,6 @@ BEGIN
 
 END
 GO
-
-
-
 
 ------------------------------------------------<CARGO>---------------------------------------------------------------------
 
@@ -299,8 +300,8 @@ BEGIN
 END
 GO
 
-
 ------------------------------------------------<EMPLEADO>------------------------------------------------------------------
+
 
 CREATE OR ALTER PROCEDURE level2.insertarUnEmpleado 
 	@nombre VARCHAR(25), 
@@ -310,8 +311,8 @@ CREATE OR ALTER PROCEDURE level2.insertarUnEmpleado
 	@emailEmpresa VARCHAR(100), 
 	@emailPersonal VARCHAR(100) , 
 	@cuil VARCHAR(13), 
-	@idCargo VARCHAR(25), 
-	@idSucursal VARCHAR(40), 
+	@cargo VARCHAR(25), 
+	@sucursal VARCHAR(40), 
 	@turno VARCHAR(4) 
 AS
 BEGIN
@@ -320,14 +321,14 @@ BEGIN
         AND (@dni >= 10000000 AND @dni <= 99999999)
     BEGIN
         -- Valida que el cargo y la sucursal existan
-        IF (SELECT descripcionCargo FROM level2.cargo WHERE descripcionCargo = @idCargo) IS NOT NULL 
-            AND (SELECT nombreSucursal FROM level1.sucursal WHERE nombreSucursal = @idSucursal) IS NOT NULL
+        IF (SELECT descripcionCargo FROM level2.cargo WHERE descripcionCargo = @cargo) IS NOT NULL 
+            AND (SELECT nombreSucursal FROM level1.sucursal WHERE nombreSucursal = @sucursal) IS NOT NULL
         BEGIN
             -- Inserta el nuevo empleado
             INSERT INTO level2.empleado 
                 (nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno, estado) 
             VALUES 
-                (@nombre, @apellido, @dni, @direccion, @emailEmpresa, @emailPersonal, @cuil, @idCargo, @idSucursal, @turno, '1');
+                (@nombre, @apellido, @dni, @direccion, @emailEmpresa, @emailPersonal, @cuil, @cargo, @sucursal, @turno, '1');
             
             PRINT ('Valores insertados correctamente en la tabla: Empleado.');
         END
@@ -338,10 +339,6 @@ BEGIN
         PRINT('No se puede insertar el empleado a la tabla debido a que ya existe un empleado con ese DNI o el DNI tiene un valor incorrecto.');
 END
 GO
---ES UN EJEMPLO PARA VER SI FUNCIONA
---exec level2.insertarUnEmpleado 'maria', 'moran', 44005719, 'roldan', 'abc@gmial', 'asd@gmail', '30-12221-00', 'Supervisor', 'Palacio Hutt', 'TT'
---select * from level2.empleado
-
 
 
 
@@ -379,7 +376,7 @@ GO
 
 
 
-CREATE OR ALTER PROCEDURE level2.borrarEmpleado @legajo_Id INT AS
+CREATE OR ALTER PROCEDURE level2.bajarEmpleado @legajo_Id INT AS
 BEGIN
 
 	if (SELECT legajo_Id FROM level2.empleado WHERE legajo_Id = @legajo_Id) IS NOT NULL
@@ -418,18 +415,19 @@ BEGIN
 
 END
 GO
+
 ----------------------------------------------------<PRODUCTOS>------------------------------------------------------------
 
 
-CREATE OR ALTER PROCEDURE level1.insertarUnProducto   @nombreProducto VARCHAR(100), @Categoria VARCHAR(50), @precio DECIMAL(10,2), @ReferenciaUnidad VARCHAR(30) AS
+CREATE OR ALTER PROCEDURE level1.insertarUnProducto   @nombreProducto VARCHAR(100), @categoria VARCHAR(50), @precio DECIMAL(10,2), @referenciaUnidad VARCHAR(30) AS
 
     BEGIN
 	--Verifico precio, que el producto no exista
 	if (@precio > 0) and (@nombreProducto IS NOT NULL and @nombreProducto != '' and (SELECT idProducto FROM level1.producto WHERE nombreProducto = @nombreProducto) IS NULL)
  		BEGIN
 
-		INSERT INTO level1.producto (nombreProducto, Categoria, precio, ReferenciaUnidad)
-		VALUES (@nombreProducto, @Categoria, @precio, @ReferenciaUnidad)
+		INSERT INTO level1.producto (nombreProducto, categoria, precio, referenciaUnidad, estado)
+		VALUES (@nombreProducto, @categoria, @precio, @referenciaUnidad, 1)
 		print ('Producto insertado exitosamente')
 		END
 
@@ -459,6 +457,47 @@ BEGIN
 		END
 	else
 		print('El producto a actualizar no se encuentra en la tabla')
+
+END
+GO
+
+
+CREATE OR ALTER PROCEDURE level1.bajarProducto @idProducto INT AS
+BEGIN
+    --Verifico que existe el producto
+	if (SELECT idProducto FROM level1.producto WHERE idProducto = @idProducto) IS NOT NULL
+	BEGIN
+
+		UPDATE
+		level1.producto
+		SET
+		estado = '0'
+		WHERE idProducto = @idProducto
+		print ('El producto fue dado de baja con exito.')
+	END
+
+	else
+		print('No se ha encontrado el producto.')
+
+END
+GO
+
+CREATE OR ALTER PROCEDURE level1.reactivarProducto @idProducto INT AS
+BEGIN
+    --Verifico que existe el producto
+	if (SELECT idProducto FROM level1.producto WHERE idProducto = @idProducto) IS NOT NULL
+	BEGIN
+
+		UPDATE
+		level1.producto
+		SET
+		estado = '1'
+		WHERE idProducto = @idProducto
+		print ('El producto fue reactivado con exito.')
+	END
+
+	else
+		print('No se ha encontrado el producto.')
 
 END
 GO
