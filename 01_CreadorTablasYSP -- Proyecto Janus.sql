@@ -685,6 +685,13 @@ BEGIN
 END;
 GO
 
+EXEC level1.insertarMedioPago N'Cash';
+GO
+EXEC level1.insertarMedioPago N'Credit card';
+GO
+EXEC level1.insertarMedioPago N'Ewallet';
+GO
+	
 CREATE OR ALTER PROCEDURE level1.borrarMedioPago
     @idMedioPago INT AS
 BEGIN
