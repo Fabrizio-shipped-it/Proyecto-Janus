@@ -511,8 +511,55 @@ BEGIN
 END
 GO
 
+----------------------------------------------------<CLIENTES>------------------------------------------------------------
+CREATE OR ALTER PROCEDURE level2.insertarCliente
+    @nombreComp VARCHAR(100),
+    @genero VARCHAR(100) AS
+BEGIN
+        -- Insertar un nuevo cliente
+        INSERT INTO level2.cliente (nombreComp, genero, cuil, estado)
+        VALUES (@nombreComp, @genero, '', '1'); -- CUIL vacío y estado activo
 
------------------------<VENTA REGISTRADA>----------------------------------------
+END;
+GO
+
+CREATE OR ALTER PROCEDURE level2.bajarCliente @idCliente INT AS
+BEGIN
+        --Verifico que existe el cliente
+	IF (SELECT idCliente  FROM level2.cliente WHERE idCliente = @idCliente) IS NOT NULL
+	BEGIN
+		UPDATE level2.cliente
+		SET estado = '0'
+		WHERE idCliente = @idCliente
+		print ('El cliente fue dado de baja con exito.')
+	END
+
+	ELSE
+	BEGIN
+		print('No se ha encontrado el cliente.')
+	END
+
+END;
+GO
+
+CREATE OR ALTER PROCEDURE level2.reactivarCliente @idCliente INT AS
+BEGIN
+    --Verifico que existe
+	IF (SELECT idCliente  FROM level2.cliente WHERE idCliente = @idCliente) IS NOT NULL
+	BEGIN
+		UPDATE level2.cliente
+		SET estado = '1'
+		WHERE idCliente = @idCliente
+		print ('El cliente fue reactivado con exito.')
+	END
+
+	else
+		print('No se ha encontrado el cliente.')
+
+END
+GO
+
+----------------------------------------------------<VENTA REGISTRADA>------------------------------------------------------------
 CREATE OR ALTER PROCEDURE level2.insertarUnaVentaRegistrada 
     @tipoFactura CHAR(1),
     @idSucursal INT,
@@ -557,6 +604,7 @@ BEGIN
     END
 END;
 GO
+
 
 -------------------------------------------------------<DETALLE VENTA>-------------------------------------------------------------------
 
