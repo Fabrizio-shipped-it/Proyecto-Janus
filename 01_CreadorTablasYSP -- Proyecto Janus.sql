@@ -279,14 +279,6 @@ BEGIN
 END
 GO
 
-EXEC level2.insertarCargo 1, 'Supervisor'
-GO
-EXEC level2.insertarCargo 2, 'Cajero'
-GO
-EXEC level2.insertarCargo 3, 'Gerente de sucursal'
-GO
-
-
 
 CREATE OR ALTER PROCEDURE level2.borrarCargo @idCargo INT AS
 BEGIN 
@@ -521,140 +513,162 @@ GO
 
 
 -----------------------<VENTA REGISTRADA>----------------------------------------
-
---Funcion para buscar el precio de un producto. En caso de no encontrar el producto devuelve 0.
-
-CREATE OR ALTER FUNCTION level2.buscarPrecioProducto (@producto VARCHAR(100)) RETURNS DECIMAL (10,2)
+CREATE OR ALTER PROCEDURE level2.insertarUnaVentaRegistrada 
+    @tipoFactura CHAR(1),
+    @idSucursal INT,
+    @idCliente INT,
+    @idEmpleado INT,
+	@idFactura VARCHAR(50) AS
 BEGIN
-DECLARE @precio DECIMAL(10,2) = 0
-
-SET @precio = (SELECT precio FROM level1.producto WHERE nombreProducto = @producto)
-
-RETURN @precio
-END
-GO
-
-CREATE OR ALTER PROCEDURE level2.insertarUnaVentaRegistrada @idFactura VARCHAR(50), @tipoFactura CHAR(1),  @ciudad VARCHAR(40), @tipoCliente CHAR(6), @genero VARCHAR(6), 
-															@fechaHora DATETIME, @medioPago VARCHAR(25), @legajo_Id INT, @identificadorPago VARCHAR(50)  AS
-BEGIN
-
--- VALIDO SI LA SUCURSAL, EL EMPLEADO, EL MEDIO DE PAGO, GENERO Y EL PRODUCTO ESTAN REGISTRADOS EN LA BASE DE DATOS, Y DE PASO LA CANTIDAD NO SEA NEGATIVA 
-
-		IF (SELECT idSucursal FROM level1.sucursal WHERE ciudad = @ciudad) IS NOT NULL  
-        AND (@medioPago ='Credit Card' or @medioPago ='Cash' or @medioPago ='Ewallet')
-        AND (@genero = 'Female'or @genero = 'Male') 
-        AND (SELECT legajo_Id FROM level2.empleado WHERE legajo_Id = @legajo_Id) IS NOT NULL 
-		BEGIN
-
+-- VALIDO SI LA SUCURSAL, EL EMPLEADO Y CLIENTE ESTAN REGISTRADOS Y QUE EL ID DE FACTURA NO ESTE DUPLICADO
+	IF EXISTS (SELECT 1 FROM level1.sucursal WHERE idSucursal = @idSucursal)
+	AND EXISTS (SELECT 1 FROM level2.empleado WHERE legajo_Id = @idEmpleado)
+	AND (@tipoFactura = 'A'or @tipoFactura =  'B'or @tipoFactura =  'C')
+	AND EXISTS (SELECT 1 FROM level2.cliente WHERE idCliente = @idCliente)
+	AND NOT EXISTS (SELECT 1 FROM level2.factura WHERE iD_Factura = @idFactura)
+	BEGIN
 --INSERTO
-			-- Insertar en la tabla entaRegistrada
-			INSERT INTO level2.ventaRegistrada (iDFactura, tipoFactura, ciudad, tipoCliente, genero, fechaHora, medioPago, Empleado, identificadorPago)
-			VALUES (@idFactura, @tipoFactura, @ciudad, @tipoCliente, @genero, @fechaHora, @medioPago, @legajo_Id, @identificadorPago);
-			print('Se ha registrado la factura exitosamente')
-		END
+			--Declaro las variables
+		DECLARE @idVenta INT;
+		DECLARE @estado VARCHAR(20) = 'Emitida';
+		DECLARE @cuit VARCHAR(13);
+		DECLARE @fechaHora DATETIME = GETDATE();
 
-		else 
-		BEGIN
-			print('Revise si los datos son correctos dado que, o no existe la sucursal, producto o empleado, o el medio de pago o la cantidad es invalida')
-		END
+			-- Obtener el CUIT de la sucursal
+		SET @cuit = (SELECT cuit FROM level1.sucursal WHERE idSucursal = @idSucursal);
 
 
-END
-go
+			-- Insertar en la tabla VentaRegistrada
+		INSERT INTO level2.ventaRegistrada (empleado, identificadorPago)
+		VALUES (@idEmpleado, '-');
 
-CREATE OR ALTER PROCEDURE level2.eliminarVentaRegistrada @idFactura INT AS
-BEGIN
+		SET @idVenta = SCOPE_IDENTITY(); --devuelve el valor IDENTITY insertado
 
-DELETE level2.ventaRegistrada WHERE iDFactura = @idFactura
+			-- Insertar en la tabla factura
+		INSERT INTO level2.factura (iD_Factura, iD_Venta, iD_Sucursal, tipoFactura, iD_Cliente, fechaHora, estado, cuit)
+		VALUES (@idFactura, @idVenta, @idSucursal, @tipoFactura, @idCliente, @fechaHora, @estado, @cuit);
 
-
-END
-go
+	PRINT 'Venta y factura registradas exitosamente';
+	END
+    ELSE
+    BEGIN
+        -- Imprimir el mensaje de error acumulado
+        PRINT 'Error: Alguna de las validaciones falló. No se pudo insertar la venta. Revise si los datos son correctos';
+    END
+END;
+GO
 
 -------------------------------------------------------<DETALLE VENTA>-------------------------------------------------------------------
 
-CREATE OR ALTER PROCEDURE level2.InsertarDetalleVenta @idFactura VARCHAR(50), @producto VARCHAR(100), @cantidad INT  AS
+CREATE OR ALTER PROCEDURE level2.InsertarDetalleVenta @idFactura VARCHAR(50), @idProducto INT, @cantidad INT  AS
 BEGIN
-	-- Verificar si el idFactura existe en la tabla ventaRegistrada
-	IF EXISTS(SELECT 1 FROM level2.ventaRegistrada WHERE iDFactura = @idFactura)
+	-- Verificar si el idFactura existe y que este en estado activo el producto
+	IF EXISTS(SELECT 1 FROM level2.factura WHERE iD_Factura = @idFactura)
+	AND EXISTS (SELECT 1 FROM level1.producto WHERE idProducto = @idProducto AND estado = '1')
+	AND  @cantidad > 0
+
 	BEGIN
 		DECLARE @total DECIMAL(10, 2);
 
+		-- Obtener el Nombre del producto
+		DECLARE @nombreProducto VARCHAR (100) = (SELECT nombreProducto  FROM level1.producto WHERE idProducto = @idProducto)
 		-- Obtener el precio unitario del producto
-		DECLARE @precioUnitario DECIMAL (10,2) = level2.buscarPrecioProducto(@producto)
-
+		DECLARE @precioUnitario DECIMAL (10,2) = (SELECT precio FROM level1.producto WHERE idProducto = @idProducto)
+		-- Obtener el IdVenta
+		DECLARE @iD_Venta INT= (SELECT iD_Venta FROM level2.factura WHERE iD_Factura = @idFactura)
+		
 		-- Insertar en la tabla detalleVenta
-		INSERT INTO level2.detalleVenta (iDFactura, NombreProducto, Cantidad, PrecioUnitario)
-		VALUES (@idFactura, @producto, @cantidad, @precioUnitario);
+		INSERT INTO level2.detalleVenta (iD_Venta,idProducto, nombreProducto, cantidad, precioUnitario)
+		VALUES (@iD_Venta, @idProducto, @nombreProducto, @cantidad, @precioUnitario);
 
-		-- Calcular el nuevo total de la factura sumando todos los productos de la factura actual
+		-- Calcular el nuevo total de la factura sumando todos los productos
 		SET @total = @cantidad * @precioUnitario;
 
-		SET @total = (@total *  1.21) --SE LE AGREGA EL IVA
-
-        UPDATE level2.ventaRegistrada
-        SET MontoTotal = MontoTotal + @total
-        WHERE idFactura = @idFactura;
-			PRINT 'Monto total actualizado correctamente en ventaRegistrada con el IVA incluido'
+        -- Actualizar los totales en ventaRegistrada
+         UPDATE level2.ventaRegistrada
+        SET total_Bruto = total_Bruto + @total,
+            total_IVA = total_IVA + (@total * 1.21)
+        WHERE iD_Venta = @iD_Venta;
+			PRINT 'Detalle de venta insertado y totales actualizados correctamente.';
 	END
 	ELSE 
 	BEGIN
-		PRINT 'Error: La factura con el ID especificado no existe en ventaRegistrada';
+		PRINT 'Error: La factura no existe o el producto no está activo.';
 	END
 END;
 go
 
-CREATE OR ALTER PROCEDURE level2.eliminarDetalleVenta @idFactura VARCHAR(25) AS
+CREATE OR ALTER PROCEDURE level2.eliminarDetalleVenta @iD_Venta VARCHAR(50) AS
 BEGIN
 
-	DELETE FROM level2.detalleVenta WHERE iDFactura = @idFactura
-
-
+	DELETE FROM level2.detalleVenta WHERE iD_Venta = @iD_Venta
+	 UPDATE level2.ventaRegistrada
+	 SET total_Bruto = 0,
+         total_IVA = 0
+     WHERE iD_Venta = @iD_Venta;
 END
 go
---------------------------------------LOTES DE PRUEBA PARA VALIDAR EL FUNCIONAMIENTO DE LAS SP---------------------------------------
-EXEC level1.insertarUnSucursal 'Milagro', 'Moron', 'Av. Brig. Gral. Juan Manuel de Rosas 3634, B1754 San Justo, Provincia de Buenos Aires', '5555-5551'
-go
-EXEC level1.insertarUnSucursal ' ', 'Ramos Mejía', 'Av. de Mayo 791, B1704 Ramos Mejía, Provincia de Buenos Aires', '5555-5552'
-go --ESTE MARCA ERROR APROPOSITO
-EXEC level1.insertarUnSucursal  'Mandalay', 'Lomas del Mirador', 'Pres. Juan Domingo Perón 763, B1753AWO Villa Luzuriaga, Provincia de Buenos Aires', '5555-5553'
-go
-select * from level1.sucursal
+--------------------------------------------------------ESTO ES PARA CAMBIAR EL ESTADO DE FACTURA---------------------------------------------------
+CREATE OR ALTER PROCEDURE level2.registroPagoFactura 
+    @idFactura VARCHAR(50),
+    @iD_MedioPago INT,
+    @identificadorPago VARCHAR(50) AS
+BEGIN
+    -- Verificar si la factura existe
+    IF EXISTS (SELECT 1 FROM level2.factura WHERE iD_Factura = @idFactura)
+    BEGIN
+        -- Declarar variables
+        DECLARE @iD_Venta INT;
+        DECLARE @estado VARCHAR(20);
 
-EXEC level2.insertarCargo 1, 'Supervisor'
+        -- Obtener el ID de la venta asociada
+        SET @iD_Venta = (SELECT iD_Venta FROM level2.factura WHERE iD_Factura = @idFactura);
+
+        -- Si el iD_MedioPago es 0, cancelar la factura
+        IF @iD_MedioPago = 0
+        BEGIN
+            -- Actualizar el estado de la factura a 'Cancelada'
+            UPDATE level2.factura
+            SET estado = 'Cancelada'
+            WHERE iD_Factura = @idFactura;
+
+            -- Actualizar el identificador y medio de pago en la venta
+            UPDATE level2.ventaRegistrada
+            SET iD_MedioPago = 0, identificadorPago = '-'
+            WHERE iD_Venta = @iD_Venta;
+
+            PRINT 'La factura ha sido cancelada exitosamente.';
+        END
+        ELSE
+        BEGIN
+            -- Verificar si el iD_MedioPago existe en la tabla medioPago
+            IF EXISTS (SELECT 1 FROM level1.medioPago WHERE idMedioPago = @iD_MedioPago)
+            BEGIN
+                -- Actualizar el estado de la factura a 'Pagada'
+                UPDATE level2.factura
+                SET estado = 'Pagada'
+                WHERE iD_Factura = @idFactura;
+
+                -- Actualizar el identificador y medio de pago en la venta
+                UPDATE level2.ventaRegistrada
+                SET iD_MedioPago = @iD_MedioPago, identificadorPago = @identificadorPago
+                WHERE iD_Venta = @iD_Venta;
+
+                PRINT 'La factura ha sido pagada exitosamente.';
+            END
+            ELSE
+            BEGIN
+                PRINT 'Error: El medio de pago especificado no existe.';
+            END
+        END
+    END
+    ELSE
+    BEGIN
+        PRINT 'Error: La factura especificada no existe.';
+    END
+END;
 GO
-EXEC level2.insertarCargo 2, 'Cajero'
-GO
-EXEC level2.insertarCargo 3, 'Gerente de sucursal'
-GO
-select * from level2.cargo
 
-EXEC level2.insertarUnEmpleado 'celeste', 'moran', 44005719, 'roldan', 'abc@gmial', 'asd@gmail', '30-12221-00', 'Supervisor', 'Moron', 'TT'
-select * from level2.empleado
-
-EXEC level1.insertarUnProducto 'Crema facial', 'cosmetico', 35.8, '330 gr'
-go
-EXEC level1.insertarUnProducto 'Leche', 'lacteos', 50, '1 litro'
-go
-EXEC level1.insertarUnProducto 'Pitusas', 'galletitas', 1000, ' gr'
-go
-select* from level1.producto
-
-EXEC level2.insertarUnaVentaRegistrada '750-67-8428', 'A', 'Milagro', 'Member', 'Female', '01/05/2019 13:08:00', 'Ewallet', 257020, '0000003100099475144530'
-go
-EXEC level2.insertarUnaVentaRegistrada '226-31-3081', 'C', 'Naypyitaw', 'Normal', 'Female', '03/08/2019 10:29:00',	'Cash',	257020, '--'
-go --MARCA ERROR PORQUE EN ESTE CASO LA SUCURSAL NO EXISTE
-
-select * from level2.ventaRegistrada
-
-EXEC level2.InsertarDetalleVenta '750-67-8428', 'Crema facial', 7
-GO 
-EXEC level2.InsertarDetalleVenta '750-67-8429', 'Leche', 5 --ESTE NO ME DEJA PORQUE PUSE UN ID TRUCHO
-GO 
-EXEC level2.InsertarDetalleVenta '750-67-8428', 'Pitusas', 1
-GO 
-
-select * from level2.detalleVenta
 -------------------------------------------------------------------------------------------------------------------------------
 
 
