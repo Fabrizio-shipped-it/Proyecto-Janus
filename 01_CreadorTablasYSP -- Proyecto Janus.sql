@@ -279,6 +279,13 @@ BEGIN
 END
 GO
 
+EXEC level2.insertarCargo 1, 'Supervisor'
+GO
+EXEC level2.insertarCargo 2, 'Cajero'
+GO
+EXEC level2.insertarCargo 3, 'Gerente de sucursal'
+GO
+
 
 CREATE OR ALTER PROCEDURE level2.borrarCargo @idCargo INT AS
 BEGIN 
