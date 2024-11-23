@@ -38,28 +38,33 @@ BEGIN
 		    EXEC sp_executesql @sql;
 
 		-- Hasta aca hace la importacion de datos a la tabla temporal
-		INSERT INTO level1.sucursal(ciudad, nombreSucursal, direccion, telefono)
+		INSERT INTO level1.sucursal(ciudad, nombreSucursal, direccion, telefono, cuit)
 		SELECT 
 		t.Ciudad,
 		t.Localidad,
 		t.Direccion,
-		t.Telefono
+		t.Telefono,
+		'20-22222222-3' AS cuit
 		FROM #tempSuc t
-		LEFT JOIN level1.sucursal p ON t.Ciudad = p.ciudad and t.Localidad = p.nombreSucursal
-		WHERE p.ciudad IS NULL;
+			LEFT JOIN level1.sucursal p 
+		    ON t.Ciudad COLLATE Latin1_General_CI_AI = p.ciudad COLLATE Latin1_General_CI_AI
+			AND t.Localidad COLLATE Latin1_General_CI_AI = p.nombreSucursal COLLATE Latin1_General_CI_AI
+			WHERE p.ciudad IS NULL;
 		--Hasta aca hace la importacion de unicamente los que no estan incluidos en nuestra tabla de sucursales
 
 		drop table #tempSuc
 
 END;
 GO
------------------------
 
-CREATE OR ALTER PROCEDURE level2.importarEmpleado
+EXEC level1.importarSucursal N'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Informacion_complementaria.xlsx';
+GO 
+				--OK
+-----------------------
+CREATE OR ALTER PROCEDURE level2.importarEmpleado @rutaArchivo NVARCHAR(255)
 AS
 BEGIN
 		CREATE TABLE #tempEmpleado(
-		id_empleado INT,
 		nombre VARCHAR(50),
 		apellido VARCHAR(50),
 		dni INT,
@@ -70,31 +75,41 @@ BEGIN
 		cargo VARCHAR(25),
 		sucursal VARCHAR(50),
 		turno VARCHAR(5));
+		   
+		
+				DECLARE @sql NVARCHAR(MAX);
 
-		INSERT INTO #tempEmpleado(id_empleado, nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno)
-		SELECT "Legajo/ID", Nombre, Apellido, DNI, Direccion,
+		SET @sql = N'
+        INSERT INTO #tempEmpleado(nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno)
+		SELECT Nombre, Apellido, DNI, Direccion,
 		"email personal", "email empresa", CUIL, Cargo,
-		Sucursal, replace(Turno, 'Jornada completa', 'FULL') AS Turno
-		FROM OPENROWSET('Microsoft.ACE.OLEDB.12.0',
-		'Excel 12.0;Database=TU DIRECTORIO', 
-		'SELECT * FROM [Empleados$]')
-		WHERE "Legajo/ID" is not null
-		-- Hasta aca hace la importacion de datos a la tabla temporal
+		Sucursal, replace(Turno, ''Jornada completa'', ''FULL'') AS Turno
+        FROM OPENROWSET(
+            ''Microsoft.ACE.OLEDB.12.0'',
+            ''Excel 12.0;Database=' + @rutaArchivo + ''',
+            ''SELECT * FROM [Empleados$]
+			WHERE DNI IS NOT NULL'')';
 
+		    EXEC sp_executesql @sql;
+		-- Hasta aca hace la importacion de datos a la tabla temporal
 		INSERT INTO level2.empleado(nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno, estado)
 		SELECT 
 		t.nombre, t.apellido, t.dni, t.direccion, t.emailEmpresa, t.emailPersonal, t.cuil, t.cargo, t.sucursal, t.turno, '1' AS estado
 		FROM #tempEmpleado t
+		LEFT JOIN level2.empleado e ON t.nombre = e.nombre AND t.apellido = e.apellido
+		WHERE e.dni IS NULL
 		--Hasta aca hace la importacion de unicamente los que no estan incluidos en nuestra tabla de empleados
-
 		drop table #tempEmpleado
 END;
 GO
-EXEC level2.importarEmpleado
-select * from level2.empleado
 
+EXEC level2.importarEmpleado N'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Informacion_complementaria.xlsx';
+GO
+--select * from level2.empleado
+--delete from level2.empleado
+									--OK
 ------------------------- IMPORTACIÓN ----------------------------
---- ---------------------------------------------- CATALOGO.CSV
+--- ---------------------------------------------- CATALOGO.CSV	
 CREATE OR ALTER PROCEDURE level1.ImportarCatalogo @RutaArchivo NVARCHAR(270)
 AS
 BEGIN
@@ -120,12 +135,13 @@ BEGIN
 
 		EXEC sp_executesql @Consulta
 	-- hasta aca cargamos en la tabla TEMPORAL
-	INSERT INTO level1.producto(Categoria, nombreProducto, precio, ReferenciaUnidad)
+	INSERT INTO level1.producto(Categoria, nombreProducto, precio, ReferenciaUnidad, estado)
 	SELECT 
     t.category,
     t.name,
     t.reference_price,
-    t.reference_unit
+    t.reference_unit,
+	'1' AS estado
 	FROM #tempCatalogo t
 	LEFT JOIN level1.producto p ON t.name = p.nombreProducto
 	WHERE p.nombreProducto IS NULL;  -- Solo selecciona los que no existen en la tabla permanente
@@ -133,11 +149,11 @@ BEGIN
 END
 GO
 
-EXEC level1.ImportarCatalogo N'TU DIRECTORIO';
-	select * from level1.producto
-	truncate table level1.producto
-
-
+EXEC level1.ImportarCatalogo N'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Productos\catalogo.csv';
+GO
+--select * from level1.producto
+--delete from level1.producto
+								--OK
 --- ----------------------------------------------Productos_importados.xlsx
 CREATE OR ALTER PROCEDURE level1.ImportarProdImportados @RutaArchivo NVARCHAR(270)
 AS
@@ -159,12 +175,13 @@ BEGIN
             ''Excel 12.0;Database=' + @RutaArchivo + ''',''SELECT * FROM [Listado de Productos$]'');';
     EXEC sp_executesql @Consulta
 	-- Hasta aca hace la importacion de datos a la tabla temporal
-	INSERT INTO level1.producto(Categoria, nombreProducto, Precio, ReferenciaUnidad)
+	INSERT INTO level1.producto(Categoria, nombreProducto, Precio, ReferenciaUnidad, estado)
 	SELECT 
     t.Categoría,
 	t.NombreProducto,
 	t.PrecioUnidad,
-	t.CantidadPorUnidad
+	t.CantidadPorUnidad,
+	'1' AS estado
 	FROM #tempImportados t
 	LEFT JOIN level1.producto p ON t.NombreProducto = p.nombreProducto
 	WHERE p.nombreProducto IS NULL;
@@ -174,9 +191,11 @@ BEGIN
 END;
 GO
 
-EXEC level1.ImportarProdImportados N'TU DIRECTORIO';
-	select * from level1.producto
-	truncate table level1.producto
+EXEC level1.ImportarProdImportados N'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Productos\Productos_importados.xlsx';
+GO
+--select * from level1.producto
+--delete from level1.producto
+								--OK
 --- ----------------------------------------------Electronic accessories.xlsx
 CREATE OR ALTER PROCEDURE level1.ImportarElectronicos @RutaArchivo NVARCHAR(270)	
 AS
@@ -202,12 +221,13 @@ BEGIN
     EXEC sp_executesql @Consulta;
 
     -- Inserción en la tabla final (productos), únicamente para productos nuevos
-    INSERT INTO level1.producto(Categoria, ReferenciaUnidad, nombreProducto, Precio)
+    INSERT INTO level1.producto(Categoria, ReferenciaUnidad, nombreProducto, Precio, estado)
     SELECT
         'Accesorios Electronicos' AS Categoria,
         'ud' AS ReferenciaUnidad,
         t.Producto,
-        t.Precio
+        t.Precio,
+		'1' AS estado
     FROM #tempElectronicos t
     LEFT JOIN level1.producto p ON t.Producto = p.nombreProducto
     WHERE p.nombreProducto IS NULL;
@@ -217,10 +237,15 @@ BEGIN
 END;
 GO
 
-EXEC level1.ImportarElectronicos N'TU DIRECTORIO';
-	select * from level1.producto
-	truncate table level1.producto
+EXEC level1.ImportarElectronicos N'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Productos\Electronic accessories.xlsx';
+GO
+--select * from level1.producto
+--delete from level1.producto
+								--OK
 
+
+
+	----------------------------------- FALTA QUE FABRI TERMINE DE HACER EL DE VENTAS PERO PARA ESO LAS TABLAS TIENE QUE ESTAR VERIFICADAS POR LOS 3 UWU
 --- ----------------------------------------------Ventas_registradas.csv
 CREATE OR ALTER PROCEDURE level2.InsertarVentasRegistradas @RutaArchivo NVARCHAR(270)
 AS
