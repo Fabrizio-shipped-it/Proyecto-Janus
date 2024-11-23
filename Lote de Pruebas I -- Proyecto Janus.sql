@@ -272,6 +272,70 @@ go
 EXEC level1.bajarProducto 3
 go
 
+EXEC level1.insertarUnProducto 'Crema facial', 'cosmetico', 35.8, '330 gr'
+go
+EXEC level1.insertarUnProducto 'Leche', 'lacteos', 50, '1 litro'
+go
+EXEC level1.insertarUnProducto 'Pitusas', 'galletitas', 1000, ' gr'
+go
+select* from level1.producto
 
+EXEC level2.insertarCliente 'Juan Pérez', 'Masculino';
+select* from level2.cliente
+
+
+EXEC level2.insertarUnaVentaRegistrada 'A', 1, 1, 257020, '226-31-3081'
+go --ESTE SE INSERTA GOOD
+EXEC level2.insertarUnaVentaRegistrada 'A', 12, 1, 257020, '226-31-3082'
+go --MARCA ERROR PORQUE EN ESTE CASO LA SUCURSAL NO EXISTE
+
+EXEC level2.insertarUnaVentaRegistrada 'A', 1, 10, 257020, '226-31-3083'
+go --MARCA ERROR PORQUE EN ESTE CASO EL CLIENTE NO EXISTE
+
+EXEC level2.insertarUnaVentaRegistrada 'F', 1, 1, 257020, '226-31-3084'
+go --MARCA ERROR PORQUE EN ESTE CASO LA FACTURA NO EXISTE
+
+EXEC level2.insertarUnaVentaRegistrada 'A', 1, 1, 25702, '226-31-3085'
+go --MARCA ERROR PORQUE EN ESTE CASO EL EMPLEADO NO EXISTE
+
+EXEC level2.insertarUnaVentaRegistrada 'A', 1, 1, 257020, '226-31-3081'
+go --MARCA ERROR PORQUE EN ESTE CASO SE DUPLICA FACTURA
+select * from level2.ventaRegistrada
+select * from level2.factura
+
+EXEC level2.InsertarDetalleVenta '226-31-3081', 4, 7
+GO 
+EXEC level2.InsertarDetalleVenta '750-67-8429', 5 , 5 --ESTE NO ME DEJA PORQUE PUSE UN ID TRUCHO
+GO 
+EXEC level2.InsertarDetalleVenta '226-31-3081', 6 , 1
+GO 
+EXEC level2.InsertarDetalleVenta '226-31-3081', 1, 1 --ESTE NO ME DEJA PORQUE PUSE UN PRODUCTO INHABILITADO
+GO 
+
+select * from level2.detalleVenta
+select * from level2.ventaRegistrada
+
+--AHORA SI QUIERO ELIMINAR MI DETALLE DE VENTA SE ME TIENEN QUE VACIAR TODO LO QUE ACUMULE EN EL MONTO
+EXEC level2.eliminarDetalleVenta 1
+
+select * from level2.detalleVenta
+select * from level2.ventaRegistrada
+
+EXEC level1.insertarMedioPago @descripcion = 'Tarjeta de Crédito';
+select * from level1.medioPago
+
+EXEC level1.borrarMedioPago 2; --error
+EXEC level1.borrarMedioPago 1; --good
+
+EXEC level1.modificarMedioPago 1, 'Transferencia Bancaria'; --error
+
+EXEC level2.registroPagoFactura  '226-31-3090', 2, '4661-1046-8238-6589'
+GO --NO EXISTE LA FACTURA
+EXEC level2.registroPagoFactura  '226-31-3081', 1, '4661-1046-8238-6589'
+GO --NO EXISTE MEDIO DE PAGO
+EXEC level2.registroPagoFactura  '226-31-3081', 2, '4661-1046-8238-6589'
+GO --ESTE GOOD
+select * from level2.ventaRegistrada
+select * from level2.factura
 
 
