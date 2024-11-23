@@ -7,6 +7,20 @@ EXEC sp_configure 'Ad Hoc Distributed Queries', 1;
 RECONFIGURE;
 GO
 */
+EXEC level2.insertarCargo 1, 'Supervisor'
+GO
+EXEC level2.insertarCargo 2, 'Cajero'
+GO
+EXEC level2.insertarCargo 3, 'Gerente de sucursal'
+GO
+EXEC level1.insertarMedioPago N'Cash';
+GO
+EXEC level1.insertarMedioPago N'Credit card';
+GO
+EXEC level1.insertarMedioPago N'Ewallet';
+GO
+
+
 ------------------------- INSERCION ----------------------------
 -- A continuación se crea las tablas para la creación de los SP que se usaran para la manipulación de tablas
 CREATE OR ALTER PROCEDURE level1.importarSucursal 
@@ -57,7 +71,9 @@ GO
 
 EXEC level1.importarSucursal N'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Informacion_complementaria.xlsx';
 GO 
-				--OK
+--select * from level1.sucursal
+--delete from level1.sucursal
+							--OK
 -----------------------
 CREATE OR ALTER PROCEDURE level2.importarEmpleado @rutaArchivo NVARCHAR(255)
 AS
@@ -92,7 +108,7 @@ BEGIN
 		-- Hasta aca hace la importacion de datos a la tabla temporal
 		INSERT INTO level2.empleado(nombre, apellido, dni, direccion, emailEmpresa, emailPersonal, cuil, cargo, sucursal, turno, estado)
 		SELECT 
-		t.nombre, t.apellido, t.dni, t.direccion, t.emailEmpresa, t.emailPersonal, t.cuil, t.cargo, t.sucursal, t.turno, '1' AS estado
+		t.nombre, t.apellido, t.dni, t.direccion, t.emailEmpresa, t.emailPersonal, '00-00000000-0' AS cuil, t.cargo, t.sucursal, t.turno, '1' AS estado
 		FROM #tempEmpleado t
 		LEFT JOIN level2.empleado e ON t.nombre = e.nombre AND t.apellido = e.apellido
 		WHERE e.dni IS NULL
@@ -103,9 +119,8 @@ GO
 
 EXEC level2.importarEmpleado N'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Informacion_complementaria.xlsx';
 GO
---select * from level2.empleado
---delete from level2.empleado
-									--OK
+
+								--OK
 ------------------------- IMPORTACIÓN ----------------------------
 --- ---------------------------------------------- CATALOGO.CSV	
 CREATE OR ALTER PROCEDURE level1.ImportarCatalogo @RutaArchivo NVARCHAR(270)
@@ -240,10 +255,6 @@ GO
 --select * from level1.producto
 --delete from level1.producto
 								--OK
-
-
-
-	----------------------------------- FALTA QUE FABRI TERMINE DE HACER EL DE VENTAS PERO PARA ESO LAS TABLAS TIENE QUE ESTAR VERIFICADAS POR LOS 3 UWU
 --- ----------------------------------------------Ventas_registradas.csv
 CREATE OR ALTER PROCEDURE level2.InsertarVentasRegistradas @RutaArchivo NVARCHAR(270)
 AS
@@ -262,7 +273,8 @@ BEGIN
 	"Medio de Pago" VARCHAR(25),
 	Empleado INT,
 	"Identificador de pago" VARCHAR(50));
-
+		
+	----------------------------------------------
 	DECLARE @Consulta NVARCHAR(MAX);
     SET @Consulta = N'
         BULK INSERT #tempVenta
@@ -276,43 +288,62 @@ BEGIN
         );';
 
     -- Ejecutar la consulta dinámica
-    EXEC sp_executesql @Consulta;
-	----------------------------------------------
+    EXEC sp_executesql @Consulta; 
 
-		INSERT INTO level2.ventaRegistrada(iDFactura, tipoFactura, Ciudad, tipoCliente, Genero, fechaHora, medioPago,
-																								Empleado, MontoTotal, identificadorPago)
-				SELECT t.[ID Factura], t.[Tipo de Factura], t.Ciudad, t.[Tipo de cliente], t.Genero,
-					CAST(t.Fecha AS DATETIME) + CAST(t.hora AS DATETIME) AS FechaHoraCompleta, t.[Medio de Pago], t.Empleado,
-					 t.Cantidad * t.[Precio Unitario] AS MontoTotal, t.[Identificador de pago]
+		UPDATE #tempVenta
+SET Producto = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(Producto,'Ã¡', 'á'),'Ã©', 'é'),'Ã­', 'í'),'Ã³', 'ó'),'Ãº', 'ú'),'Ã±', 'ñ'),'Â', ''),'å˜', 'ojo'),'í', 'Á'),'líƒÂº', 'lú'),'chí­a', 'chía'),'lí­quido', 'líquido'),'encí­as', 'encías'),'raí­ces', 'raíces'),'proteí­nas', 'proteínas');
+
+
+		INSERT INTO level2.ventaRegistrada(total_Bruto, total_IVA, empleado, iD_MedioPago, identificadorPago)
+				SELECT (t.Cantidad * t.[Precio Unitario]) AS total_Bruto, CAST(((t.Cantidad * t.[Precio Unitario]) * 1.21) AS DECIMAL(10,2)) AS total_IVA,
+							t.Empleado, mp.idMedioPago, t.[Identificador de pago]
 						FROM #tempVenta t
-				LEFT JOIN level2.ventaRegistrada vr ON t.[ID Factura] = vr.iDFactura
-				WHERE vr.iDFactura IS NULL; 
-	
-			INSERT INTO level2.detalleVenta(iDFactura, NombreProducto, Cantidad, PrecioUnitario)
-					SELECT x.[ID Factura], x.Producto, x.Cantidad, x.[Precio Unitario]
-					FROM #tempVenta x
-			LEFT JOIN level2.detalleVenta dv ON x.[ID Factura] = dv.iDFactura
-			WHERE dv.iDFactura IS NULL;
-	
+				JOIN level1.medioPago mp ON t.[Medio de Pago]= mp.descripcion
+				LEFT JOIN level2.ventaRegistrada vr ON t.[Identificador de pago] = vr.identificadorPago
+				WHERE vr.identificadorPago IS NULL
+	--Insertó en venta --OK
+
+
+		INSERT INTO level2.factura(iD_Factura,iD_Sucursal, tipoFactura, fechaHora, estado, cuit)
+				SELECT t.[ID Factura],sc.idSucursal, t.[Tipo de Factura], CAST(t.Fecha AS DATETIME) + CAST(t.hora AS DATETIME) AS FechaHoraCompleta,
+							'PAGADA' AS estado, sc.cuit
+				FROM #tempVenta t
+				JOIN level1.sucursal sc ON t.Ciudad = sc.ciudad
+				LEFT JOIN level2.factura fc ON t.[ID Factura] = fc.iD_Factura
+				WHERE fc.iD_Factura IS NULL
+
+		UPDATE fc
+		SET fc.iD_Venta = vr.iD_Venta
+		FROM level2.factura fc
+		JOIN #tempVenta tmp ON fc.iD_Factura = tmp.[ID Factura]
+		JOIN level2.ventaRegistrada vr ON tmp.[Identificador de pago] = vr.identificadorPago
+		WHERE fc.iD_Venta IS NULL
+	--Insertó en factura --OK
+
+
+		INSERT INTO level2.detalleVenta(nombreProducto, cantidad, precioUnitario)
+			SELECT t.Producto, t.Cantidad, t.[Precio Unitario] FROM #tempVenta t
+			LEFT JOIN level2.detalleVenta dt ON dt.nombreProducto = t.Producto
+			WHERE dt.nombreProducto IS NULL
+
+		
+	--Insertó en detalle
+
 	DROP TABLE #tempVenta
 END;
 GO
-EXEC level2.InsertarVentasRegistradas N'TU DIRECTORIO';
 
+EXEC level2.InsertarVentasRegistradas N'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Ventas_registradas.csv';
 
 /*
+
 select * from level2.ventaRegistrada
-truncate table level2.ventaRegistrada
+delete from level2.ventaRegistrada
+
+select * from level2.factura
+delete from level2.factura
 
 select * from level2.detalleVenta
 truncate table level2.detalleVenta
 
-select * from level1.producto
-truncate table level1.producto
-
-select * from level2.empleado
-truncate table level2.empleado
-
-select * from level1.sucursal
-truncate table level1.sucursal
 */
