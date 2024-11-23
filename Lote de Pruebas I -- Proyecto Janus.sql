@@ -272,36 +272,87 @@ go
 EXEC level1.bajarProducto 3
 go
 
+-----------------------------------------CLIENTE-----------------------------------------------
+
+
+-->Insertar Cliente
+
+EXEC level2.insertarCliente 'Juan Pérez', 'Masculino';
+
+--Resultado esperado:
+-- 1    Juan Pérez  Masculino   ''  1
+
+select* from level2.cliente
+
+
+-->Bajar Cliente
+
+EXEC level2.bajarCliente 1
+
+--Resultado esperado:
+-- 1    Juan Pérez  Masculino   ''  0
+
+select* from level2.cliente
+
+
+-->Reactivar cliente
+EXEC level2.reactivarCliente 1
+
+--Resultado esperado:
+-- 1    Juan Pérez  Masculino   ''  1
+
+select* from level2.cliente
+
+
+--------------------------------------VENTA REGISTRADA Y FACTURA--------------------------------
+--Para este test se necesita:
+
+-- En caso de que exista el empleado: EXEC level2.reactivarEmpleado 257020
+
+EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'Mar de Dunas del Norte', '1111-1111', '20-22222222-3'
+go
+EXEC level2.insertarCargo 4, 'Cientifico'
+GO
+EXEC level2.insertarUnEmpleado  'Edward', 'Richtofen', 90453233, 'Instalaciones de Der Riese', 'dereisendrache@grupo935.com', 'erichtofen@grupo935.com', '', 'Cientifico', 'Palacio Hutt', 'TM';
+go
+
+select * from level1.sucursal
+SELECT * FROM level2.empleado
+
+-->InsertarVentaRegistrada
+EXEC level2.insertarUnaVentaRegistrada 'A', 3, 1, 257020, '226-31-3081'
+go --ESTE SE INSERTA GOOD
+EXEC level2.insertarUnaVentaRegistrada 'A', 12, 1, 257020, '226-31-3082'
+go --MARCA ERROR PORQUE EN ESTE CASO LA SUCURSAL NO EXISTE
+EXEC level2.insertarUnaVentaRegistrada 'A', 1, 10, 257020, '226-31-3083'
+go --MARCA ERROR PORQUE EN ESTE CASO EL CLIENTE NO EXISTE
+EXEC level2.insertarUnaVentaRegistrada 'F', 1, 1, 257020, '226-31-3084'
+go --MARCA ERROR PORQUE EN ESTE CASO LA FACTURA NO EXISTE
+EXEC level2.insertarUnaVentaRegistrada 'A', 1, 1, 25702, '226-31-3085'
+go --MARCA ERROR PORQUE EN ESTE CASO EL EMPLEADO NO EXISTE
+EXEC level2.insertarUnaVentaRegistrada 'A', 1, 1, 257020, '226-31-3081'
+go --MARCA ERROR PORQUE EN ESTE CASO SE DUPLICA FACTURA
+
+--RESULTADO ESPERADO:
+select * from level2.ventaRegistrada
+--1 NULL    NULL    157020  NULL    -
+
+
+select * from level2.factura
+--226-31-3081   1   1   A   1   [Tiempo real de insersion]  Emitida 20-22222222-3
+
+
+
+--------------------------DETALLE VENTA----------------------------------------
+
 EXEC level1.insertarUnProducto 'Crema facial', 'cosmetico', 35.8, '330 gr'
 go
 EXEC level1.insertarUnProducto 'Leche', 'lacteos', 50, '1 litro'
 go
 EXEC level1.insertarUnProducto 'Pitusas', 'galletitas', 1000, ' gr'
 go
-select* from level1.producto
-
-EXEC level2.insertarCliente 'Juan Pérez', 'Masculino';
-select* from level2.cliente
-
-
-EXEC level2.insertarUnaVentaRegistrada 'A', 1, 1, 257020, '226-31-3081'
-go --ESTE SE INSERTA GOOD
-EXEC level2.insertarUnaVentaRegistrada 'A', 12, 1, 257020, '226-31-3082'
-go --MARCA ERROR PORQUE EN ESTE CASO LA SUCURSAL NO EXISTE
-
-EXEC level2.insertarUnaVentaRegistrada 'A', 1, 10, 257020, '226-31-3083'
-go --MARCA ERROR PORQUE EN ESTE CASO EL CLIENTE NO EXISTE
-
-EXEC level2.insertarUnaVentaRegistrada 'F', 1, 1, 257020, '226-31-3084'
-go --MARCA ERROR PORQUE EN ESTE CASO LA FACTURA NO EXISTE
-
-EXEC level2.insertarUnaVentaRegistrada 'A', 1, 1, 25702, '226-31-3085'
-go --MARCA ERROR PORQUE EN ESTE CASO EL EMPLEADO NO EXISTE
-
-EXEC level2.insertarUnaVentaRegistrada 'A', 1, 1, 257020, '226-31-3081'
-go --MARCA ERROR PORQUE EN ESTE CASO SE DUPLICA FACTURA
-select * from level2.ventaRegistrada
-select * from level2.factura
+EXEC level1.bajarProducto 1
+SELECT * from level1.producto
 
 EXEC level2.InsertarDetalleVenta '226-31-3081', 4, 7
 GO 
@@ -312,22 +363,57 @@ GO
 EXEC level2.InsertarDetalleVenta '226-31-3081', 1, 1 --ESTE NO ME DEJA PORQUE PUSE UN PRODUCTO INHABILITADO
 GO 
 
+--RESULTADO ESPERADO:
 select * from level2.detalleVenta
+--1  1   4   Crema facial    7   35.80
+--2 1   6   Pitusas 1   1000
+
 select * from level2.ventaRegistrada
+-- 1    1250.6  1513.23 257020  NULL    -
 
 --AHORA SI QUIERO ELIMINAR MI DETALLE DE VENTA SE ME TIENEN QUE VACIAR TODO LO QUE ACUMULE EN EL MONTO
 EXEC level2.eliminarDetalleVenta 1
 
+--Resultado esperado:
 select * from level2.detalleVenta
+--Todo vacio
 select * from level2.ventaRegistrada
+--1 0   0   257022  NULL    -
+
+
+
+-------------------------------------MEDIO PAGO--------------------------------------
+
+-->Insertar medio pago
 
 EXEC level1.insertarMedioPago @descripcion = 'Tarjeta de Crédito';
+
 select * from level1.medioPago
+--RESULTADO ESPERADO:
+--1 Tarjeta de Crédito
+
+-->Borrar medio pago
 
 EXEC level1.borrarMedioPago 2; --error
 EXEC level1.borrarMedioPago 1; --good
 
+-- Resultado esperado:
+select * from level1.medioPago
+--Vacio
+
+
+-->Modificar Medio Pago
+
 EXEC level1.modificarMedioPago 1, 'Transferencia Bancaria'; --error
+
+--Resultado Esperado:
+--Nada
+select * from level1.medioPago
+
+---------------------------------------PAGAR FACTURA-----------------------------
+
+EXEC level1.insertarMedioPago @descripcion = 'Creditos imperiales';
+
 
 EXEC level2.registroPagoFactura  '226-31-3090', 2, '4661-1046-8238-6589'
 GO --NO EXISTE LA FACTURA
@@ -335,7 +421,12 @@ EXEC level2.registroPagoFactura  '226-31-3081', 1, '4661-1046-8238-6589'
 GO --NO EXISTE MEDIO DE PAGO
 EXEC level2.registroPagoFactura  '226-31-3081', 2, '4661-1046-8238-6589'
 GO --ESTE GOOD
+
+--RESULTADO ESPERADO
+--1 0   0   257020  2   4661-1046-8238-6589
 select * from level2.ventaRegistrada
+
+--226-31-3081   1   1   A   1   [Tiempo real]   Pagada  20-22222222-3
 select * from level2.factura
 
 
