@@ -107,7 +107,7 @@ SELECT * FROM level2.cargo
 
 --En caso de eliminar el test de Sucursal ejecutar y cambiar el valor idCatalogo al valor actual en la insersion de empleado:
 
-EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'Mar de Dunas del Norte', '1111-1111'
+EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'Mar de Dunas del Norte', '1111-1111', '20-22222222-3'
 go
 EXEC level2.insertarCargo 4, 'Cientifico'
 GO
