@@ -633,6 +633,8 @@ BEGIN
 		DECLARE @nombreProducto VARCHAR (100) = (SELECT nombreProducto  FROM level1.producto WHERE idProducto = @idProducto)
 		-- Obtener el precio unitario del producto
 		DECLARE @precioUnitario DECIMAL (10,2) = (SELECT precio FROM level1.producto WHERE idProducto = @idProducto)
+		-- Obtener la referenciaUnidad del producto
+		DECLARE @referenciaUnidad DECIMAL (10,2) = (SELECT referenciaUnidad FROM level1.producto WHERE idProducto = @idProducto)
 		-- Obtener el IdVenta
 		DECLARE @iD_Venta INT= (SELECT iD_Venta FROM level2.factura WHERE iD_Factura = @idFactura)
 		
