@@ -565,7 +565,7 @@ CREATE OR ALTER PROCEDURE level2.insertarUnaVentaRegistrada
     @idSucursal INT,
     @idCliente INT,
     @idEmpleado INT,
-    @idFactura VARCHAR(50) AS
+	@idFactura VARCHAR(50) AS
 BEGIN
 -- VALIDO SI LA SUCURSAL, EL EMPLEADO Y CLIENTE ESTAN REGISTRADOS Y QUE EL ID DE FACTURA NO ESTE DUPLICADO
 	IF EXISTS (SELECT 1 FROM level1.sucursal WHERE idSucursal = @idSucursal)
@@ -583,35 +583,24 @@ BEGIN
 			-- Obtener el CUIT de la sucursal
 		SET @cuit = (SELECT cuit FROM level1.sucursal WHERE idSucursal = @idSucursal);
 
-
-			-- Insertar en la tabla VentaRegistrada
-		INSERT INTO level2.ventaRegistrada (empleado, identificadorPago)
-		VALUES (@idEmpleado, '-');
-
-		SET @idVenta = SCOPE_IDENTITY(); --devuelve el valor IDENTITY insertado
-
-		IF @idCliente != 0
-		BEGIN
-			IF EXISTS (SELECT 1 FROM level2.cliente WHERE idCliente = @idCliente AND estado = '1')
+		IF EXISTS (SELECT 1 FROM level2.cliente WHERE idCliente = @idCliente AND estado = '1') OR @idCliente = 0
 			BEGIN
+					-- Insertar en la tabla VentaRegistrada
+				INSERT INTO level2.ventaRegistrada (empleado, identificadorPago)
+				VALUES (@idEmpleado, '-');
+
+				SET @idVenta = SCOPE_IDENTITY(); --devuelve el valor IDENTITY insertado
 				-- Insertar en la tabla factura
 				INSERT INTO level2.factura (iD_Factura, iD_Venta, iD_Sucursal, tipoFactura, iD_Cliente, fechaHora, estado, cuit)
 				VALUES (@idFactura, @idVenta, @idSucursal, @tipoFactura, @idCliente, @fechaHora, @estado, @cuit);
-			END
-			ELSE
-                BEGIN
-                    PRINT 'Error: Cliente no existe o está desactivado.';
-                    RETURN;
-                END
-		END
-		ELSE --EN ESTE CASO ESTE NO ES UN MIEMBRO, ES UNA PERSONA GENERICA "NORMAL"
-		BEGIN
-			-- Insertar en la tabla factura
-				INSERT INTO level2.factura (iD_Factura, iD_Venta, iD_Sucursal, tipoFactura, iD_Cliente, fechaHora, estado, cuit)
-				VALUES (@idFactura, @idVenta, @idSucursal, @tipoFactura, 0, @fechaHora, @estado, @cuit);
-		END
 
-	PRINT 'Venta y factura registradas exitosamente';
+				PRINT 'Venta y factura registradas exitosamente';
+			END
+		ELSE
+            BEGIN
+                 PRINT 'Error: Cliente no existe o está desactivado.';
+                 RETURN;
+			END
 	END
     ELSE
     BEGIN
@@ -620,7 +609,6 @@ BEGIN
     END
 END;
 GO
-
 
 -------------------------------------------------------<DETALLE VENTA>-------------------------------------------------------------------
 
