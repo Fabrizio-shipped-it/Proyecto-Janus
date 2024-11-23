@@ -172,7 +172,7 @@ BEGIN
 						iDNroDetalle INT PRIMARY KEY IDENTITY(1,1),
 						iD_Venta INT REFERENCES level2.ventaRegistrada(ID_Venta),
 						idProducto INT REFERENCES level1.producto(idProducto),
-						nombreProducto VARCHAR(100) REFERENCES level1.producto(nombreProducto),
+						nombreProducto VARCHAR(100),
 						cantidad INT,
 						precioUnitario DECIMAL(10,2)
 )
