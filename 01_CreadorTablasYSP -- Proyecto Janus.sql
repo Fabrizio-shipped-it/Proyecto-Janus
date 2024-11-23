@@ -660,6 +660,65 @@ BEGIN
      WHERE iD_Venta = @iD_Venta;
 END
 go
+-------------------------------------------------------<MEDIO DE PAGO>-------------------------------------------------------------------
+
+CREATE OR ALTER PROCEDURE level1.insertarMedioPago
+    @descripcion VARCHAR(20) AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM level1.medioPago WHERE descripcion = @descripcion)
+    BEGIN
+        PRINT 'Error: El medio de pago ya existe.';
+        RETURN;
+    END
+    
+    INSERT INTO level1.medioPago (descripcion)
+    VALUES (@descripcion);
+
+    PRINT 'Medio de pago insertado exitosamente.';
+END;
+GO
+
+CREATE OR ALTER PROCEDURE level1.borrarMedioPago
+    @idMedioPago INT AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM level1.medioPago WHERE idMedioPago = @idMedioPago)
+    BEGIN
+        DELETE FROM level1.medioPago
+        WHERE idMedioPago = @idMedioPago;
+
+        PRINT 'Medio de pago eliminado exitosamente.';
+    END
+    ELSE
+    BEGIN
+        PRINT 'Error: El medio de pago no existe.';
+    END
+END;
+GO
+
+CREATE OR ALTER PROCEDURE level1.modificarMedioPago
+    @idMedioPago INT,
+    @nuevaDescripcion VARCHAR(20) AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM level1.medioPago WHERE idMedioPago = @idMedioPago)
+    BEGIN
+        IF EXISTS (SELECT 1 FROM level1.medioPago WHERE descripcion = @nuevaDescripcion)
+        BEGIN
+            PRINT 'Error: Ya existe un medio de pago con esa descripción.';
+            RETURN;
+        END
+
+        UPDATE level1.medioPago
+        SET descripcion = @nuevaDescripcion
+        WHERE idMedioPago = @idMedioPago;
+
+        PRINT 'Medio de pago actualizado exitosamente.';
+    END
+    ELSE
+    BEGIN
+        PRINT 'Error: El medio de pago no existe.';
+    END
+END;
+GO
 --------------------------------------------------------ESTO ES PARA CAMBIAR EL ESTADO DE FACTURA---------------------------------------------------
 CREATE OR ALTER PROCEDURE level2.registroPagoFactura 
     @idFactura VARCHAR(50),
