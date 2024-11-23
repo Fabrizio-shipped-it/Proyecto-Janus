@@ -109,7 +109,6 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'producto')
 BEGIN
 	CREATE TABLE level1.producto(			idProducto INT PRIMARY KEY IDENTITY(1,1),	 	
 							categoria VARCHAR(50) NOT NULL,	
-							idProducto INT REFERENCES level1.producto(idProducto),
 							nombreProducto VARCHAR (100) NOT NULL,			
 							precio DECIMAL(10,2) NOT NULL,
 							referenciaUnidad VARCHAR(30),
@@ -172,6 +171,7 @@ BEGIN
 	CREATE TABLE level2.detalleVenta(				
 						iDNroDetalle INT PRIMARY KEY IDENTITY(1,1),
 						iD_Venta INT REFERENCES level2.ventaRegistrada(ID_Venta),
+						idProducto INT REFERENCES level1.producto(idProducto),
 						nombreProducto VARCHAR(100) REFERENCES level1.producto(nombreProducto),
 						cantidad INT,
 						precioUnitario DECIMAL(10,2)
