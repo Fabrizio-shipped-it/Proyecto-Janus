@@ -181,6 +181,20 @@ END
 GO
 
 
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'notaCredito')
+BEGIN
+	CREATE TABLE level2.notaCredito(				
+						iDNota INT PRIMARY KEY IDENTITY(1,1),
+						idFactura VARCHAR(50) REFERENCES level2.factura(iD_Factura),
+						fecha DATETIME,
+						monto DECIMAL(10,2),
+						cantidad INT,
+						codProd INT,
+						motivoDev VARCHAR(200)
+)
+END
+GO	
+
 
 
 
