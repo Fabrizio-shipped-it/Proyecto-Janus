@@ -32,8 +32,50 @@
 
 */
 
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'Com2900G07')
+BEGIN
+    print('Debe ejecutar el script de creacion de tablas y sq para poder usar este script')
+END;
+
+
 USE Com2900G07
 GO
+
+
+-----------------------<CREACION DE ROLES Y USUARIOS>---------------------------------
+	
+CREATE LOGIN Richtofen
+WITH PASSWORD = 'Elemento115!', DEFAULT_DATABASE = Com2900G07,
+CHECK_POLICY = ON, CHECK_EXPIRATION = OFF ;
+
+create user Richtofen for login Richtofen
+
+CREATE LOGIN Maxis
+WITH PASSWORD = 'Grupo935!', DEFAULT_DATABASE = Com2900G07,
+CHECK_POLICY = ON, CHECK_EXPIRATION = OFF ;
+
+create user Maxis for login Maxis
+
+
+
+CREATE ROLE Supervisor AUTHORIZATION Richtofen;
+GO
+
+
+--Agrego los miembros al rol Supervisor
+ALTER ROLE Supervisor ADD MEMBER Richtofen; 
+ALTER ROLE Supervisor ADD MEMBER Maxis; 
+
+
+
+
+REVOKE INSERT, UPDATE, DELETE ON level2.notaCredito TO PUBLIC;
+go-- Saco los permisos a todos
+GRANT INSERT, UPDATE, DELETE ON level2.notaCredito TO Supervisor;  --Le doy los permisos solo al rol supervisor
+go
+
+
+
 
 -----------------------<Creacion de la llave>-----------------------
 
