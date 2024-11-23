@@ -617,35 +617,40 @@ GO
 CREATE OR ALTER PROCEDURE level2.InsertarDetalleVenta @idFactura VARCHAR(50), @idProducto INT, @cantidad INT  AS
 BEGIN
 	-- Verificar si el idFactura existe y que este en estado activo el producto
-	IF EXISTS(SELECT 1 FROM level2.factura WHERE iD_Factura = @idFactura)
+	IF ( EXISTS(SELECT 1 FROM level2.factura WHERE iD_Factura = @idFactura)
 	AND EXISTS (SELECT 1 FROM level1.producto WHERE idProducto = @idProducto AND estado = '1')
-	AND  @cantidad > 0
-
+	AND  @cantidad > 0)
 	BEGIN
-		DECLARE @total DECIMAL(10, 2);
 
-		-- Obtener el Nombre del producto
-		DECLARE @nombreProducto VARCHAR (100) = (SELECT nombreProducto  FROM level1.producto WHERE idProducto = @idProducto)
+
+		if((SELECT estado FROM level2.factura WHERE iD_Factura= @idFactura) = 'Emitida')
+		BEGIN
+			DECLARE @total DECIMAL(10, 2) =0;
+
+			-- Obtener el Nombre del producto
+			DECLARE @nombreProducto VARCHAR (100) = (SELECT nombreProducto  FROM level1.producto WHERE idProducto = @idProducto)
 		-- Obtener el precio unitario del producto
-		DECLARE @precioUnitario DECIMAL (10,2) = (SELECT precio FROM level1.producto WHERE idProducto = @idProducto)
-		-- Obtener la referenciaUnidad del producto
-		DECLARE @referenciaUnidad DECIMAL (10,2) = (SELECT referenciaUnidad FROM level1.producto WHERE idProducto = @idProducto)
+			DECLARE @precioUnitario DECIMAL (10,2) = (SELECT precio FROM level1.producto WHERE idProducto = @idProducto)
 		-- Obtener el IdVenta
-		DECLARE @iD_Venta INT= (SELECT iD_Venta FROM level2.factura WHERE iD_Factura = @idFactura)
+			DECLARE @iD_Venta INT= (SELECT iD_Venta FROM level2.factura WHERE iD_Factura = @idFactura)
+		
 		
 		-- Insertar en la tabla detalleVenta
-		INSERT INTO level2.detalleVenta (iD_Venta,idProducto, nombreProducto, cantidad, precioUnitario)
-		VALUES (@iD_Venta, @idProducto, @nombreProducto, @cantidad, @precioUnitario);
+			INSERT INTO level2.detalleVenta (iD_Venta,idProducto, nombreProducto, cantidad, precioUnitario)
+			VALUES (@iD_Venta, @idProducto, @nombreProducto, @cantidad, @precioUnitario);
 
 		-- Calcular el nuevo total de la factura sumando todos los productos
-		SET @total = @cantidad * @precioUnitario;
+			SET @total = @cantidad * @precioUnitario;
 
         -- Actualizar los totales en ventaRegistrada
-         UPDATE level2.ventaRegistrada
-        SET total_Bruto = total_Bruto + @total,
-            total_IVA = total_IVA + (@total * 1.21)
-        WHERE iD_Venta = @iD_Venta;
-			PRINT 'Detalle de venta insertado y totales actualizados correctamente.';
+       	 UPDATE level2.ventaRegistrada
+       	 SET total_Bruto = total_Bruto + @total,
+        	total_IVA = total_IVA + (@total * 1.21)
+        	WHERE iD_Venta = @iD_Venta;
+				PRINT 'Detalle de venta insertado y totales actualizados correctamente.';
+		END
+		else
+			print('La factura ya esta cerrada')
 	END
 	ELSE 
 	BEGIN
@@ -815,30 +820,34 @@ go
 
 ----------------------------------------------<Nota Credito>---------------------------------------------------
 
-CREATE OR ALTER PROCEDURE level2.crearNotaCredito @ticketVenta INT, @cantidad INT AS
+CREATE OR ALTER PROCEDURE level2.crearNotaCredito @idFactura VARCHAR(50), @codProd INT, @cantidad INT, @motivoDev VARCHAR(50) AS
 BEGIN
 
-	if((SELECT idVenta FROM level2.ventaRegistrada WHERE idVenta = @ticketVenta) IS NOT NULL 			--Verifico si la venta existe
-	and @cantidad>0 and @cantidad<= (SELECT cantidad FROM level2.ventaRegistrada WHERE idVenta = @ticketVenta) 	--Verifico que la cantidad sea mayor a 0 y menor a los comprado
-	)
+	if((SELECT iD_Factura FROM level2.factura WHERE iD_Factura = @idFactura) IS NOT NULL) 			--Verifico si la venta existe
 	BEGIN
-	DECLARE @producto VARCHAR(50) = (SELECT producto FROM level2.ventaRegistrada WHERE idVenta = @ticketVenta)
-	DECLARE @precioUnitario INT = (SELECT precioUnitario FROM level2.ventaRegistrada WHERE idVenta = @ticketVenta)
-	INSERT INTO level2.notaCredito (ticketVenta, nombreProducto, precioUnitario, cantidad)
-	VALUES (@ticketVenta, @producto, @precioUnitario, @cantidad)
-	EXEC level2.atiendeDetalleVentaDevolucion @ticketVenta, @cantidad
+
+	DECLARE @idVenta INT = (SELECT iD_Venta FROM level2.factura WHERE iD_Factura = @idFactura)	--OBTENGO EL ID VENTA DE FACTURA
+		IF( (SELECT iD_Venta FROM level2.detalleVenta WHERE idProducto = @codProd) IS NOT NULL) 	--VERIFICO QUE EXISTIO LA VENTA DEL PRODUCTO
+			BEGIN
+			if(@cantidad>0 and @cantidad<= (SELECT cantidad FROM level2.detalleVenta WHERE iD_Venta = @idVenta AND idProducto = @codProd)) 	--Verifico que la cantidad sea mayor a 0 y menor a los comprado)
+			BEGIN
+			DECLARE @precioUnitario INT = (SELECT precio FROM level1.producto WHERE idProducto = @codProd)
+			DECLARE @fecha DATETIME = GETDATE()
+			INSERT INTO level2.notaCredito (idFactura, fecha, monto, cantidad, codProd, motivoDev)
+			VALUES (@idFactura, @fecha, @precioUnitario*@cantidad, @cantidad, @codProd, @motivoDev)
+
+			UPDATE level2.detalleVenta
+			SET cantidad = cantidad-@cantidad
+			WHERE iD_Venta = @idVenta and idProducto = @codProd
+			END
+
+			else
+				print('la cantidad supera a la comprada');
+		END
+		else
+			print('No se ha comprado ese producto');
 	END
-	
 	else
-		print('Valores no aceptados')
-
-
-END
-
-CREATE OR ALTER PROCEDURE level2.eliminarNotaCredito @idNC INT AS
-BEGIN
-
-DELETE level2.notaCredito WHERE iDNotaCredito = @idNC
+		print('No se ha encontrado la factura')
 
 END
-*/
