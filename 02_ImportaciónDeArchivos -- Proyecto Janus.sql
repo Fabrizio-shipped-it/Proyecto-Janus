@@ -7,8 +7,6 @@ EXEC sp_configure 'Ad Hoc Distributed Queries', 1;
 RECONFIGURE;
 GO
 */
-select * from level1.sucursal
-EXEC level1.importarSucursal N'TU DIRECTORIO';
 ------------------------- INSERCION ----------------------------
 -- A continuación se crea las tablas para la creación de los SP que se usaran para la manipulación de tablas
 CREATE OR ALTER PROCEDURE level1.importarSucursal 
