@@ -22,7 +22,8 @@
 
 
 ---------[Indice]--------------
-
++   Creacion de Rols y Usuarios
++   Tests de Rol Supervisor
 +   Creacion de la llave
 +   SP de encriptado y desencriptado
 +   Pruebas
@@ -44,37 +45,65 @@ GO
 
 -----------------------<CREACION DE ROLES Y USUARIOS>---------------------------------
 	
+------------------------------------------------
+--          CREACION DE LOGINS Y ROLS       ---
+-----------------------------------------------
+
+CREATE ROLE Supervisor
+CREATE ROLE Impostor
+
+
 CREATE LOGIN Richtofen
 WITH PASSWORD = 'Elemento115!', DEFAULT_DATABASE = Com2900G07,
 CHECK_POLICY = ON, CHECK_EXPIRATION = OFF ;
+CREATE USER Richtofen FOR LOGIN Richtofen
+go
 
-create user Richtofen for login Richtofen
-
-CREATE LOGIN Maxis
-WITH PASSWORD = 'Grupo935!', DEFAULT_DATABASE = Com2900G07,
+CREATE LOGIN CapKrik
+WITH PASSWORD = 'Enterprise1966', DEFAULT_DATABASE = Com2900G07,
 CHECK_POLICY = ON, CHECK_EXPIRATION = OFF ;
-
-create user Maxis for login Maxis
-
-
-
-CREATE ROLE Supervisor AUTHORIZATION Richtofen;
+CREATE USER CapKrik FOR LOGIN CapKrik
 GO
+
+--ROLS
+
+GRANT EXECUTE, INSERT, DELETE, UPDATE ON SCHEMA::level2 TO Supervisor;
+GRANT SELECT, INSERT, UPDATE, DELETE ON level2.notaCredito TO Supervisor;
+GRANT EXECUTE ON level2.crearNotaCredito TO Supervisor;
+go
+
+REVOKE INSERT, UPDATE, DELETE ON level2.notaCredito TO PUBLIC;
+REVOKE EXECUTE ON level2.crearNotaCredito TO PUBLIC
+go
 
 
 --Agrego los miembros al rol Supervisor
 ALTER ROLE Supervisor ADD MEMBER Richtofen; 
-ALTER ROLE Supervisor ADD MEMBER Maxis; 
-
-
-
-
-REVOKE INSERT, UPDATE, DELETE ON level2.notaCredito TO PUBLIC;
-go-- Saco los permisos a todos
-GRANT INSERT, UPDATE, DELETE ON level2.notaCredito TO Supervisor;  --Le doy los permisos solo al rol supervisor
 go
 
+-----------
+--TEST----
+----------
 
+
+EXECUTE as LOGIN = 'Richtofen'
+EXEC level2.crearNotaCredito '226-31-3083', 5, 2, 'Vinieron para uso de Daleks'
+SELECT * FROM level2.notaCredito
+GO
+
+--Resultado esperado:
+--  226-31-3083     5       2      'Vinieron para uso de Daleks'
+
+EXECUTE AS LOGIN = 'CapKrik'
+EXEC level2.crearNotaCredito '226-31-3083', 5, 2, 'Vinieron para uso de Daleks'
+SELECT * FROM level2.notaCredito
+GO
+--Resultado esperado:
+--No debería de pasar nada
+
+
+REVERT      --volver a ser admin 
+go
 
 
 -----------------------<Creacion de la llave>-----------------------
