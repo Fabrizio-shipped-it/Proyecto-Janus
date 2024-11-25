@@ -1,9 +1,10 @@
--------------------------------<CREACION DE TABLAS Y STORED PROCEDURES BASICOS>-----------------------------------------
+-------------------------------<Encriptacion y Seguridad>-----------------------------------------
 
 /* 
 
+fecha de entrega: 26/11/2024
 
--------------------<Introduccion>------------------------------------
+------------------------------------<Introduccion>------------------------------------
 
 -->En este script estara a su disposición la creación de los roles y privilegios, y de la encriptación de tabla empleado. Se recomienda ejecutar por partes.
 
@@ -22,11 +23,10 @@
 
 
 ---------[Indice]--------------
-+   Creacion de Rols y Usuarios
-+   Tests de Rol Supervisor
++   Creacion de Roles y permisos
 +   Creacion de la llave
 +   SP de encriptado y desencriptado
-+   Pruebas
++   Pruebas de Encriptacion
 
 --------------------------------
 
@@ -77,17 +77,7 @@ END
 go
 
 
-
-
-
-
-
-
-
-
-
 --HASTA ACA
-
 
 
 -----------------------<CREACION DE ROLES Y USUARIOS>---------------------------------
@@ -120,9 +110,9 @@ GO
 --El supervisor tendra acceso a la tabla NotaCredito como el cliente deseo.
 
 
-GRANT EXECUTE, INSERT, DELETE, UPDATE ON SCHEMA::level2 TO Supervisor;
-GRANT SELECT, INSERT, UPDATE, DELETE ON level2.notaCredito TO Supervisor;
-GRANT EXECUTE ON level2.crearNotaCredito TO Supervisor;
+GRANT EXECUTE, INSERT, DELETE, UPDATE ON SCHEMA::level3 TO Supervisor;
+GRANT SELECT, INSERT, UPDATE, DELETE ON level3.notaCredito TO Supervisor;
+GRANT EXECUTE ON level3.crearNotaCredito TO Supervisor;
 go
 
 
@@ -179,8 +169,9 @@ GRANT EXECUTE ON level1.reactivarProducto TO GerenteDeSucursal
 
 REVOKE EXECUTE, INSERT, UPDATE, DELETE ON SCHEMA::level1 FROM PUBLIC
 REVOKE EXECUTE, INSERT, UPDATE, DELETE ON SCHEMA::level2 FROM PUBLIC
+REVOKE EXECUTE, INSERT, UPDATE, DELETE ON SCHEMA::level3 FROM PUBLIC
 
-REVOKE EXECUTE ON level2.crearNotaCredito FROM PUBLIC
+REVOKE EXECUTE ON level3.crearNotaCredito FROM PUBLIC
 
 REVOKE SELECT, INSERT, UPDATE, DELETE ON level2.ventaRegistrada FROM PUBLIC
 REVOKE SELECT, INSERT, UPDATE, DELETE ON level2.factura FROM PUBLIC
@@ -307,5 +298,3 @@ go
 EXEC level2.desencriptarEmpleados
 SELECT * FROM level2.empleado
 go
-
-
