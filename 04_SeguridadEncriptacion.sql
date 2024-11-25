@@ -5,7 +5,7 @@
 
 -------------------<Introduccion>------------------------------------
 
--->En este script estara a su disposición la creación de los roles y privilegios, y de la encriptación de tabla empleado
+-->En este script estara a su disposición la creación de los roles y privilegios, y de la encriptación de tabla empleado. Se recomienda ejecutar por partes.
 
 
 -->Cumplimiento de consigna: Entrega 5
@@ -41,6 +41,23 @@ END;
 
 USE Com2900G07
 GO
+
+--Primero tenemos que crear la columna que identificara cuando una fila esta encriptada y cuando no.
+--Por cuestiones de consigna, se ha decidido alterar la tabla en este script. 
+--Para eso ejecute el siguiente codigo:
+
+--EJECUTAR SOLO UNA VEZ
+CREATE OR ALTER PROCEDURE level2.agregarEncriptado AS
+BEGIN
+
+ALTER TABLE level2.empleado ADD encriptado int default 0
+
+END
+
+EXEC level2.agregarEncriptado
+
+--HASTA ACA
+
 
 
 -----------------------<CREACION DE ROLES Y USUARIOS>---------------------------------
@@ -92,7 +109,7 @@ SELECT * FROM level2.notaCredito
 GO
 
 --Resultado esperado:
---  226-31-3083     5       2      'Vinieron para uso de Daleks'
+--  No hace falta que se inserte algo, ya se ha demostrado el funcionamiento del sp. Lo que importa es que no salta error.
 
 EXECUTE AS LOGIN = 'CapKrik'
 EXEC level2.crearNotaCredito '226-31-3083', 5, 2, 'Vinieron para uso de Daleks'
@@ -123,11 +140,21 @@ BEGIN
 
     OPEN SYMMETRIC KEY KeyEmpleado
     DECRYPTION BY PASSWORD = 'EmpleadoSecretos123!';
+	ALTER TABLE level2.empleado ALTER COLUMN direccion nVARCHAR(256)
+	ALTER TABLE level2.empleado ALTER COLUMN emailPersonal nVARCHAR(256)
+	ALTER TABLE level2.empleado ALTER COLUMN nombre nVARCHAR(256)
+	ALTER TABLE level2.empleado ALTER COLUMN apellido nVARCHAR(256)
+	ALTER TABLE level2.empleado ALTER COLUMN dni nVARCHAR(256)
 
     UPDATE level2.empleado
     SET 
         direccion = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), direccion),
-        emailPersonal = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), emailPersonal)
+        emailPersonal = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), emailPersonal),
+		nombre = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), nombre),
+        apellido = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), apellido),
+		dni = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), CONVERT(nvarchar(256), dni)),
+		encriptado = 1
+
 
     CLOSE SYMMETRIC KEY KeyEmpleado;
 END
@@ -139,15 +166,24 @@ BEGIN
     OPEN SYMMETRIC KEY KeyEmpleado
     DECRYPTION BY PASSWORD = 'EmpleadoSecretos123!';
 
-    UPDATE level2.empleado
-    SET 
-    direccion = CONVERT(VARCHAR, DECRYPTBYKEY(direccion)),
-    emailPersonal = CONVERT(VARCHAR, DECRYPTBYKEY(emailPersonal))
+
+		UPDATE level2.empleado
+		SET 
+		direccion = CONVERT(nVARCHAR(256), DECRYPTBYKEY(direccion)),
+		emailPersonal = CONVERT(nVARCHAR(256), DECRYPTBYKEY(emailPersonal)),
+		nombre = CONVERT(nVARCHAR(256), DECRYPTBYKEY(nombre)),
+		apellido = CONVERT(nVARCHAR(256), DECRYPTBYKEY(apellido)),
+		dni = CONVERT(nVARCHAR(256), DECRYPTBYKEY(dni)),
+		encriptado = 0
+		WHERE encriptado = 1
+
+
+
 
     CLOSE SYMMETRIC KEY KeyEmpleado;
 
 END
-
+go
 -------------------------------------------<PRUEBAS>---------------------------------------
 
 -->Encriptado:
@@ -159,3 +195,5 @@ go
 EXEC level2.desencriptarEmpleados
 SELECT * FROM level2.empleado
 go
+
+
