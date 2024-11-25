@@ -1,7 +1,7 @@
 -----------------------------------------<LOTE DE PRUEBAS I>-----------------------------------------------
 /* PRUEBAS DE LOS STORED PROCEDURES BASICOS
 
--->En este script contiene los lotes de pruebas de los SP basicos
+-->En este script contiene los lotes de pruebas de los SP basicos. Se recomienda ejecutar por partes
 
 
 -->Cumplimiento de consigna: Entrega 3
@@ -16,6 +16,8 @@
  44161995	ALTAMIRANO, FABRIZIO AUGUSTO
  44005719 	TORRES MORAN, MARIA CELESTE
 
+
+
 */
 
 
@@ -27,12 +29,12 @@ END;
 use Com2900G07
 go
 
---------------------------------------SUCURSAL----------------------------------------------------------
+-----------------------------------------------<SP SUCURSAL>----------------------------------------------------------------------------------
 -->Insertar
 
-EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'arena de Oasis entre Mos Esly y Mos Espa', '1111-1111'
+EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'arena de Oasis entre Mos Esly y Mos Espa', '1111-1111', '20-22222222-3'
 go
-EXEC level1.insertarUnSucursal 'Kamino', '', 'Plataforma 115 en el medio del oceano', '1234-5678'
+EXEC level1.insertarUnSucursal 'Kamino', '', 'Plataforma 115 en el medio del oceano', '1234-5678', '20-22222222-3'
 go
 --Resultado esperado: 
 
@@ -43,13 +45,13 @@ SELECT * FROM level1.sucursal
 
 -->Modificar
 
-EXEC level1.insertarUnSucursal 'Tatooine', 'Palacio Hutt', 'arena de Oasis entre Mos Esly y Mos Espa', '1111-1111', '20-22222222-3'
+EXEC level1.modificarSucursal 1, 'Nal Hutta', 'Palacio Hutt', 'Cerca de los pozos de Ssarlak', '1111-1112', '20-22222222-3'
 go
-EXEC level1.insertarUnSucursal 'Kamino', '', 'Plataforma 115 en el medio del oceano', '1234-5678', '20-22222222-3'
+EXEC level1.modificarSucursal 2, 'Kamino', '', 'Plataforma 115 en el medio del oceano', '1234-5678', '20-22222222-3'
 go
 	
 --Resultado esperado: 
--- 1    Tatooine    Palacio Hutt     arena de Oasis entre Mos Esly y Mos Espa    1111-1111  20-22222222-3
+-- 1    Nal Hutta    Palacio Hutt     Cerca de los pozos de Ssarlak    1111-1112  20-22222222-3
 
 SELECT * FROM level1.sucursal 
 
@@ -66,33 +68,24 @@ SELECT * FROM level1.sucursal
 
 
 
------------------------------------------CARGOS-------------------------------------------------
+------------------------------------------------------------<CARGOS>------------------------------------------------------------------
 
 -->Insertar
 
 EXEC level2.insertarCargo 4, 'Cientifico'
 GO
-EXEC level2.insertarCargo 1, 'Supervisor'
-GO
-EXEC level2.insertarCargo 1, 'Cientifico'
-GO
-EXEC level2.insertarCargo 5, 'Supervisor'
-GO
+
 
 SELECT * FROM level2.cargo
 
 --Resultado esperado: 
 -- 4    Cientifico
--- 1    Supervisor
+
 
 
 	
 -->Borrar
 
-EXEC level2.borrarCargo 2
-go
-EXEC level2.borrarCargo 3
-go
 EXEC level2.borrarCargo 4
 go
 
@@ -102,7 +95,7 @@ SELECT * FROM level2.cargo
 --
 
 
------------------------------------------EMPLEADOS---------------------------------------------
+------------------------------------------------------------------<EMPLEADOS>---------------------------------------------
 
 
 --En caso de eliminar el test de Sucursal ejecutar y cambiar el valor idCatalogo al valor actual en la insersion de empleado:
@@ -192,7 +185,7 @@ EXEC level2.borrarCargo 4
 go
 
 
---------------------------------PRODUCTO-------------------------------------------
+----------------------------------------------------------<PRODUCTO>-------------------------------------------------------------------------------
 
 -->Insertar
 
@@ -272,7 +265,7 @@ go
 EXEC level1.bajarProducto 3
 go
 
------------------------------------------CLIENTE-----------------------------------------------
+--------------------------------------------------------------------<CLIENTE>----------------------------------------------------------------------------------------
 
 
 -->Insertar Cliente
@@ -304,7 +297,7 @@ EXEC level2.reactivarCliente 1
 select* from level2.cliente
 
 
---------------------------------------VENTA REGISTRADA Y FACTURA--------------------------------
+--------------------------------------------------------------<VENTA REGISTRADA Y FACTURA>------------------------------------------------------------------------------------------
 --Para este test se necesita:
 
 -- En caso de que exista el empleado: EXEC level2.reactivarEmpleado 257020
@@ -320,17 +313,17 @@ select * from level1.sucursal
 SELECT * FROM level2.empleado
 
 -->InsertarVentaRegistrada
-EXEC level2.insertarUnaVentaRegistrada 'A', 3, 1, 257020, '226-31-3081'
+EXEC level2.insertarUnaVentaRegistrada 'A', 3, 1, 257022, '226-31-3081'
 go --ESTE SE INSERTA GOOD
-EXEC level2.insertarUnaVentaRegistrada 'A', 12, 1, 257020, '226-31-3082'
+EXEC level2.insertarUnaVentaRegistrada 'A', 12, 1, 257022, '226-31-3082'
 go --MARCA ERROR PORQUE EN ESTE CASO LA SUCURSAL NO EXISTE
-EXEC level2.insertarUnaVentaRegistrada 'A', 1, 10, 257020, '226-31-3083'
+EXEC level2.insertarUnaVentaRegistrada 'A', 1, 10, 257022, '226-31-3083'
 go --MARCA ERROR PORQUE EN ESTE CASO EL CLIENTE NO EXISTE
-EXEC level2.insertarUnaVentaRegistrada 'F', 1, 1, 257020, '226-31-3084'
+EXEC level2.insertarUnaVentaRegistrada 'F', 1, 1, 257022, '226-31-3084'
 go --MARCA ERROR PORQUE EN ESTE CASO LA FACTURA NO EXISTE
 EXEC level2.insertarUnaVentaRegistrada 'A', 1, 1, 25702, '226-31-3085'
 go --MARCA ERROR PORQUE EN ESTE CASO EL EMPLEADO NO EXISTE
-EXEC level2.insertarUnaVentaRegistrada 'A', 1, 1, 257020, '226-31-3081'
+EXEC level2.insertarUnaVentaRegistrada 'A', 1, 1, 257022, '226-31-3081'
 go --MARCA ERROR PORQUE EN ESTE CASO SE DUPLICA FACTURA
 
 --RESULTADO ESPERADO:
@@ -339,11 +332,11 @@ select * from level2.ventaRegistrada
 
 
 select * from level2.factura
---226-31-3081   1   1   A   1   [Tiempo real de insersion]  Emitida 20-22222222-3
+--226-31-3081   1   3   A   1   [Tiempo real de insersion]  Emitida 20-22222222-3
 
 
 
---------------------------DETALLE VENTA----------------------------------------
+--------------------------------------------------------------------------<DETALLE VENTA>-------------------------------------------------------------------------------
 
 EXEC level1.insertarUnProducto 'Crema facial', 'cosmetico', 35.8, '330 gr'
 go
@@ -382,7 +375,7 @@ select * from level2.ventaRegistrada
 
 
 
--------------------------------------MEDIO PAGO--------------------------------------
+------------------------------------------------------------------<MEDIO PAGO>---------------------------------------------------------------------------------------------
 
 -->Insertar medio pago
 
@@ -410,7 +403,7 @@ EXEC level1.modificarMedioPago 1, 'Transferencia Bancaria'; --error
 --Nada
 select * from level1.medioPago
 
----------------------------------------PAGAR FACTURA-----------------------------
+---------------------------------------------------------------------------<PAGAR FACTURA>------------------------------------------------------------------------------------
 
 EXEC level1.insertarMedioPago @descripcion = 'Creditos imperiales';
 
@@ -428,5 +421,6 @@ select * from level2.ventaRegistrada
 
 --226-31-3081   1   1   A   1   [Tiempo real]   Pagada  20-22222222-3
 select * from level2.factura
+
 
 
