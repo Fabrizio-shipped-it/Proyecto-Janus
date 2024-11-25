@@ -33,6 +33,8 @@
 
 */
 
+use master
+
 IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'Com2900G07')
 BEGIN
     print('Debe ejecutar el script de creacion de tablas y sq para poder usar este script')
@@ -47,14 +49,42 @@ GO
 --Para eso ejecute el siguiente codigo:
 
 --EJECUTAR SOLO UNA VEZ
-CREATE OR ALTER PROCEDURE level2.agregarEncriptado AS
+
+
+
+IF OBJECT_ID('level2.prepararEncriptado', 'P') IS NULL
 BEGIN
 
-ALTER TABLE level2.empleado ADD encriptado int default 0
+	EXEC('
+        CREATE PROCEDURE level2.prepararEncriptado AS
+        BEGIN
+            -- Alteraciones en la tabla level2.empleado
+            ALTER TABLE level2.empleado ADD encriptado INT DEFAULT 0
+        END
 
+ 
+
+
+
+        
+    ')
+
+    EXEC level2.prepararEncriptado  
+    UPDATE level2.empleado
+    SET encriptado = 0
+     
 END
+go
 
-EXEC level2.agregarEncriptado
+
+
+
+
+
+
+
+
+
 
 --HASTA ACA
 
@@ -63,73 +93,151 @@ EXEC level2.agregarEncriptado
 -----------------------<CREACION DE ROLES Y USUARIOS>---------------------------------
 	
 ------------------------------------------------
---          CREACION DE LOGINS Y ROLS       ---
+--          CREACION DE ROLS       ---
 -----------------------------------------------
 
-CREATE ROLE Supervisor
-CREATE ROLE Impostor
 
-
-CREATE LOGIN Richtofen
-WITH PASSWORD = 'Elemento115!', DEFAULT_DATABASE = Com2900G07,
-CHECK_POLICY = ON, CHECK_EXPIRATION = OFF ;
-CREATE USER Richtofen FOR LOGIN Richtofen
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'Supervisor' AND type = 'R' )
+BEGIN
+    CREATE ROLE Supervisor
+END
 go
 
-CREATE LOGIN CapKrik
-WITH PASSWORD = 'Enterprise1966', DEFAULT_DATABASE = Com2900G07,
-CHECK_POLICY = ON, CHECK_EXPIRATION = OFF ;
-CREATE USER CapKrik FOR LOGIN CapKrik
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'Cajero' AND type = 'R')
+BEGIN
+    CREATE ROLE Cajero
+END
 GO
 
---ROLS
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'GerenteDeSucursal' AND type = 'R')
+BEGIN
+    CREATE ROLE GerenteDeSucursal
+END
+GO
+
+
+--PARA SUPERVISOR
+--El supervisor tendra acceso a la tabla NotaCredito como el cliente deseo.
+
 
 GRANT EXECUTE, INSERT, DELETE, UPDATE ON SCHEMA::level2 TO Supervisor;
 GRANT SELECT, INSERT, UPDATE, DELETE ON level2.notaCredito TO Supervisor;
 GRANT EXECUTE ON level2.crearNotaCredito TO Supervisor;
 go
 
-REVOKE INSERT, UPDATE, DELETE ON level2.notaCredito TO PUBLIC;
-REVOKE EXECUTE ON level2.crearNotaCredito TO PUBLIC
-go
+
+--PARA CAJERO
+--El cajero tendra acceso a la tabla ventaRegistrada, factura, cliente y detalleVenta
+
+GRANT EXECUTE, INSERT, UPDATE ON SCHEMA::level2 TO Cajero
+GRANT SELECT, INSERT, UPDATE ON level2.ventaRegistrada TO Cajero
+GRANT SELECT, INSERT, UPDATE ON level2.factura TO Cajero
+GRANT SELECT, INSERT, UPDATE ON level2.detalleVenta TO Cajero
+GRANT SELECT, INSERT, UPDATE, DELETE ON level2.cliente TO Cajero
+GRANT EXECUTE ON level2.insertarCliente TO Cajero
+GRANT EXECUTE ON level2.bajarCliente TO Cajero
+GRANT EXECUTE ON level2.reactivarCliente TO Cajero
+GRANT EXECUTE ON level2.insertarCliente TO Cajero
+GRANT EXECUTE ON level2.insertarUnaVentaRegistrada TO Cajero
+GRANT EXECUTE ON level2.InsertarDetalleVenta TO Cajero
+GRANT EXECUTE ON level2.registroPagoFactura TO Cajero
+
+--PARA GERENTE DE SUCURSAL
+--El gerente de Sucursal tendra acceso a la tabla Sucursal, Empleado, Producto, MedioPago y Cargo
+
+GRANT EXECUTE, INSERT, UPDATE ON SCHEMA::level1 TO GerenteDeSucursal
+GRANT EXECUTE, INSERT, UPDATE ON SCHEMA::level2 TO GerenteDeSucursal
+GRANT SELECT, INSERT, UPDATE, DELETE ON level1.producto TO GerenteDeSucursal
+GRANT SELECT, INSERT, UPDATE, DELETE ON level2.empleado TO GerenteDeSucursal
+GRANT SELECT, INSERT, UPDATE, DELETE ON level1.medioPago TO GerenteDeSucursal
+GRANT SELECT, INSERT, UPDATE, DELETE ON level1.sucursal TO GerenteDeSucursal
+GRANT SELECT, INSERT, UPDATE, DELETE ON level2.cargo TO GerenteDeSucursal
+
+GRANT EXECUTE ON level1.insertarUnSucursal TO GerenteDeSucursal
+GRANT EXECUTE ON level1.modificarSucursal TO GerenteDeSucursal
+GRANT EXECUTE ON level1.borrarSucursal TO GerenteDeSucursal
+
+GRANT EXECUTE ON level2.insertarCargo TO GerenteDeSucursal
+GRANT EXECUTE ON level2.borrarCargo TO GerenteDeSucursal
+
+GRANT EXECUTE ON level1.insertarMedioPago TO GerenteDeSucursal
+GRANT EXECUTE ON level1.borrarMedioPago TO GerenteDeSucursal
+
+GRANT EXECUTE ON level2.insertarUnEmpleado TO GerenteDeSucursal
+GRANT EXECUTE ON level2.modificarEmpleado TO GerenteDeSucursal
+GRANT EXECUTE ON level2.bajarEmpleado TO GerenteDeSucursal
+GRANT EXECUTE ON level2.reactivarEmpleado TO GerenteDeSucursal
+
+GRANT EXECUTE ON level1.insertarUnProducto TO GerenteDeSucursal
+GRANT EXECUTE ON level1.modificarProducto TO GerenteDeSucursal
+GRANT EXECUTE ON level1.bajarProducto TO GerenteDeSucursal
+GRANT EXECUTE ON level1.reactivarProducto TO GerenteDeSucursal
 
 
---Agrego los miembros al rol Supervisor
-ALTER ROLE Supervisor ADD MEMBER Richtofen; 
-go
 
------------
---TEST----
-----------
+--Ahora sacamos el acceso de todo a toda cuenta que no pertenezca al rol
 
+REVOKE EXECUTE, INSERT, UPDATE, DELETE ON SCHEMA::level1 FROM PUBLIC
+REVOKE EXECUTE, INSERT, UPDATE, DELETE ON SCHEMA::level2 FROM PUBLIC
 
-EXECUTE as LOGIN = 'Richtofen'
-EXEC level2.crearNotaCredito '226-31-3083', 5, 2, 'Vinieron para uso de Daleks'
-SELECT * FROM level2.notaCredito
+REVOKE EXECUTE ON level2.crearNotaCredito FROM PUBLIC
+
+REVOKE SELECT, INSERT, UPDATE, DELETE ON level2.ventaRegistrada FROM PUBLIC
+REVOKE SELECT, INSERT, UPDATE, DELETE ON level2.factura FROM PUBLIC
+REVOKE SELECT, INSERT, UPDATE, DELETE ON level2.detalleVenta FROM PUBLIC
+REVOKE SELECT, INSERT, UPDATE, DELETE ON level2.cliente FROM PUBLIC
+
+REVOKE EXECUTE ON level2.insertarCliente FROM PUBLIC
+REVOKE EXECUTE ON level2.bajarCliente FROM PUBLIC
+REVOKE EXECUTE ON level2.reactivarCliente FROM PUBLIC
+REVOKE EXECUTE ON level2.insertarUnaVentaRegistrada FROM PUBLIC
+REVOKE EXECUTE ON level2.InsertarDetalleVenta FROM PUBLIC
+REVOKE EXECUTE ON level2.registroPagoFactura FROM PUBLIC
+
+REVOKE SELECT, INSERT, UPDATE, DELETE ON level1.producto FROM PUBLIC
+REVOKE SELECT, INSERT, UPDATE, DELETE ON level2.empleado FROM PUBLIC
+REVOKE SELECT, INSERT, UPDATE, DELETE ON level1.medioPago FROM PUBLIC
+REVOKE SELECT, INSERT, UPDATE, DELETE ON level1.sucursal FROM PUBLIC
+REVOKE SELECT, INSERT, UPDATE, DELETE ON level2.cargo FROM PUBLIC
+
+REVOKE EXECUTE ON level1.insertarUnSucursal FROM PUBLIC
+REVOKE EXECUTE ON level1.modificarSucursal FROM PUBLIC
+REVOKE EXECUTE ON level1.borrarSucursal FROM PUBLIC
+
+REVOKE EXECUTE ON level2.insertarCargo FROM PUBLIC
+REVOKE EXECUTE ON level2.borrarCargo FROM PUBLIC
+
+REVOKE EXECUTE ON level1.insertarMedioPago FROM PUBLIC
+REVOKE EXECUTE ON level1.borrarMedioPago FROM PUBLIC
+
+REVOKE EXECUTE ON level2.insertarUnEmpleado FROM PUBLIC
+REVOKE EXECUTE ON level2.modificarEmpleado FROM PUBLIC
+REVOKE EXECUTE ON level2.bajarEmpleado FROM PUBLIC
+REVOKE EXECUTE ON level2.reactivarEmpleado FROM PUBLIC
+
+REVOKE EXECUTE ON level1.insertarUnProducto FROM PUBLIC
+REVOKE EXECUTE ON level1.modificarProducto FROM PUBLIC
+REVOKE EXECUTE ON level1.bajarProducto FROM PUBLIC
+REVOKE EXECUTE ON level1.reactivarProducto FROM PUBLIC
 GO
 
---Resultado esperado:
---  No hace falta que se inserte algo, ya se ha demostrado el funcionamiento del sp. Lo que importa es que no salta error.
 
-EXECUTE AS LOGIN = 'CapKrik'
-EXEC level2.crearNotaCredito '226-31-3083', 5, 2, 'Vinieron para uso de Daleks'
-SELECT * FROM level2.notaCredito
-GO
---Resultado esperado:
---No debería de pasar nada
+-- Ya esta listo todo. Para ver como asignar roles y ejecutarlos, ver Lote de Pruebas II
 
 
-REVERT      --volver a ser admin 
-go
+-----===================================================<ENCRIPTACION>=================================================================--------------
 
-
------------------------<Creacion de la llave>-----------------------
+-----------------------<Creacion de la llave>-------------------------------------
 
 --Creamos la llave simetrica que nos servira para encriptar
-CREATE SYMMETRIC KEY keyEmpleado
-WITH ALGORITHM = AES_256   --Algoritmo de encriptacion
-ENCRYPTION BY PASSWORD = 'EmpleadoSecretos123!';
+IF NOT EXISTS (SELECT 1 FROM sys.symmetric_keys WHERE name = 'keyEmpleado')
+BEGIN
+    CREATE SYMMETRIC KEY keyEmpleado
+    WITH ALGORITHM = AES_256 -- Algoritmo de encriptación
+    ENCRYPTION BY PASSWORD = 'EmpleadoSecretos123!';
+END;
 GO
+
 
 
 
@@ -140,12 +248,11 @@ BEGIN
 
     OPEN SYMMETRIC KEY KeyEmpleado
     DECRYPTION BY PASSWORD = 'EmpleadoSecretos123!';
-	ALTER TABLE level2.empleado ALTER COLUMN direccion nVARCHAR(256)
-	ALTER TABLE level2.empleado ALTER COLUMN emailPersonal nVARCHAR(256)
-	ALTER TABLE level2.empleado ALTER COLUMN nombre nVARCHAR(256)
-	ALTER TABLE level2.empleado ALTER COLUMN apellido nVARCHAR(256)
-	ALTER TABLE level2.empleado ALTER COLUMN dni nVARCHAR(256)
-
+            ALTER TABLE level2.empleado ALTER COLUMN dni NVARCHAR(256)
+            ALTER TABLE level2.empleado ALTER COLUMN direccion NVARCHAR(256)
+            ALTER TABLE level2.empleado ALTER COLUMN emailPersonal NVARCHAR(256)
+            ALTER TABLE level2.empleado ALTER COLUMN nombre NVARCHAR(256)
+            ALTER TABLE level2.empleado ALTER COLUMN apellido NVARCHAR(256)
     UPDATE level2.empleado
     SET 
         direccion = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), direccion),
@@ -154,6 +261,7 @@ BEGIN
         apellido = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), apellido),
 		dni = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), CONVERT(nvarchar(256), dni)),
 		encriptado = 1
+		WHERE encriptado = 0 or encriptado = null
 
 
     CLOSE SYMMETRIC KEY KeyEmpleado;
@@ -165,7 +273,11 @@ BEGIN
 
     OPEN SYMMETRIC KEY KeyEmpleado
     DECRYPTION BY PASSWORD = 'EmpleadoSecretos123!';
-
+            ALTER TABLE level2.empleado ALTER COLUMN dni NVARCHAR(256)
+            ALTER TABLE level2.empleado ALTER COLUMN direccion NVARCHAR(256)
+            ALTER TABLE level2.empleado ALTER COLUMN emailPersonal NVARCHAR(256)
+            ALTER TABLE level2.empleado ALTER COLUMN nombre NVARCHAR(256)
+            ALTER TABLE level2.empleado ALTER COLUMN apellido NVARCHAR(256)
 
 		UPDATE level2.empleado
 		SET 
@@ -184,7 +296,7 @@ BEGIN
 
 END
 go
--------------------------------------------<PRUEBAS>---------------------------------------
+-------------------------------------------<PRUEBAS DE ENCRIPTACION>---------------------------------------
 
 -->Encriptado:
 EXEC level2.encriptarEmpleados
