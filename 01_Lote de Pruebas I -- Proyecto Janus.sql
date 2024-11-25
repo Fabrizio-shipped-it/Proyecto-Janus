@@ -1,6 +1,9 @@
 -----------------------------------------<LOTE DE PRUEBAS I>-----------------------------------------------
 /* PRUEBAS DE LOS STORED PROCEDURES BASICOS
 
+fecha: 26/11/2024
+
+
 -->En este script contiene los lotes de pruebas de los SP basicos. Se recomienda ejecutar por partes
 
 
