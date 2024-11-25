@@ -1,5 +1,37 @@
+-------------------------------<CREACION DE TABLAS Y STORED PROCEDURES BASICOS>-----------------------------------------
+
+/* 
+==========================================<Introduccion>===================================================================
+
+-->En este script esta el codigo de importacion
+
+
+-->Cumplimiento de consigna: Entrega 4
+-->Comision: 2900
+-->Materia: Base de Datos Aplicada
+
+-->Equipo 7: Proyecto Janus
+
+
+	DNI			DIRECTORES DEL PROYECTO
+ 95054445  	MANGHI SCHECK, SANTIAGO
+ 44161995	ALTAMIRANO, FABRIZIO AUGUSTO
+ 44005719 	TORRES MORAN, MARIA CELESTE
+
+
+=================================================<Indice>===================================================================
+
++ SP INSERSION
++ SELECTS
+
+===================================================
+
+*/
+
+
 
 use Com2900G07
+
 /*
 EXEC sp_configure 'show advanced options', 1;
 RECONFIGURE;
@@ -7,6 +39,7 @@ EXEC sp_configure 'Ad Hoc Distributed Queries', 1;
 RECONFIGURE;
 GO
 */
+
 EXEC level2.insertarCargo 1, 'Supervisor'
 GO
 EXEC level2.insertarCargo 2, 'Cajero'
@@ -21,7 +54,7 @@ EXEC level1.insertarMedioPago N'Ewallet';
 GO
 
 
-------------------------- INSERCION ----------------------------
+------------------------------------<SP INSERCION>------------------------------------------------------------------------------
 -- A continuación se crea las tablas para la creación de los SP que se usaran para la manipulación de tablas
 CREATE OR ALTER PROCEDURE level1.importarSucursal 
     @rutaArchivo NVARCHAR(255) -- Parámetro para la ruta del archivo
@@ -69,7 +102,7 @@ BEGIN
 END;
 GO
 
-EXEC level1.importarSucursal N'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Informacion_complementaria.xlsx';
+EXEC level1.importarSucursal N'C:\DDBBA\TP_integrador_Archivos\Informacion_complementaria.xlsx';
 GO 
 --select * from level1.sucursal
 --delete from level1.sucursal
@@ -117,7 +150,7 @@ BEGIN
 END;
 GO
 
-EXEC level2.importarEmpleado N'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Informacion_complementaria.xlsx';
+EXEC level2.importarEmpleado N'C:\DDBBA\TP_integrador_Archivos\Informacion_complementaria.xlsx';
 GO
 
 								--OK
@@ -162,7 +195,7 @@ BEGIN
 END
 GO
 
-EXEC level1.ImportarCatalogo N'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Productos\catalogo.csv';
+EXEC level1.ImportarCatalogo N'C:\DDBBA\TP_integrador_Archivos\Productos\catalogo.csv';
 GO
 --select * from level1.producto
 --delete from level1.producto
@@ -204,7 +237,7 @@ BEGIN
 END;
 GO
 
-EXEC level1.ImportarProdImportados N'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Productos\Productos_importados.xlsx';
+EXEC level1.ImportarProdImportados N'C:\DDBBA\TP_integrador_Archivos\Productos\Productos_importados.xlsx';
 GO
 --select * from level1.producto
 --delete from level1.producto
@@ -250,7 +283,7 @@ BEGIN
 END;
 GO
 
-EXEC level1.ImportarElectronicos N'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Productos\Electronic accessories.xlsx';
+EXEC level1.ImportarElectronicos N'C:\DDBBA\TP_integrador_Archivos\Productos\Electronic accessories.xlsx';
 GO
 --select * from level1.producto
 --delete from level1.producto
@@ -333,10 +366,16 @@ SET Producto = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(R
 END;
 GO
 
-EXEC level2.InsertarVentasRegistradas N'C:\Users\User\Desktop\uni\2- Base de Datos Aplicadas\1-Trabajo Practico\TP_integrador_Archivos\Ventas_registradas.csv';
+EXEC level2.InsertarVentasRegistradas N'C:\DDBBA\TP_integrador_Archivos\Ventas_registradas.csv';
+go
+
+select * from level2.empleado
+SELECT * FROM level1.sucursal
+select * from level1.producto
+SELECT * FROM level2.ventaRegistrada
+
 
 /*
-
 select * from level2.ventaRegistrada
 delete from level2.ventaRegistrada
 
@@ -345,5 +384,5 @@ delete from level2.factura
 
 select * from level2.detalleVenta
 truncate table level2.detalleVenta
-
 */
+
