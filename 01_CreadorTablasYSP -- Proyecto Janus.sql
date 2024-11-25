@@ -1,6 +1,8 @@
 -------------------------------<CREACION DE TABLAS Y STORED PROCEDURES BASICOS>-----------------------------------------
 
 /* 
+
+fecha: 25/11/2024
 ==========================================<Introduccion>===================================================================
 
 -->En este script estara el codigo para crear la base de datos con las tablas iniciales y los sp basicos para hacer 
