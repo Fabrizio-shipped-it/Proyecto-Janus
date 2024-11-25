@@ -144,8 +144,8 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ventaRegistrada')
 BEGIN
 	CREATE TABLE level2.ventaRegistrada(
 						iD_Venta INT PRIMARY KEY IDENTITY(1,1),
-						total_Bruto DECIMAL(10,2),
-						total_IVA DECIMAL(10,2),
+						total_Bruto DECIMAL(10,2) default 0,
+						total_IVA DECIMAL(10,2) default 0,
 						empleado INT REFERENCES level2.empleado(legajo_Id),
 						iD_MedioPago INT REFERENCES level1.medioPago(idMedioPago),
 						identificadorPago VARCHAR(50)
