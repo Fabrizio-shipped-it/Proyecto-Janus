@@ -57,7 +57,11 @@ BEGIN
     EXEC('CREATE SCHEMA level2');
 END
 go
-
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'level3')
+BEGIN
+    EXEC('CREATE SCHEMA level3');
+END
+go
 
 --------<====================================================<CREACION DE TABLAS>==========================================================>-------------------------------------------------
 
@@ -181,7 +185,7 @@ GO
 
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'notaCredito')
 BEGIN
-	CREATE TABLE level2.notaCredito(				
+	CREATE TABLE level3.notaCredito(				
 						iDNota INT PRIMARY KEY IDENTITY(1,1),
 						idFactura VARCHAR(50) REFERENCES level2.factura(iD_Factura),
 						fecha DATETIME,
@@ -833,7 +837,7 @@ go
 */
 -----------------------------------------------------------------------------------------------<Nota Credito>-------------------------------------------------------------------------------------------------------
 
-CREATE OR ALTER PROCEDURE level2.crearNotaCredito @idFactura VARCHAR(50), @codProd INT, @cantidad INT, @motivoDev VARCHAR(50) AS
+CREATE OR ALTER PROCEDURE level3.crearNotaCredito @idFactura VARCHAR(50), @codProd INT, @cantidad INT, @motivoDev VARCHAR(50) AS
 BEGIN
 
 	if((SELECT iD_Factura FROM level2.factura WHERE iD_Factura = @idFactura) IS NOT NULL) 			--Verifico si la venta existe
