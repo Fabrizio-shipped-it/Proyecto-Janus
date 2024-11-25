@@ -11,7 +11,7 @@
 El repositorio esta ordenado de tal forma que los scripts estan enumerado por orden de ejecución
 
 1. **Ejecución del Creador de Tablas y Procedimientos Almacenados**
-   - Primero, ejecute el script `CreadorDeTablasYSP`. Esto creará todas las tablas y SP necesarios para el correcto funcionamiento del proyecto. A su vez, esta disponible el `Lote de Pruebas` para que pueda probar el correcto funcionamiento de los diferentes SP. Se recomienda testear los SP antes de ejecutar los siguientes scripts.
+   - Primero, ejecute el script `CreadorDeTablasYSP`. Esto creará todas las tablas y SP necesarios para el correcto funcionamiento del proyecto. A su vez, esta disponible el `Lote de Pruebas I` para que pueda probar el correcto funcionamiento de los diferentes SP. Se recomienda testear los SP antes de ejecutar los siguientes scripts.
 
 2. **Ejecución de Importación**
    - El script `ImportacionDeArchivos` contiene el script para importar los archivos xlsx y csv, que rellenan las tablas del Proyecto.
@@ -20,7 +20,7 @@ El repositorio esta ordenado de tal forma que los scripts estan enumerado por or
    - El script `Reportes` contiene el script para poder realizar reportes a partir de los datos almacenados.
 
 4. **Ejecución del Archivo de Seguridad**
-   - Finalmente, el script `SeguridadEncriptacion` ejecuta el archivo de seguridad para implementar la encriptación en la tabla de `Empleados` y asignar los roles de `Supervisor` a la tabla notaCredito.
+   - Finalmente, el script `SeguridadEncriptacion` ejecuta el archivo de seguridad para implementar la encriptación en la tabla de `Empleados` y asignar los roles de `Supervisor` a la tabla notaCredito. A su vez, esta disponible el `Lote de Pruebas II` para probar la creacion de usuarios y los permisos de los roles.
 
 ---
 
