@@ -63,7 +63,11 @@ GO
 --Por cuestiones de consigna, se ha decidido alterar la tabla en este script. 
 --Para eso ejecute el siguiente codigo:
 
---EJECUTAR SOLO UNA VEZ
+--Primero tenemos que crear la columna que identificara cuando una fila esta encriptada y cuando no.
+--Por cuestiones de consigna, se ha decidido alterar la tabla en este script. 
+
+
+--ANTES QUE NADA, ejecute los siguientes comandos por partes:
 
 
 CREATE OR ALTER PROCEDURE level2.agregarcolumnaEncriptado AS
@@ -71,7 +75,12 @@ BEGIN
 ALTER TABLE level2.empleado ADD encriptado INT DEFAULT 0
 END
 go
-	
+
+EXEC level2.agregarcolumnaEncriptado
+go
+
+--Luego ejecute este:
+
 CREATE OR ALTER PROCEDURE level2.prepararEncriptado AS
 BEGIN      
 	UPDATE level2.empleado
@@ -79,15 +88,12 @@ BEGIN
 END
 go
  
-EXEC level2.agregarcolumnaEncriptado
-go
+
 EXEC level2.prepararEncriptado
 go
 
+--NO VUELVA A EJECUTAR LOS COMANDOS ANTERIORES
 
-
---Hasta aca se ha preparado la tabla para la encriptacion. Si desea correr todo de una, recuerde comentar
---EXEC level2.agregarcolumnaEncriptado para evitar errores
 
 -----------------------<CREACION DE ROLES Y USUARIOS>---------------------------------
 	
