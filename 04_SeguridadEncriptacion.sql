@@ -33,8 +33,6 @@ fecha de entrega: 26/11/2024
 
 */
 
-use master
-
 IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'Com2900G07')
 BEGIN
     print('Debe ejecutar el script de creacion de tablas y sq para poder usar este script')
@@ -60,24 +58,20 @@ BEGIN
         BEGIN
             -- Alteraciones en la tabla level2.empleado
             ALTER TABLE level2.empleado ADD encriptado INT DEFAULT 0
-        END
+			 UPDATE level2.empleado
+			 SET encriptado = 0
+        END  
+    ');
 
- 
-
-
-
-        
-    ')
-
-    EXEC level2.prepararEncriptado  
-    UPDATE level2.empleado
-    SET encriptado = 0
      
 END
 go
 
 
---HASTA ACA
+    EXEC level2.prepararEncriptado
+	go
+
+--HASTA ACA. ¡¡Comentar el EXEC level2.prepararEncriptado!!!
 
 
 -----------------------<CREACION DE ROLES Y USUARIOS>---------------------------------
@@ -251,6 +245,7 @@ BEGIN
 		nombre = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), nombre),
         apellido = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), apellido),
 		dni = ENCRYPTBYKEY(KEY_GUID('KeyEmpleado'), CONVERT(nvarchar(256), dni)),
+
 		encriptado = 1
 		WHERE encriptado = 0 or encriptado = null
 
@@ -270,13 +265,14 @@ BEGIN
             ALTER TABLE level2.empleado ALTER COLUMN nombre NVARCHAR(256)
             ALTER TABLE level2.empleado ALTER COLUMN apellido NVARCHAR(256)
 
+
 		UPDATE level2.empleado
 		SET 
 		direccion = CONVERT(nVARCHAR(256), DECRYPTBYKEY(direccion)),
 		emailPersonal = CONVERT(nVARCHAR(256), DECRYPTBYKEY(emailPersonal)),
 		nombre = CONVERT(nVARCHAR(256), DECRYPTBYKEY(nombre)),
 		apellido = CONVERT(nVARCHAR(256), DECRYPTBYKEY(apellido)),
-		dni = CONVERT(nVARCHAR(256), DECRYPTBYKEY(dni)),
+		dni = CONVERT(nVARCHAR(256), DECRYPTBYKEY(CONVERT(nvarchar(256), dni))),
 		encriptado = 0
 		WHERE encriptado = 1
 
@@ -287,14 +283,5 @@ BEGIN
 
 END
 go
--------------------------------------------<PRUEBAS DE ENCRIPTACION>---------------------------------------
 
--->Encriptado:
-EXEC level2.encriptarEmpleados
-SELECT * FROM level2.empleado
-go
 
--->Desencriptado:
-EXEC level2.desencriptarEmpleados
-SELECT * FROM level2.empleado
-go
