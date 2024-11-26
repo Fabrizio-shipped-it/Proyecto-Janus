@@ -74,16 +74,16 @@ END
 go
 
 CREATE OR ALTER PROCEDURE level2.prepararEncriptado AS
-        BEGIN      
-			 UPDATE level2.empleado
-			 SET encriptado = 0
+BEGIN      
+	UPDATE level2.empleado
+	 SET encriptado = 0
 END
-	go
+go
     
- EXEC level2.agregarcolumnaEncriptado
-
-    EXEC level2.prepararEncriptado
-	go
+EXEC level2.agregarcolumnaEncriptado
+go
+EXEC level2.prepararEncriptado
+go
 --HASTA ACA. ¡¡Comentar el EXEC level2.prepararEncriptado y level2.agregarcolumnaEncriptado!!!
 -----------------------<CREACION DE ROLES Y USUARIOS>---------------------------------
 	
