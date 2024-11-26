@@ -71,9 +71,19 @@ BEGIN
 ALTER TABLE level2.empleado ADD encriptado INT DEFAULT 0
 END
 go
-
+	
+CREATE OR ALTER PROCEDURE level2.prepararEncriptado AS
+BEGIN      
+	UPDATE level2.empleado
+	 SET encriptado = 0
+END
+go
+ 
 EXEC level2.agregarcolumnaEncriptado
 go
+EXEC level2.prepararEncriptado
+go
+
 
 
 --Hasta aca se ha preparado la tabla para la encriptacion. Si desea correr todo de una, recuerde comentar
