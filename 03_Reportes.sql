@@ -173,7 +173,7 @@ GO
 drop procedure level2.TotalFacturadoPorDiaSemana
 EXEC level2.TotalFacturadoPorDiaSemana 1, 2019;
 --------------------------------------------------<<XML>>--------------------------------------------------
-CREATE OR ALTER PROCEDURE level2.TotalFacturadoPorDiaSemanaXML
+CREATE OR ALTER PROCEDURE level2.reporteTotalFacturadoPorDiaSemanaXML
     @mes INT,
     @anio INT
 AS
@@ -217,5 +217,39 @@ BEGIN
     END
 END;
 GO
-drop procedure level2.TotalFacturadoPorDiaSemanaXML
-EXEC level2.TotalFacturadoPorDiaSemanaXML 1, 2019;
+
+EXEC level2.reporteTotalFacturadoPorDiaSemanaXML 1, 2019;
+
+CREATE OR ALTER PROCEDURE level2.reporteTrimestralXML
+    @trimestre INT,
+    @anio INT
+AS
+BEGIN
+    -- Consulta principal con clasificación por turno de trabajo
+    SELECT
+       MONTH( f.fechaHora) AS Mes,
+        CASE 
+            WHEN DATEPART(HOUR, f.fechaHora) BETWEEN 0 AND 12 THEN 'Turno Mañana' ELSE 'Turno Tarde'
+        END AS TurnoTrabajo,
+
+         SUM(vr.total_IVA) AS TotalFacturado 
+         FROM level2.factura f
+         INNER JOIN level2.ventaRegistrada vr ON f.iD_Venta = vr.iD_Venta
+    WHERE 
+        YEAR( f.fechaHora) = @anio
+        AND (
+            (@trimestre = 1 AND MONTH( f.fechaHora) BETWEEN 1 AND 3) OR
+            (@trimestre = 2 AND MONTH( f.fechaHora) BETWEEN 4 AND 6) OR
+            (@trimestre = 3 AND MONTH( f.fechaHora) BETWEEN 7 AND 9) OR
+            (@trimestre = 4 AND MONTH( f.fechaHora) BETWEEN 10 AND 12)
+        )
+    GROUP BY MONTH( f.fechaHora), 
+             CASE 
+                 WHEN DATEPART(HOUR, f.fechaHora) BETWEEN 0 AND 12 THEN 'Turno Mañana'
+                 ELSE 'Turno Tarde'
+             END
+    FOR XML PATH('Turno'), ROOT('ReporteTrimestral'), ELEMENTS;
+END;
+GO
+
+ EXEC level2.ReporteTrimestralXML 1, 2019
