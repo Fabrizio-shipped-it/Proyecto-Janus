@@ -26,6 +26,7 @@ fecha: 26/11/2024
 */
 
 
+
 IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'Com2900G07')
 BEGIN
     print('Debe ejecutar el script de creacion de tablas y sq para poder usar este script')
@@ -329,9 +330,10 @@ go
 EXEC level1.bajarProducto 1
 
 
+
 -------------------------------->InsertarVentaRegistrada
 
-EXEC level2.insertarUnaVentaRegistrada 'A', 3, 1, 257020, '226-31-3081'
+EXEC level2.insertarUnaVentaRegistrada 'A', 2, 1, 257020, '226-31-3081'
 go --ESTE SE INSERTA GOOD
 EXEC level2.insertarUnaVentaRegistrada 'A', 12, 1, 257020, '226-31-3082'
 go --MARCA ERROR PORQUE EN ESTE CASO LA SUCURSAL NO EXISTE
@@ -352,7 +354,7 @@ select * from level2.ventaRegistrada
 
 select * from level2.factura
 --Resultado Esperado:
---226-31-3081   1   3   A   1   [Tiempo real de insersion]  Emitida 20-22222222-3
+--226-31-3081   1   2   A   1   [Tiempo real de insersion]  Emitida 20-22222222-3
 
 
 
@@ -439,7 +441,7 @@ go
 
 -- En caso de que existan los productos: EXEC level1.reactivarProducto 1; EXEC level1.reactivarProducto 2; EXEC level1.reactivarProducto 3; 
 
-EXEC level2.insertarUnaVentaRegistrada 'A', 3, 1, 257022, '226-31-3082'
+EXEC level2.insertarUnaVentaRegistrada 'A', 2, 1, 257020, '226-31-3082'
 go 
 
 
@@ -492,7 +494,7 @@ GO	--Marca mensaje de error: 'la cantidad supera a la comprada'
 SELECT * from level3.notaCredito
 
 --Resultado esperado: 
---  226-31-3083 [Fecha de insersion]    1068    12  3   Viene para uso de Daleks
+--  226-31-3082 [Fecha de insersion]    1246    14  3   Viene para uso de Daleks
 
 
 -------------------------------->Quitar nota credito
@@ -503,6 +505,9 @@ EXEC level3.sacarNotaCredito 1
 SELECT * from level3.notaCredito
 -- Resultado esperado:
 -- Vacio
+
+
+
 
 
 
