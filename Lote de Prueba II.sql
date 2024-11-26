@@ -24,7 +24,12 @@ fecha de entrega: 26/11/2024
 ---------[Indice]--------------------------------------------------------
 +   Creacion de Usuarios
 +   Test de Rol
-+	Test Encriptacion
++   Test Encriptacion
+
+
+--------------------<INSTRUCCIONES DE USO>----------------------------
+
++ Ejecutar por partes, no ejecutar todo de una
 
 -----------------------------------------------------
 
