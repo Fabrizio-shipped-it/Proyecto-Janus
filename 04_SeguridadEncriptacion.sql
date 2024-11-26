@@ -66,25 +66,18 @@ GO
 --EJECUTAR SOLO UNA VEZ
 
 
-
 CREATE OR ALTER PROCEDURE level2.agregarcolumnaEncriptado AS
 BEGIN
 ALTER TABLE level2.empleado ADD encriptado INT DEFAULT 0
 END
 go
 
-CREATE OR ALTER PROCEDURE level2.prepararEncriptado AS
-BEGIN      
-	UPDATE level2.empleado
-	 SET encriptado = 0
-END
-go
-    
 EXEC level2.agregarcolumnaEncriptado
 go
-EXEC level2.prepararEncriptado
-go
---HASTA ACA. ¡¡Comentar el EXEC level2.prepararEncriptado y level2.agregarcolumnaEncriptado!!!
+
+
+--HASTA ACA. ¡¡Comentar level2.agregarcolumnaEncriptado!!!
+
 -----------------------<CREACION DE ROLES Y USUARIOS>---------------------------------
 	
 ------------------------------------------------
