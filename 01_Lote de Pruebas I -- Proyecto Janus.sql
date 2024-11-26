@@ -425,5 +425,36 @@ select * from level2.ventaRegistrada
 --226-31-3081   1   1   A   1   [Tiempo real]   Pagada  20-22222222-3
 select * from level2.factura
 
+------------------------------------------<NOTA CREDITO>------------------------------------------------
+EXEC level2.insertarUnaVentaRegistrada 'A', 3, 1, 257022, '226-31-3083'
+go 
 
+EXEC level2.InsertarDetalleVenta '226-31-3083', 3, 22
+go
+
+
+
+-->Crear Nota Credito:
+
+EXEC level3.crearNotaCredito '226-31-3083', 3, 12, 'Viene para uso de Daleks'
+GO
+EXEC level3.crearNotaCredito '226-31-3083', 3, 10, 'Viene para uso de Daleks'
+GO
+
+SELECT * from level3.notaCredito
+
+--Resultado esperado: 
+--  226-31-3083 [Fecha de insersion]    1068    12  3   Viene para uso de Daleks
+
+
+
+
+-->Quitar nota credito
+
+EXEC level3.sacarNotaCredito 4
+
+-- Resultado esperado:
+-- Vacio
+
+SELECT * from level3.notaCredito
 
