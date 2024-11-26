@@ -22,6 +22,13 @@ fecha: 26/11/2024
  44005719 	TORRES MORAN, MARIA CELESTE
 
 
+
+-----------------------------<INSTRUCCIONES DE USO>-------------------------------------------
+
++NO EJECUTAR TODO DE UNA
++Aun que cada test se puede ejecutar en el orden que desee, se recomienda hacerlo en orden como estan en el script.
++Algunos tests es necesario que ejecutes el anterior o determinados datos. En ese caso, estan detallados al inicio de la seccion
+
 =====================================================================================================================
 */
 
