@@ -1,8 +1,28 @@
 -------------------------------<CREACION DE TABLAS Y STORED PROCEDURES BASICOS>-----------------------------------------
-
 /* 
+fecha: 26/11/2024
 
-fecha: 25/11/2024
+
+===========================================<CONSIGNA>======================================================================
+
+Luego de decidirse por un motor de base de datos relacional, llegó el momento de generar la
+base de datos.
+Deberá instalar el DMBS y documentar el proceso. No incluya capturas de pantalla. Detalle
+las configuraciones aplicadas (ubicación de archivos, memoria asignada, seguridad, puertos,
+etc.) en un documento como el que le entregaría al DBA.
+Cree la base de datos, entidades y relaciones. Incluya restricciones y claves. Deberá entregar
+un archivo .sql con el script completo de creación (debe funcionar si se lo ejecuta “tal cual” es
+entregado). Incluya comentarios para indicar qué hace cada módulo de código.
+Genere store procedures para manejar la inserción, modificado, borrado (si corresponde,
+también debe decidir si determinadas entidades solo admitirán borrado lógico) de cada tabla.
+Los nombres de los store procedures NO deben comenzar con “SP”.
+Genere esquemas para organizar de forma lógica los componentes del sistema y aplique esto
+en la creación de objetos. NO use el esquema “dbo”.
+El archivo .sql con el script debe incluir comentarios donde consten este enunciado, la fecha
+de entrega, número de grupo, nombre de la materia, nombres y DNI de los alumnos.
+Entregar todo en un zip cuyo nombre sea Grupo_XX.zip mediante la sección de prácticas de
+MIEL. Solo uno de los miembros del grupo debe hacer la entrega.
+
 ==========================================<Introduccion>===================================================================
 
 -->En este script estara el codigo para crear la base de datos con las tablas iniciales y los sp basicos para hacer 
@@ -33,8 +53,9 @@ fecha: 25/11/2024
 +SP MedioPago
 +SP VentaRegistrada
 +SP DetalleVenta
++SP NotaCredito
 
-===================================================
+====================================================================================================================================================
 
 */
 ----------------------------------------------------------<Base de Datos>-------------------------------------------------------------------------
@@ -48,6 +69,12 @@ END;
 go
 USE Com2900G07
 go
+
+
+-- Creamos los esquemas que ordenaran la Base de Datos.
+-- Level 1 sera para Sucursal, Producto y Medio pago. 
+-- Level 2 sera para Cargo, cliente, detalleVenta, empleado, factura y ventaRegistrada
+-- Level 3 sera para notaCredito especificamente para la entrega 5
 
 IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'level1')
 BEGIN
@@ -101,8 +128,8 @@ CREATE TABLE level2.empleado(		legajo_Id INT PRIMARY KEY IDENTITY(257020,1),
 					emailEmpresa VARCHAR(100),
 					emailPersonal VARCHAR(100),
 					cuil VARCHAR(13) DEFAULT '0',
-					cargo VARCHAR(25) REFERENCES level2.cargo(descripcionCargo),				--	<-- FK a la tabla cargo
-					sucursal VARCHAR(40) REFERENCES level1.sucursal (nombreSucursal),		--  <-- FK a la tabla sucursal
+					cargo VARCHAR(25) REFERENCES level2.cargo(descripcionCargo),			
+					sucursal VARCHAR(40) REFERENCES level1.sucursal (nombreSucursal),		
 					turno VARCHAR(4),
 					estado char(10) CHECK (estado = '1' or estado = '0'))
 END
@@ -213,7 +240,7 @@ CREATE OR ALTER PROCEDURE level1.insertarUnSucursal @ciudad VARCHAR(25), @nombre
 BEGIN
     if (@ciudad IS NOT NULL and @ciudad != '' and @nombreSucursal IS NOT NULL and @nombreSucursal != '' and @direccion IS NOT NULL and @direccion != '' and @telefono IS NOT NULL and @telefono != '' )
 	BEGIN
-
+		--Si no existe una sucursal con mismo nombre.
 		if((SELECT idSucursal FROM level1.sucursal WHERE nombreSucursal=@nombreSucursal) IS NULL) 
 		BEGIN
         INSERT INTO level1.sucursal (ciudad, nombreSucursal, direccion, telefono, cuit) 
@@ -237,9 +264,10 @@ GO
 CREATE OR ALTER PROCEDURE level1.modificarSucursal  @idSucursal INT, @ciudad VARCHAR(25), @nombreSucursal VARCHAR(40), @direccion VARCHAR(100), @telefono VARCHAR(10), @cuit varchar(13) AS
 
 	BEGIN
+	-- Si existe sucursal del mismo nombre
 	if (SELECT idSucursal FROM level1.sucursal WHERE nombreSucursal = @nombreSucursal) IS NOT NULL
 		BEGIN
-
+	-- Si ningun campo es vacio
 		if (@ciudad IS NOT NULL and @ciudad != '' and @nombreSucursal IS NOT NULL and @nombreSucursal != '' and @direccion IS NOT NULL and @direccion != '' and @telefono IS NOT NULL and @telefono != '' )
 			BEGIN
 
@@ -266,7 +294,7 @@ GO
 
 CREATE OR ALTER PROCEDURE level1.borrarSucursal @nombreSucursal VARCHAR(50) AS
 BEGIN
-	if (SELECT idSucursal FROM level1.sucursal WHERE nombreSucursal = @nombreSucursal) IS NOT NULL
+	if (SELECT idSucursal FROM level1.sucursal WHERE nombreSucursal = @nombreSucursal) IS NOT NULL	--si existe la sucursal que se quiere eliminar
 	BEGIN
 		DELETE FROM level2.empleado WHERE sucursal = @nombreSucursal
 		DELETE FROM level1.sucursal WHERE nombreSucursal = @nombreSucursal
@@ -284,7 +312,7 @@ GO
 CREATE OR ALTER PROCEDURE level2.insertarCargo  @idCargo INT, @descripcionCargo VARCHAR(25) AS
 BEGIN
 
-	if (SELECT descripcionCargo FROM level2.Cargo WHERE descripcionCargo = @descripcionCargo) IS NULL and (SELECT idCargo FROM level2.cargo WHERE idCargo = @idCargo) IS NULL
+	if (SELECT descripcionCargo FROM level2.Cargo WHERE descripcionCargo = @descripcionCargo) IS NULL and (SELECT idCargo FROM level2.cargo WHERE idCargo = @idCargo) IS NULL	
 		BEGIN
 
 		INSERT INTO level2.cargo (idCargo, descripcionCargo)
@@ -387,7 +415,7 @@ BEGIN
 END
 GO
 
-
+--	Esta tabla tendra borrado logico. Asi que usaremos bajar empleado para indicar que esta inactivo, y reactivar para reactivar al empleado.
 
 CREATE OR ALTER PROCEDURE level2.bajarEmpleado @legajo_Id INT AS
 BEGIN
@@ -474,6 +502,7 @@ BEGIN
 END
 GO
 
+--Se usara borrado logico. Asi que se hace lo mismo que con empleados
 
 CREATE OR ALTER PROCEDURE level1.bajarProducto @idProducto INT AS
 BEGIN
@@ -516,21 +545,6 @@ END
 GO
 
 
-
-CREATE OR ALTER PROCEDURE level1.borrarProducto @idProducto INT AS
-BEGIN
-	if (SELECT idProducto FROM level1.producto WHERE idProducto = @idProducto) IS NOT NULL
-	BEGIN
-
-		DELETE FROM level1.producto WHERE idProducto = @idProducto
-		print ('El producto fue eliminado con exito.');
-	END
-	else
-		print('No se ha encontrado el producto.');
-
-END
-GO
-
 ------------------------------------------------------------------------------------<CLIENTES>--------------------------------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE level2.insertarCliente
     @nombreComp VARCHAR(100),
@@ -542,6 +556,8 @@ BEGIN
 
 END;
 GO
+
+--Usaremos borrado logico
 
 CREATE OR ALTER PROCEDURE level2.bajarCliente @idCliente INT AS
 BEGIN
@@ -809,34 +825,7 @@ BEGIN
 END;
 GO
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-	
-/*
-CREATE OR ALTER PROCEDURE level2.atiendeDetalleVentaDevolucion @idVenta INT, @cantidad INT AS
-BEGIN
-
-    DECLARE @total DECIMAL(10, 2);
-
-    -- RESTAR EL MONTO DE DETALLE VENTA LA DEVOLUCION
-	DECLARE @idFactura VARCHAR(50) = (SELECT idFactura FROM level2.ventaRegistrada WHERE idVenta = @idVenta )
-    SET @total = (SELECT total FROM level2.detalleVenta WHERE iDFactura = @idFactura)
-	DECLARE @reembolso DECIMAL(10,2) = (SELECT precioUnitario FROM level2.ventaRegistrada WHERE idVenta = @idVenta) * @cantidad
-	SET @total = @total - @reembolso
-	--Actualizo
-    UPDATE level2.detalleVenta
-    SET total = @total,
-	cantidadCompras = (cantidadCompras - @cantidad)
-    WHERE idFactura = @idFactura;
-
-	UPDATE level2.ventaRegistrada
-	SET cantidad = cantidad - @cantidad
-	WHERE idVenta = @idVenta
-END;
-go
-
-*/
 -----------------------------------------------------------------------------------------------<Nota Credito>-------------------------------------------------------------------------------------------------------
 
 CREATE OR ALTER PROCEDURE level3.crearNotaCredito @idFactura VARCHAR(50), @codProd INT, @cantidad INT, @motivoDev VARCHAR(50) AS
@@ -870,9 +859,9 @@ BEGIN
 		print('No se ha encontrado la factura')
 
 END
+go
 
 CREATE OR ALTER PROCEDURE level3.sacarNotaCredito @idNotaCredito INT AS
-
 BEGIN
 
 	IF (SELECT iDNota FROM level3.notaCredito WHERE iDNota = @idNotaCredito) IS NOT NULL
@@ -882,4 +871,4 @@ BEGIN
 	END
 	else
 		print('No existe la nota de credito')
-
+END
