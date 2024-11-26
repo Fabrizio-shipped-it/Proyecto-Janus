@@ -5,7 +5,7 @@ fecha de entrega: 26/11/2024
 
 -------------------<Introduccion>------------------------------------
 
--->En este script encontrara un pequeño test de login y rol.
+-->En este script encontrara un pequeño test de login y rol, y encriptacion.
 
 
 -->Cumplimiento de consigna: Entrega 5
@@ -21,11 +21,12 @@ fecha de entrega: 26/11/2024
  44005719 	TORRES MORAN, MARIA CELESTE
 
 
----------[Indice]--------------
+---------[Indice]--------------------------------------------------------
 +   Creacion de Usuarios
 +   Test de Rol
++	Test Encriptacion
 
---------------------------------
+-----------------------------------------------------
 
 */
 
@@ -33,16 +34,24 @@ USE Com2900G07
 
 --Creacion de usuarios
 
-CREATE LOGIN Spock
-WITH PASSWORD = 'Vulcano!', DEFAULT_DATABASE = Com2900G07,
-CHECK_POLICY = ON, CHECK_EXPIRATION = OFF ;
-CREATE USER Spock FOR LOGIN Spock
 
-CREATE LOGIN CapKrik
-WITH PASSWORD = 'Enterprise1966', DEFAULT_DATABASE = Com2900G07,
-CHECK_POLICY = ON, CHECK_EXPIRATION = OFF ;
-CREATE USER CapKrik FOR LOGIN CapKrik
-GO
+IF SUSER_ID('Spock') IS NULL
+BEGIN
+    CREATE LOGIN Spock
+    WITH PASSWORD = 'Vulcano!', DEFAULT_DATABASE = Com2900G07,
+    CHECK_POLICY = ON, CHECK_EXPIRATION = OFF;
+	CREATE USER Spock FOR LOGIN Spock;
+END;
+
+IF SUSER_ID('CapKrik') IS NULL
+BEGIN
+    CREATE LOGIN CapKrik
+    WITH PASSWORD = 'Enterprise1966', DEFAULT_DATABASE = Com2900G07,
+    CHECK_POLICY = ON, CHECK_EXPIRATION = OFF;
+	CREATE USER CapKrik FOR LOGIN CapKrik;
+END;
+
+
 
 --Agrego los miembros a los roles
 ALTER ROLE Supervisor ADD MEMBER Spock; 
@@ -50,7 +59,7 @@ ALTER ROLE Cajero ADD MEMBER CapKrik;
 go
 
 -----------
---TEST----
+--TEST ROL----
 ----------
 
 
@@ -70,3 +79,22 @@ GO
 
 REVERT      --volver a ser admin 
 go
+
+
+-------------------------------------------<PRUEBAS DE ENCRIPTACION>---------------------------------------
+
+-->Encriptado:
+EXEC level2.encriptarEmpleados
+SELECT * FROM level2.empleado
+go
+
+--Resultado esperado:
+-- No se lee los campos nombre, apellido, dni, direccion y emailPersonal
+
+-->Desencriptado:
+EXEC level2.desencriptarEmpleados
+SELECT * FROM level2.empleado
+go
+
+--Resultado esperado:
+-- Los campos encriptados vuelven a permitir leer sus valores
