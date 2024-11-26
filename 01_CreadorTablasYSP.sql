@@ -548,11 +548,13 @@ GO
 ------------------------------------------------------------------------------------<CLIENTES>--------------------------------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE level2.insertarCliente
     @nombreComp VARCHAR(100),
-    @genero VARCHAR(100) AS
+    @genero VARCHAR(100),
+    @cuil VARCHAR(14)
+
 BEGIN
         -- Insertar un nuevo cliente
         INSERT INTO level2.cliente (nombreComp, genero, cuil, estado)
-        VALUES (@nombreComp, @genero, '', '1'); -- CUIL vacío y estado activo
+        VALUES (@nombreComp, @genero, @cuil, '1'); -- CUIL vacío y estado activo
 
 END;
 GO
