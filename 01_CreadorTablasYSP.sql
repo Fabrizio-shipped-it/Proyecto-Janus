@@ -771,7 +771,7 @@ CREATE OR ALTER PROCEDURE level2.registroPagoFactura
     @identificadorPago VARCHAR(50) AS
 BEGIN
     -- Verificar si la factura existe
-    IF EXISTS (SELECT 1 FROM level2.factura WHERE iD_Factura = @idFactura)
+    IF EXISTS (SELECT 1 FROM level2.factura WHERE iD_Factura = @idFactura AND estado='Emitida')
     BEGIN
         -- Declarar variables
         DECLARE @iD_Venta INT;
@@ -872,3 +872,106 @@ BEGIN
 	else
 		print('No existe la nota de credito')
 END
+
+--------------------------------------------------------------------------------------------------<Generativo de ventas>
+
+CREATE OR ALTER PROCEDURE level2.insertarVentasConDetallesAleatorios
+    @cantidadVentas INT,              -- Cantidad de ventas que quieres generar
+    @cantidadDetallesPorVenta INT     -- Cantidad de detalles (productos) por cada venta
+AS
+BEGIN
+    DECLARE @i INT = 1;
+    DECLARE @j INT;                    -- Para el bucle interno de detalles
+    DECLARE @idSucursal INT = (SELECT TOP 1 idSucursal FROM level1.sucursal ORDER BY NEWID());  -- Sucursal aleatoria
+    DECLARE @idEmpleado INT = (SELECT TOP 1 legajo_Id FROM level2.empleado ORDER BY NEWID());    -- Empleado aleatorio
+    DECLARE @idCliente INT = (SELECT TOP 1 idCliente FROM level2.cliente WHERE estado = '1' ORDER BY NEWID()); -- Cliente activo aleatorio
+    DECLARE @tipoFactura CHAR(1) = 
+									CASE 
+										WHEN RAND() < 0.33 THEN 'A'  -- 33% de probabilidad para 'A'
+										WHEN RAND() < 0.66 THEN 'B'  -- 33% de probabilidad para 'B'
+										ELSE 'C'                     -- 34% de probabilidad para 'C'
+									END;
+    DECLARE @idFactura VARCHAR(50);
+	
+    -- Bucle para insertar las ventas
+    WHILE @i <= @cantidadVentas
+    BEGIN
+        -- Generar un ID de factura único
+        SET @idFactura = 'FAC' + CAST(NEWID() AS VARCHAR(50));
+
+        --insertarUnaVenta le mando tipo de factura, id sucursal, id cliente, id empleado, id factura
+
+        EXEC level2.insertarUnaVentaRegistrada 
+            @tipoFactura = @tipoFactura,
+            @idSucursal = @idSucursal,
+            @idCliente = @idCliente,
+            @idEmpleado = @idEmpleado,
+            @idFactura = @idFactura;
+
+        -- Bucle para insertar los detalles de la venta
+        SET @j = 1;
+        WHILE @j <= @cantidadDetallesPorVenta
+        BEGIN
+            -- Generar un producto aleatorio
+            DECLARE @idProducto INT = (SELECT TOP 1 idProducto FROM level1.producto WHERE estado = '1' ORDER BY NEWID());
+            DECLARE @cantidad INT = FLOOR(RAND() * 10) + 1;  -- Generar una cantidad aleatoria entre 1 y 10
+
+				--insertar un detalle le mando id factura, id producto, cantidad	
+
+            EXEC level2.InsertarDetalleVenta 
+                @idFactura = @idFactura,
+                @idProducto = @idProducto,
+                @cantidad = @cantidad;
+
+            SET @j = @j + 1;  -- Incrementar el contador de detalles
+        END
+		SET @idEmpleado = (SELECT TOP 1 legajo_Id FROM level2.empleado ORDER BY NEWID());
+		SET @idCliente = (SELECT TOP 1 idCliente FROM level2.cliente WHERE estado = '1' ORDER BY NEWID());
+		SET @idSucursal = (SELECT TOP 1 idSucursal FROM level1.sucursal ORDER BY NEWID());
+        SET @i = @i + 1;  -- Incrementar el contador de ventas
+    END
+
+    PRINT 'Ventas y detalles generados exitosamente.';
+END
+GO
+
+/*
+EXEC level2.insertarVentasConDetallesAleatorios @cantidadVentas = 10, @cantidadDetallesPorVenta = 3;
+GO
+--registrar pago le envio id factura, id medio de pago, identificador
+--select * from level2.factura
+EXEC level2.registroPagoFactura @idFactura = 'Completar con valor de tabla factura',
+								 @iD_MedioPago = 0,
+								 @identificadorPago = 'TX567';
+
+EXEC level2.registroPagoFactura @idFactura = 'Completar con valor de tabla factura',
+								 @iD_MedioPago = 1,
+								 @identificadorPago = 'TX567';
+
+EXEC level2.registroPagoFactura @idFactura = 'Completar con valor de tabla factura',
+								 @iD_MedioPago = 2,
+								 @identificadorPago = 'TX567';
+
+EXEC level2.registroPagoFactura @idFactura = 'Completar con valor de tabla factura',
+								 @iD_MedioPago = 3,
+								 @identificadorPago = 'TX567';
+
+
+select * from level1.producto
+select * from level1.sucursal
+select * from level1.medioPago
+
+select * from level2.cargo
+select * from level2.empleado
+select * from level2.cliente
+
+select * from level2.ventaRegistrada
+delete from level2.ventaRegistrada
+
+select * from level2.factura
+delete from level2.factura
+
+select * from level2.detalleVenta
+delete from level2.detalleVenta
+
+*/
