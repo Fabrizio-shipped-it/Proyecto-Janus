@@ -55,6 +55,12 @@ EXEC level1.insertarMedioPago N'Credit card';
 GO
 EXEC level1.insertarMedioPago N'Ewallet';
 GO
+EXEC level2.insertarCliente 'Juan Pérez', 'Masculino', '20-64124125-3';
+GO
+EXEC level2.insertarCliente 'Abraham Celano', 'Masculino', '20-55000222-3';
+GO
+EXEC level2.insertarCliente 'La lore Atr de casanova', 'Femenino', '23-12783824-';
+GO
 
 
 ------------------------------------<SP INSERCION>------------------------------------------------------------------------------
@@ -291,92 +297,6 @@ GO
 --select * from level1.producto
 --delete from level1.producto
 								--OK
---- ----------------------------------------------Ventas_registradas.csv
-CREATE OR ALTER PROCEDURE level2.InsertarVentasRegistradas @RutaArchivo NVARCHAR(270)
-AS
-BEGIN 
-	CREATE TABLE #tempVenta(
-    "ID Factura" VARCHAR(20),
-    "Tipo de Factura" VARCHAR(1),
-    Ciudad VARCHAR(50),
-    "Tipo de cliente" VARCHAR(40),
-    Genero VARCHAR(10),
-    Producto NVARCHAR(100),
-    "Precio Unitario" DECIMAL(10,2),
-	Cantidad INT,
-	Fecha date,
-	hora time,
-	"Medio de Pago" VARCHAR(25),
-	Empleado INT,
-	"Identificador de pago" VARCHAR(50));
-		
-	----------------------------------------------
-	DECLARE @Consulta NVARCHAR(MAX);
-    SET @Consulta = N'
-        BULK INSERT #tempVenta
-        FROM ''' + @RutaArchivo + '''
-        WITH (
-            FORMAT = ''CSV'',
-            FIELDTERMINATOR = '';'',
-            ROWTERMINATOR = ''0x0a'',
-            FIRSTROW = 2,
-            CODEPAGE = ''65001''
-        );';
-
-    -- Ejecutar la consulta dinámica
-    EXEC sp_executesql @Consulta; 
-
-		UPDATE #tempVenta
-SET Producto = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(Producto,'Ã¡', 'á'),'Ã©', 'é'),'Ã­', 'í'),'Ã³', 'ó'),'Ãº', 'ú'),'Ã±', 'ñ'),'Â', ''),'å˜', 'ojo'),'í', 'Á'),'líƒÂº', 'lú'),'chí­a', 'chía'),'lí­quido', 'líquido'),'encí­as', 'encías'),'raí­ces', 'raíces'),'proteí­nas', 'proteínas');
-
-
-		INSERT INTO level2.ventaRegistrada(total_Bruto, total_IVA, empleado, iD_MedioPago, identificadorPago)
-				SELECT (t.Cantidad * t.[Precio Unitario]) AS total_Bruto, CAST(((t.Cantidad * t.[Precio Unitario]) * 1.21) AS DECIMAL(10,2)) AS total_IVA,
-							t.Empleado, mp.idMedioPago, t.[Identificador de pago]
-						FROM #tempVenta t
-				JOIN level1.medioPago mp ON t.[Medio de Pago]= mp.descripcion
-				LEFT JOIN level2.ventaRegistrada vr ON t.[Identificador de pago] = vr.identificadorPago
-				WHERE vr.identificadorPago IS NULL
-	--Insertó en venta --OK
-
-
-		INSERT INTO level2.factura(iD_Factura,iD_Sucursal, tipoFactura, fechaHora, estado, cuit)
-				SELECT t.[ID Factura],sc.idSucursal, t.[Tipo de Factura], CAST(t.Fecha AS DATETIME) + CAST(t.hora AS DATETIME) AS FechaHoraCompleta,
-							'PAGADA' AS estado, sc.cuit
-				FROM #tempVenta t
-				JOIN level1.sucursal sc ON t.Ciudad = sc.ciudad
-				LEFT JOIN level2.factura fc ON t.[ID Factura] = fc.iD_Factura
-				WHERE fc.iD_Factura IS NULL
-
-		UPDATE fc
-		SET fc.iD_Venta = vr.iD_Venta
-		FROM level2.factura fc
-		JOIN #tempVenta tmp ON fc.iD_Factura = tmp.[ID Factura]
-		JOIN level2.ventaRegistrada vr ON tmp.[Identificador de pago] = vr.identificadorPago
-		WHERE fc.iD_Venta IS NULL
-	--Insertó en factura --OK
-
-
-		INSERT INTO level2.detalleVenta(nombreProducto, cantidad, precioUnitario)
-			SELECT t.Producto, t.Cantidad, t.[Precio Unitario] FROM #tempVenta t
-			LEFT JOIN level2.detalleVenta dt ON dt.nombreProducto = t.Producto
-			WHERE dt.nombreProducto IS NULL
-
-		
-	--Insertó en detalle
-
-	DROP TABLE #tempVenta
-END;
-GO
-
-EXEC level2.InsertarVentasRegistradas N'C:\DDBBA\TP_integrador_Archivos\Ventas_registradas.csv';
-go
-
-select * from level2.empleado
-SELECT * FROM level1.sucursal
-select * from level1.producto
-SELECT * FROM level2.ventaRegistrada
-
 
 /*
 select * from level2.ventaRegistrada
