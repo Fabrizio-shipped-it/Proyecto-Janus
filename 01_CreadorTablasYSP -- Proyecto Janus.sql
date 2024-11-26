@@ -846,18 +846,18 @@ BEGIN
 	BEGIN
 
 	DECLARE @idVenta INT = (SELECT iD_Venta FROM level2.factura WHERE iD_Factura = @idFactura)	--OBTENGO EL ID VENTA DE FACTURA
-		IF( (SELECT iD_Venta FROM level2.detalleVenta WHERE idProducto = @codProd) IS NOT NULL) 	--VERIFICO QUE EXISTIO LA VENTA DEL PRODUCTO
+		IF( (SELECT 1 FROM level2.detalleVenta WHERE idProducto = @codProd AND iD_Venta = @idVenta) IS NOT NULL) 	--VERIFICO QUE EXISTIO LA VENTA DEL PRODUCTO
 			BEGIN
-			if(@cantidad>0 and @cantidad<= (SELECT cantidad FROM level2.detalleVenta WHERE iD_Venta = @idVenta AND idProducto = @codProd)) 	--Verifico que la cantidad sea mayor a 0 y menor a los comprado)
+			--Verifico que la cantidad sea mayor a 0 y menor a los comprado y lo devuelto
+			DECLARE @cantidadComprada INT =  (SELECT cantidad FROM level2.detalleVenta WHERE iD_Venta = @idVenta AND idProducto = @codProd)
+			DECLARE @cantidadDevuelta INT = ISNULL(( SELECT sum(cantidad) FROM level3.notaCredito WHERE idFactura = @idFactura), 0)
+			
+			if(@cantidad>0 and @cantidad<= @cantidadComprada - @cantidadDevuelta)	
 			BEGIN
 			DECLARE @precioUnitario INT = (SELECT precio FROM level1.producto WHERE idProducto = @codProd)
 			DECLARE @fecha DATETIME = GETDATE()
-			INSERT INTO level2.notaCredito (idFactura, fecha, monto, cantidad, codProd, motivoDev)
+			INSERT INTO level3.notaCredito (idFactura, fecha, monto, cantidad, codProd, motivoDev)
 			VALUES (@idFactura, @fecha, @precioUnitario*@cantidad, @cantidad, @codProd, @motivoDev)
-
-			UPDATE level2.detalleVenta
-			SET cantidad = cantidad-@cantidad
-			WHERE iD_Venta = @idVenta and idProducto = @codProd
 			END
 
 			else
@@ -870,4 +870,16 @@ BEGIN
 		print('No se ha encontrado la factura')
 
 END
+
+CREATE OR ALTER PROCEDURE level3.sacarNotaCredito @idNotaCredito INT AS
+
+BEGIN
+
+	IF (SELECT iDNota FROM level3.notaCredito WHERE iDNota = @idNotaCredito) IS NOT NULL
+	BEGIN
+	DELETE level3.notaCredito WHERE iDNota = @idNotaCredito
+	print('Nota de credito sacada con exito')
+	END
+	else
+		print('No existe la nota de credito')
 
