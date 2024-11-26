@@ -125,7 +125,7 @@ go
 EXEC level2.reporteCincoProdMasVendidos 11, 2024
 EXEC level2.reporteCincoProductosMenosVendidos 11, 2024
 EXEC level2.reporteTotalAcumuloVentas '2024-11-26', 2
-
+GO
 --------------------------------------------------<<XML>>--------------------------------------------------
 CREATE OR ALTER PROCEDURE level2.reporteTotalFacturadoPorDiaSemanaXML
     @mes INT,
@@ -173,7 +173,7 @@ END;
 GO
 
 EXEC level2.reporteTotalFacturadoPorDiaSemanaXML 1, 2019;
-
+GO
 CREATE OR ALTER PROCEDURE level2.reporteTrimestralXML
     @trimestre INT,
     @anio INT
