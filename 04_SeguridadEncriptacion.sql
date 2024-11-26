@@ -76,7 +76,8 @@ EXEC level2.agregarcolumnaEncriptado
 go
 
 
---HASTA ACA. ¡¡Comentar level2.agregarcolumnaEncriptado!!!
+--Hasta aca se ha preparado la tabla para la encriptacion. Si desea correr todo de una, recuerde comentar
+--EXEC level2.agregarcolumnaEncriptado para evitar errores
 
 -----------------------<CREACION DE ROLES Y USUARIOS>---------------------------------
 	
