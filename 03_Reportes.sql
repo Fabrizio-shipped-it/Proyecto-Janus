@@ -126,52 +126,6 @@ EXEC level2.reporteCincoProdMasVendidos 11, 2024
 EXEC level2.reporteCincoProductosMenosVendidos 11, 2024
 EXEC level2.reporteTotalAcumuloVentas '2024-11-26', 2
 
-
-CREATE OR ALTER PROCEDURE level2.TotalFacturadoPorDiaSemana
-    @mes INT,
-    @anio INT
-AS
-BEGIN
-    -- Validación del mes válido
-    IF @mes > 1 OR @mes < 12
-    BEGIN
-		-- Consulta para calcular el total facturado por día de la semana
-		WITH Totales AS (
-			SELECT 
-				DATENAME(WEEKDAY, f.fechaHora) AS DiaSemana, -- Nombre del día de la semana
-				SUM(vr.total_IVA) AS TotalFacturado 
-			FROM level2.factura f
-			INNER JOIN level2.ventaRegistrada vr ON f.iD_Venta = vr.iD_Venta
-			WHERE 
-				MONTH(f.fechaHora) = @mes
-				AND YEAR(f.fechaHora) = @anio
-				AND f.estado = 'PAGADA'
-			GROUP BY DATENAME(WEEKDAY, f.fechaHora) --Agrupa los resultados por día de la semana para calcular el total facturado de cada día.
-		)
-		SELECT 
-			DiaSemana,
-			ISNULL(TotalFacturado, 0) AS TotalFacturado
-		FROM 
-			Totales
-		ORDER BY 
-			CASE 
-				WHEN DiaSemana = 'Monday' THEN 1
-				WHEN DiaSemana = 'Tuesday' THEN 2
-				WHEN DiaSemana = 'Wednesday' THEN 3
-				WHEN DiaSemana = 'Thursday' THEN 4
-				WHEN DiaSemana = 'Friday' THEN 5
-				WHEN DiaSemana = 'Saturday' THEN 6
-				WHEN DiaSemana = 'Sunday' THEN 7
-			END;
-    END;
-	ELSE
-	BEGIN
-		PRINT 'El mes debe estar entre 1 y 12.';
-	END
-END;
-GO
-drop procedure level2.TotalFacturadoPorDiaSemana
-EXEC level2.TotalFacturadoPorDiaSemana 1, 2019;
 --------------------------------------------------<<XML>>--------------------------------------------------
 CREATE OR ALTER PROCEDURE level2.reporteTotalFacturadoPorDiaSemanaXML
     @mes INT,
