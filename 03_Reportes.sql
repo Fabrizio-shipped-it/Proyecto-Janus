@@ -1,19 +1,37 @@
--- Aqui les hice dos procedures que muestran lo pedido. No esta en modo XML pero al menos la logica creo que sería esa. 
--- Las otras ni idea de como hacer. Si alguien es mago casteando este es su momento. 
+-------------------------------------------------<REPORTES>-----------------------------------------
 
--- De paso les dejo la lista de pendientes del proyecto:
--- IMPORTANTE: Reportes de todo tipo. Tengo entendido que solo hace falta mostrarlo en formato XML.
---             Hacer el lote de pruebas de NotaCredito (Lo hago yo, me re olvide la verdad de hacerlo).
--- RECOMENDABLE: Testear todo el proyecto. Yo lo he testeado, pero mejor encontrar bugs entre nosotros que en el coloquio.
---               Asegurarnos que todo el formato del proyecto cumpla la consigna.
+/* 
 
--- La verdad no mucho mas, no se me ocurre otra cosa que quede pendiente. Lamentablemente tenemos hasta antes de las 19 para 
--- hacer todo y entregarlo (Segun lo que dijo Jair), así que nos deseo muchos animos y fuerzas porque en menos de 24 horas 
--- vemos si vamos a final (ya que tambien confirmo que todos vamos a final pase lo que pase) o tendremos que recursarla. 
+fecha: 26/11/2024
 
+==========================================<Introduccion>===================================================================
+
+-->En este script estaran los SP que mostraran los diferentes reportes en formato XML
+
+
+-->Cumplimiento de consigna: Entrega 3-4
+-->Comision: 2900
+-->Materia: Base de Datos Aplicada
+
+-->Equipo 7: Proyecto Janus
+
+
+	DNI			DIRECTORES DEL PROYECTO
+ 95054445  	MANGHI SCHECK, SANTIAGO
+ 44161995	ALTAMIRANO, FABRIZIO AUGUSTO
+ 44005719 	TORRES MORAN, MARIA CELESTE
+
+
+=================================================<Indice>===================================================================
+
++ SP DE REPORTES
+
+========================================================================================================================
 
 use Com2900G07
 go
+
+--Reporte ingresando intervalo de fecha muestra productos vendidos por sucursal
 
 CREATE OR ALTER PROCEDURE level2.reporteFehaProdVendidosPorSucursal ( @FechaInicio DATETIME ,@FechaFin DATETIME )
 AS
@@ -30,6 +48,7 @@ BEGIN
 END
 GO
 
+--Reporte ingresando intervalo de fechas muestra cantidad por producto vendida
 
 CREATE OR ALTER PROCEDURE level2.reporteFechaCantidadProductos @fechaInicio DATETIME, @fechaFin DATETIME AS
 BEGIN
