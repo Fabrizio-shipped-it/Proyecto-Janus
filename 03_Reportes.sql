@@ -15,20 +15,6 @@
 use Com2900G07
 go
 
-CREATE OR ALTER PROCEDURE level2.reporteFechaCantidadProductos @fechaInicio DATETIME, @fechaFin DATETIME AS
-BEGIN
-
-    SELECT p.nombreProducto, SUM(cantidad) AS cantidadVendida
-    FROM level2.detalleVenta d INNER JOIN level1.producto p ON d.idProducto = p.idProducto
-    WHERE iD_Venta IN (SELECT iD_Venta FROM level2.factura f WHERE (f.fechaHora BETWEEN @fechaInicio AND @fechaFin) AND (f.estado = 'Pagada')) 
-    GROUP BY p.nombreProducto
-    ORDER BY cantidadVendida DESC
-
-
-END
-go
-
-
 CREATE OR ALTER PROCEDURE level2.reporteFehaProdVendidosPorSucursal ( @FechaInicio DATETIME ,@FechaFin DATETIME )
 AS
 BEGIN
@@ -40,8 +26,22 @@ BEGIN
     WHERE (f.fechaHora BETWEEN @FechaInicio AND @FechaFin) AND (f.estado = 'Pagada')
     GROUP BY s.nombreSucursal, p.nombreProducto
     ORDER BY s.nombreSucursal, CantidadVendida DESC
+    FOR XML AUTO, ELEMENTS
 END
 GO
+
+
+CREATE OR ALTER PROCEDURE level2.reporteFechaCantidadProductos @fechaInicio DATETIME, @fechaFin DATETIME AS
+BEGIN
+
+    SELECT p.nombreProducto, SUM(cantidad) AS cantidadVendida
+    FROM level2.detalleVenta d INNER JOIN level1.producto p ON d.idProducto = p.idProducto
+    WHERE iD_Venta IN (SELECT iD_Venta FROM level2.factura f WHERE (f.fechaHora BETWEEN @fechaInicio AND @fechaFin) AND (f.estado = 'Pagada')) 
+    GROUP BY p.nombreProducto
+    ORDER BY cantidadVendida DESC
+    FOR XML AUTO, ELEMENTS
+END
+go
 
 
 EXEC level2.reporteFehaProdVendidosPorSucursal '2023-11-26', '2024-12-25'
