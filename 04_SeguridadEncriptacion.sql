@@ -67,30 +67,24 @@ GO
 
 
 
-IF OBJECT_ID('level2.prepararEncriptado', 'P') IS NULL
+CREATE OR ALTER PROCEDURE level2.agregarcolumnaEncriptado AS
 BEGIN
-
-	EXEC('
-        CREATE PROCEDURE level2.prepararEncriptado AS
-        BEGIN
-            -- Alteraciones en la tabla level2.empleado
-            ALTER TABLE level2.empleado ADD encriptado INT DEFAULT 0
-			 UPDATE level2.empleado
-			 SET encriptado = 0
-        END  
-    ');
-
-     
+ALTER TABLE level2.empleado ADD encriptado INT DEFAULT 0
 END
 go
 
+CREATE OR ALTER PROCEDURE level2.prepararEncriptado AS
+        BEGIN      
+			 UPDATE level2.empleado
+			 SET encriptado = 0
+END
+	go
+    
+ EXEC level2.agregarcolumnaEncriptado
 
     EXEC level2.prepararEncriptado
 	go
-
---HASTA ACA. ¡¡Comentar el EXEC level2.prepararEncriptado!!!
-
-
+--HASTA ACA. ¡¡Comentar el EXEC level2.prepararEncriptado y level2.agregarcolumnaEncriptado!!!
 -----------------------<CREACION DE ROLES Y USUARIOS>---------------------------------
 	
 ------------------------------------------------
