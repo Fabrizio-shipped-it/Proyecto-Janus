@@ -32,3 +32,9 @@ El **Proyecto Janus** incluye un **DER** con el diseño del proyecto, además de
 
 ¡Gracias por elegirnos!  
 **- Proyecto Janus**
+
+
+############### COLABORADORES ###############
+
+- [@Santiago935] (https://github.com/Santiago935)
+- [@Celeste-mctm] (https://github.com/Celeste-mctm)
